@@ -9,12 +9,16 @@
 namespace Dexode
 {
 
+template<typename T>
+struct notifier_traits
+{
+	typedef T type;
+};
+
 class Notifier
 {
 public:
-	Notifier()
-	{
-	}
+	Notifier() = default;
 
 	virtual ~Notifier()
 	{
@@ -38,10 +42,31 @@ public:
 		return globalNotifier;
 	}
 
+	/**
+	 * Register listener for notification. Returns token used to unregister
+	 *
+	 * @param notification - pass notification like "getNotificationXYZ()"
+	 * @param callback - your callback to handle notification
+	 * @return token used to unregister
+	 */
+	template<typename ... Args>
+	int listen(const Notification<Args...>& notification
+			, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
+	{
+		const int token = ++_tokener;
+		listen(token, notification, callback);
+		return token;
+	}
+
+	/**
+	 * @param token - unique token for identification receiver. Simply pass token from @see Notifier::listen
+	 * @param notification - pass notification like "getNotificationXYZ()"
+	 * @param callback - your callback to handle notification
+	 */
 	template<typename ... Args>
 	void listen(const int token
-				, const Notification<Args...>& notification
-				, const std::function<void(Args...)>& callback)
+			, const Notification<Args...>& notification
+			, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
 	{
 		using CallbackType = std::function<void(Args...)>;
 
@@ -60,6 +85,9 @@ public:
 		pVector->container.emplace_back(std::make_pair(callback, token));
 	}
 
+	/**
+	 * @param token - token from Notifier::listen
+	 */
 	void unlistenAll(const int token)
 	{
 		for (auto&& element : _callbacks)
@@ -68,6 +96,10 @@ public:
 		}
 	}
 
+	/**
+	 * @param token - token from Notifier::listen
+	 * @param notification - notification you wan't to unlisten. @see Notiier::listen
+	 */
 	template<typename NotificationType, typename ... Args>
 	void unlisten(const int token, const NotificationType& notification)
 	{
@@ -103,9 +135,7 @@ public:
 		}
 	}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 private:
-
 	struct VectorInterface
 	{
 		virtual ~VectorInterface()
@@ -143,6 +173,7 @@ private:
 		}
 	};
 
+	int _tokener = 0;
 	std::map<int, VectorInterface*> _callbacks;
 };
 

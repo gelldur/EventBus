@@ -11,56 +11,53 @@ enum NotificationConst
 	UNUSED_TAG = 0
 };
 
-inline int getUniqueId()
+namespace _ //Hide from autocomplete
 {
-	static int id = NotificationConst::UNUSED_TAG + 1;
-	return ++id;
-}
+class _BaseNotification
+{
+public:
+	_BaseNotification()
+			: tag(++_idGenerator)
+	{
+	}
 
-inline int getToken()
-{
-	return getUniqueId();
-}
+	virtual ~_BaseNotification() = default;
+	_BaseNotification& operator=(const _BaseNotification&) = delete;
 
-template<typename Type>
-inline int getTokenForType()
-{
-	static int id_for_type = getUniqueId();
-	return id_for_type;
+	_BaseNotification& operator=(_BaseNotification&& notification)
+	{
+		tag = notification.tag;
+		return *this;
+	}
+
+	_BaseNotification(const _BaseNotification& notification)
+			: tag(notification.tag)
+	{
+	}
+
+	_BaseNotification(_BaseNotification&& notification)
+			: tag(notification.tag)
+	{
+	}
+
+	int tag = NotificationConst::UNUSED_TAG;
+private:
+	static int _idGenerator;
+};
 }
 
 template<typename ... Args>
-class Notification
+class Notification : public _::_BaseNotification
 {
 public:
 	using Callback = std::function<void(Args...)>;
 
 	//dummyInt used only for prevent creating unused notifications you should use MAKE_NOTIFICATION
 	Notification(int dummyInt)
-			: tag(getUniqueId())
 	{
 		assert(dummyInt == 691283);
 	}
 
-	Notification& operator=(const Notification&) = delete;
-
-	Notification& operator=(Notification&& notification)
-	{
-		tag = notification.tag;
-		return *this;
-	}
-
-	Notification(const Notification& notification)
-			: tag(notification.tag)
-	{
-	}
-
-	Notification(Notification&& notification)
-			: tag(notification.tag)
-	{
-	}
-
-	int tag = NotificationConst::UNUSED_TAG;
 };
 
 template<typename NotificationType>
