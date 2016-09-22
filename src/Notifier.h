@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <algorithm>
 
 namespace Dexode
 {
@@ -24,8 +25,10 @@ public:
 	{
 		for (auto&& it = _callbacks.begin(); it != _callbacks.end(); ++it)
 		{
+			assert(it->second);
 			delete it->second;
 		}
+		_callbacks.clear();
 	}
 
 	Notifier& operator=(const Notifier&) = delete;
@@ -153,6 +156,7 @@ private:
 
 		virtual ~VectorImpl()
 		{
+			removeAll();
 		}
 
 		virtual void removeAll() override
@@ -162,14 +166,16 @@ private:
 
 		virtual void remove(const int token) override
 		{
-			for (int i = container.size() - 1; i > -1; --i)
+			auto removeFrom = std::remove_if(container.begin(), container.end()
+											 , [token](const std::pair<Type, int>& element)
+					{
+						return element.second == token;
+					});
+			if (removeFrom == container.end())
 			{
-				if (container[i].second == token)
-				{
-					std::swap(container[i], container.back());
-					container.pop_back();
-				}
+				return;
 			}
+			container.erase(removeFrom, container.end());
 		}
 	};
 
