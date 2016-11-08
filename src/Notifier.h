@@ -123,7 +123,7 @@ public:
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 		assert(notification.tag > NotificationConst::UNUSED_TAG);
 
-		if (_callbacks[notification.tag] == nullptr)
+		if (_callbacks.find(notification.tag) == _callbacks.end())
 		{
 			return;
 		}
