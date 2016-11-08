@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <memory>
 #include <algorithm>
 
 namespace Dexode
@@ -19,31 +20,24 @@ struct notifier_traits
 class Notifier
 {
 public:
-	Notifier() = default;
-
-	virtual ~Notifier()
-	{
-		for (auto&& it = _callbacks.begin(); it != _callbacks.end(); ++it)
-		{
-			assert(it->second);
-			delete it->second;
-		}
-		_callbacks.clear();
-	}
-
-	Notifier& operator=(const Notifier&) = delete;
-
-	Notifier(const Notifier&) = delete;
-
-	Notifier& operator=(Notifier&&) = delete;
-
-	Notifier(Notifier&&) = delete;
-
 	static Notifier& getGlobal()
 	{
 		static Notifier globalNotifier;
 		return globalNotifier;
 	}
+
+	Notifier() = default;
+
+	virtual ~Notifier()
+	{
+		_callbacks.clear();
+	}
+
+	Notifier(const Notifier&) = delete;
+	Notifier(Notifier&&) = delete;
+
+	Notifier& operator=(Notifier&&) = delete;
+	Notifier& operator=(const Notifier&) = delete;
 
 	/**
 	 * Register listener for notification. Returns token used to unregister
@@ -72,19 +66,18 @@ public:
 			, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
 	{
 		using CallbackType = std::function<void(Args...)>;
+		using Vector = VectorImpl<CallbackType>;
 
 		//Check for valid object
 		assert(callback && "Please set it");
 
 		if (_callbacks[notification.tag] == nullptr)
 		{
-			auto pVector = new VectorImpl<CallbackType>();
-			pVector->container.reserve(4);
-
-			_callbacks[notification.tag] = pVector;
+			_callbacks[notification.tag] = std::unique_ptr<VectorInterface>(new Vector{});
 		}
 
-		auto pVector = static_cast<VectorImpl <CallbackType>*>(_callbacks[notification.tag]);
+		auto pVector = static_cast<Vector*>(_callbacks[notification.tag].get());
+		assert(pVector);
 		pVector->container.emplace_back(std::make_pair(callback, token));
 	}
 
@@ -107,13 +100,14 @@ public:
 	void unlisten(const int token, const NotificationType& notification)
 	{
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
+		using Vector = VectorImpl<CallbackType>;
 		assert(notification.tag > NotificationConst::UNUSED_TAG);
 
 		if (_callbacks[notification.tag] == nullptr)
 		{
 			return;
 		}
-		assert(dynamic_cast<VectorImpl <CallbackType>*>(_callbacks[notification.tag]) != nullptr);
+		assert(dynamic_cast<Vector*>(_callbacks[notification.tag].get()) != nullptr);
 		_callbacks[notification.tag]->remove(token);
 	}
 
@@ -121,6 +115,7 @@ public:
 	void notify(const NotificationType& notification, Args&& ... params)
 	{
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
+		using Vector = VectorImpl<CallbackType>;
 		assert(notification.tag > NotificationConst::UNUSED_TAG);
 
 		if (_callbacks.find(notification.tag) == _callbacks.end())
@@ -128,10 +123,10 @@ public:
 			return;
 		}
 
-		assert(dynamic_cast<VectorImpl <CallbackType>*>(_callbacks[notification.tag]) != nullptr);
+		assert(dynamic_cast<Vector*>(_callbacks[notification.tag].get()) != nullptr);
 
 		//Copy? TODO think about it Use 2 vectors?
-		auto pVector = static_cast<VectorImpl <CallbackType>*>(_callbacks[notification.tag]);
+		auto pVector = static_cast<Vector*>(_callbacks[notification.tag].get());
 		for (auto&& element : pVector->container)
 		{
 			element.first(std::forward<Args>(params)...);
@@ -141,9 +136,7 @@ public:
 private:
 	struct VectorInterface
 	{
-		virtual ~VectorInterface()
-		{
-		}
+		virtual ~VectorInterface() = default;
 
 		virtual void remove(const int token) = 0;
 		virtual void removeAll() = 0;
@@ -180,7 +173,7 @@ private:
 	};
 
 	int _tokener = 0;
-	std::map<int, VectorInterface*> _callbacks;
+	std::map<int, std::unique_ptr<VectorInterface>> _callbacks;
 };
 
 } /* namespace Dexode */
