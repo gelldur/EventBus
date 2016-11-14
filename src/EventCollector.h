@@ -11,13 +11,18 @@
 namespace Dexode
 {
 
-class EventContainer
+class EventCollector
 {
 public:
-	EventContainer(const std::shared_ptr<Notifier>& notifier);
-	EventContainer(Notifier& notifier = Notifier::getGlobal());
+	EventCollector(const std::shared_ptr<Notifier>& notifier);
+	EventCollector(Notifier& notifier = Notifier::getGlobal());
+	EventCollector(EventCollector const& other);
+	EventCollector(EventCollector&& other);
 
-	~EventContainer();
+	~EventCollector();
+
+	EventCollector& operator=(EventCollector const& other);
+	EventCollector& operator=(EventCollector&& other);
 
 	/**
 	 * Register listener for notification. Returns token used to unregister
@@ -29,6 +34,10 @@ public:
 	void listen(const Notification<Args...>& notification
 			, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
 	{
+		if (!callback)
+		{
+			return;//Skip such things
+		}
 		if (_token == 0)
 		{
 			_token = _notifier->listen(notification, callback);
