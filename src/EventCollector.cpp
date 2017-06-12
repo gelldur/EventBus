@@ -4,6 +4,15 @@
 
 #include "EventCollector.h"
 
+namespace
+{
+
+void null_deleter(Dexode::Notifier*)
+{
+}
+
+}
+
 namespace Dexode
 {
 
@@ -11,10 +20,6 @@ EventCollector::EventCollector(const std::shared_ptr<Notifier>& notifier)
 		: _notifier(notifier)
 {
 	assert(_notifier);
-}
-
-void null_deleter(Notifier*)
-{
 }
 
 //Maybe ugly but hey ;) Less code and simply i can :D
