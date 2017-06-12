@@ -32,7 +32,7 @@ public:
 	 */
 	template<typename ... Args>
 	void listen(const Notification<Args...>& notification
-			, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
+				, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
 	{
 		if (!callback)
 		{
