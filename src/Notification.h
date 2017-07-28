@@ -71,4 +71,4 @@ struct notification_traits<Notification<Args...>>
 
 }
 
-#define MAKE_NOTIFICATION(NAME, args...) inline const Dexode::Notification<args>& getNotification##NAME(){static const Dexode::Notification<args> variable(691283); return variable;}
+#define MAKE_NOTIFICATION(NAME, ...) inline const Dexode::Notification<__VA_ARGS__>& getNotification##NAME(){static const Dexode::Notification<__VA_ARGS__> variable(691283); return variable;}
