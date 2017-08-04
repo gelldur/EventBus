@@ -7,9 +7,9 @@ PROJECT(EventBus
 		)
 
 ADD_LIBRARY(EventBus
-		src/EventCollector.cpp src/EventCollector.h
-		src/Notification.cpp src/Notification.h
-		src/Notifier.h
+		src/eventbus/EventCollector.cpp src/eventbus/EventCollector.h
+		src/eventbus/Notification.cpp src/eventbus/Notification.h
+		src/eventbus/Notifier.h
 		)
 ADD_LIBRARY(Dexode::EventBus ALIAS EventBus)
 
