@@ -2,7 +2,7 @@
 // Created by Dawid Drozd aka Gelldur on 18/10/16.
 //
 
-#include "EventCollector.h"
+#include <eventbus/EventCollector.h>
 
 namespace
 {

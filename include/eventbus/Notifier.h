@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Notification.h"
-
-#include <vector>
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <memory>
-#include <algorithm>
+#include <vector>
+
+#include "Notification.h"
 
 namespace Dexode
 {
