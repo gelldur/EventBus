@@ -40,3 +40,7 @@ INSTALL(EXPORT EventBusConfig
 		NAMESPACE Dexode::
 		)
 EXPORT(TARGETS EventBus FILE EventBusConfig.cmake)
+
+
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(test/)
