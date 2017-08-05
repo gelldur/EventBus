@@ -44,3 +44,4 @@ EXPORT(TARGETS EventBus FILE EventBusConfig.cmake)
 
 ENABLE_TESTING()
 ADD_SUBDIRECTORY(test/)
+ADD_SUBDIRECTORY(performance/)
