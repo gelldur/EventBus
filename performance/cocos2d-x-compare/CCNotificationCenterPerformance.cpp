@@ -22,7 +22,7 @@ struct SampleObserver : public cocos2d::CCObject
 	}
 };
 
-void CCNotificationCenter_checkNListeners(benchmark::State& state, const int listenersCount)
+void checkNListeners(benchmark::State& state, const int listenersCount)
 {
 	using namespace cocos2d;
 	cocos2d::CCNotificationCenter bus;
@@ -46,29 +46,29 @@ void CCNotificationCenter_checkNListeners(benchmark::State& state, const int lis
 	CCPoolManager::sharedPoolManager()->purgePoolManager();
 }
 
-void CCNotificationCenter_checkSimpleNotification(benchmark::State& state)
+void checkSimpleNotification_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNListeners(state, 1);
+	checkNListeners(state, 1);
 }
 
-void CCNotificationCenter_check10Listeners(benchmark::State& state)
+void check10Listeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNListeners(state, 10);
+	checkNListeners(state, 10);
 }
 
-void CCNotificationCenter_check100Listeners(benchmark::State& state)
+void check100Listeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNListeners(state, 100);
+	checkNListeners(state, 100);
 }
 
-void CCNotificationCenter_check1kListeners(benchmark::State& state)
+void check1kListeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNListeners(state, 1000);
+	checkNListeners(state, 1000);
 }
 
-void CCNotificationCenter_checkNNotificationsForNListeners(benchmark::State& state
-														   , const int notificationsCount
-														   , const int listenersCount)
+void checkNNotificationsForNListeners(benchmark::State& state
+									  , const int notificationsCount
+									  , const int listenersCount)
 {
 	std::mt19937 generator(311281);
 	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
@@ -112,32 +112,57 @@ void CCNotificationCenter_checkNNotificationsForNListeners(benchmark::State& sta
 	CCPoolManager::sharedPoolManager()->purgePoolManager();
 }
 
-void CCNotificationCenter_check10NotificationsFor1kListeners(benchmark::State& state)
+void check10NotificationsFor1kListeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNNotificationsForNListeners(state, 10, 1000);
+	checkNNotificationsForNListeners(state, 10, 1000);
 }
 
-void CCNotificationCenter_check100NotificationsFor1kListeners(benchmark::State& state)
+void check100NotificationsFor1kListeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNNotificationsForNListeners(state, 100, 1000);
+	checkNNotificationsForNListeners(state, 100, 1000);
 }
 
-void CCNotificationCenter_check1kNotificationsFor1kListeners(benchmark::State& state)
+void check1kNotificationsFor1kListeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNNotificationsForNListeners(state, 1000, 1000);
+	checkNNotificationsForNListeners(state, 1000, 1000);
 }
 
-void CCNotificationCenter_check100NotificationsFor10kListeners(benchmark::State& state)
+void check100NotificationsFor10kListeners_CCNotificationCenter(benchmark::State& state)
 {
-	CCNotificationCenter_checkNNotificationsForNListeners(state, 100, 10000);
+	checkNNotificationsForNListeners(state, 100, 10000);
 }
 
-BENCHMARK(CCNotificationCenter_checkSimpleNotification);
-BENCHMARK(CCNotificationCenter_check10Listeners);
-BENCHMARK(CCNotificationCenter_check100Listeners);
-BENCHMARK(CCNotificationCenter_check1kListeners);
-BENCHMARK(CCNotificationCenter_check10NotificationsFor1kListeners);
-BENCHMARK(CCNotificationCenter_check100NotificationsFor1kListeners);
-BENCHMARK(CCNotificationCenter_check1kNotificationsFor1kListeners);
-BENCHMARK(CCNotificationCenter_check100NotificationsFor10kListeners);
+void checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter(benchmark::State& state)
+{
+	using namespace cocos2d;
+	cocos2d::CCNotificationCenter bus;
+	int sum = 0;
+	for (int i = 0; i < 10000; ++i)
+	{
+		auto observer = new SampleObserver{};
+		observer->autorelease();
+		observer->callback = [&](int value)
+		{
+			benchmark::DoNotOptimize(sum += value * 2);
+		};
+		bus.addObserver(observer, callfuncO_selector(SampleObserver::onCall), "sample", nullptr);
+	}
+	auto number = CCInteger::create(2);
+	while (state.KeepRunning())//Performance area!
+	{
+		bus.postNotification("unknown", number);
+	}
+	state.counters["sum"] = sum;
+	CCPoolManager::sharedPoolManager()->purgePoolManager();
+}
+
+BENCHMARK(checkSimpleNotification_CCNotificationCenter);
+BENCHMARK(check10Listeners_CCNotificationCenter);
+BENCHMARK(check100Listeners_CCNotificationCenter);
+BENCHMARK(check1kListeners_CCNotificationCenter);
+BENCHMARK(check10NotificationsFor1kListeners_CCNotificationCenter);
+BENCHMARK(check100NotificationsFor1kListeners_CCNotificationCenter);
+BENCHMARK(check1kNotificationsFor1kListeners_CCNotificationCenter);
+BENCHMARK(check100NotificationsFor10kListeners_CCNotificationCenter);
+BENCHMARK(checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter);
 }

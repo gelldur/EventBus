@@ -9,7 +9,9 @@ PROJECT(EventBus
 ADD_LIBRARY(EventBus
 		src/eventbus/EventCollector.cpp include/eventbus/EventCollector.h
 		src/eventbus/Notification.cpp include/eventbus/Notification.h
+		include/eventbus/Notification2.h
 		include/eventbus/Notifier.h
+		include/eventbus/EventBus.h
 		)
 ADD_LIBRARY(Dexode::EventBus ALIAS EventBus)
 
@@ -20,8 +22,12 @@ TARGET_INCLUDE_DIRECTORIES(EventBus PUBLIC
 		)
 
 TARGET_COMPILE_OPTIONS(EventBus
-		PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++14>
-		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor -Werror
+		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor #-Werror
+		)
+
+SET_TARGET_PROPERTIES(EventBus PROPERTIES
+		CXX_STANDARD 14
+		CXX_STANDARD_REQUIRED YES
 		)
 
 TARGET_COMPILE_FEATURES(EventBus
