@@ -40,44 +40,37 @@ git apply ../CCNotificationCenterPerformance.patch
 
 ```
 Run on (8 X 3600 MHz CPU s)
-2017-08-06 00:09:43
------------------------------------------------------------------------------------------------------------------------
-Benchmark                                                                Time           CPU Iterations UserCounters...
------------------------------------------------------------------------------------------------------------------------
-check100Listeners                                                      234 ns        234 ns    3006299 sum=1.11993G
-check100Listeners_EventBus2                                            216 ns        216 ns    3238994 sum=1.20662G
-check100Listeners_CCNotificationCenter                                1353 ns       1353 ns     535779 sum=204.383M
------------------------------------------------------------------------------------------------------------------------
-check100NotificationsFor10kListeners                                   315 ns        315 ns    2208261 sum=370.782M
-check100NotificationsFor10kListeners_EventBus2                         307 ns        307 ns    2288071 sum=1122.83M
-check100NotificationsFor10kListeners_CCNotificationCenter           109629 ns     109620 ns       6493 sum=61.1035M
------------------------------------------------------------------------------------------------------------------------
-check100NotificationsFor1kListeners                                    108 ns        108 ns    6351160 sum=1.85786G
-check100NotificationsFor1kListeners_EventBus2                          102 ns        102 ns    6985920 sum=-1.55558G
-check100NotificationsFor1kListeners_CCNotificationCenter              9684 ns       9683 ns      67812 sum=64.3065M
------------------------------------------------------------------------------------------------------------------------
-check10Listeners                                                        22 ns         22 ns   32136715 sum=1.19719G
-check10Listeners_EventBus2                                              21 ns         21 ns   32519065 sum=1.21143G
-check10Listeners_CCNotificationCenter                                  264 ns        264 ns    2572170 sum=98.1205M
------------------------------------------------------------------------------------------------------------------------
-check10NotificationsFor1kListeners                                     273 ns        273 ns    2609987 sum=-1.81219G
-check10NotificationsFor1kListeners_EventBus2                           267 ns        267 ns    2652159 sum=-1.77676G
-check10NotificationsFor1kListeners_CCNotificationCenter              11172 ns      11171 ns      62865 sum=54.023M
------------------------------------------------------------------------------------------------------------------------
-check1kListeners                                                      2158 ns       2158 ns     317734 sum=1.18365G
-check1kListeners_EventBus2                                            2168 ns       2168 ns     326126 sum=1.21491G
-check1kListeners_CCNotificationCenter                                12919 ns      12918 ns      54781 sum=208.973M
------------------------------------------------------------------------------------------------------------------------
-check1kNotificationsFor1kListeners                                     129 ns        129 ns    5459854 sum=1108.69M
-check1kNotificationsFor1kListeners_EventBus2                           103 ns        103 ns    6867175 sum=-1.60612G
-check1kNotificationsFor1kListeners_CCNotificationCenter               9711 ns       9710 ns      67611 sum=64.9171M
------------------------------------------------------------------------------------------------------------------------
-checkNotifyFor10kListenersWhenNoOneListens                               2 ns          2 ns  399367972 sum=0
-checkNotifyFor10kListenersWhenNoOneListens_EventBus2                     2 ns          2 ns  400616370 sum=0
-checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     125173 ns     125162 ns       5657 sum=0
------------------------------------------------------------------------------------------------------------------------
-checkSimpleNotification                                                  7 ns          7 ns  100833112 sum=384.648M
-checkSimpleNotification_EventBus2                                        5 ns          5 ns  144959897 sum=552.978M
-checkSimpleNotification_CCNotificationCenter                           172 ns        172 ns    4179021 sum=15.9417M
+2017-08-06 17:03:13
+------------------------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                Time           CPU Iterations UserCounters		Faster
+------------------------------------------------------------------------------------------------------------------------------------------
+call1kLambdas_compare                                                 2125 ns       2124 ns     319355 sum=1.18969G		Compare with check1kListeners overhead is super small
+------------------------------------------------------------------------------------------------------------------------------------------
+checkSimpleNotification                                                  5 ns          5 ns  147012577 sum=560.808M		x 34.4
+checkSimpleNotification_CCNotificationCenter                           172 ns        172 ns    4193935 sum=15.9986M
+------------------------------------------------------------------------------------------------------------------------------------------
+check10Listeners                                                        23 ns         23 ns   30960962 sum=1.15339G		x 13.2
+check10Listeners_CCNotificationCenter                                  305 ns        305 ns    2208720 sum=84.256M
+------------------------------------------------------------------------------------------------------------------------------------------
+check100Listeners                                                      210 ns        209 ns    3373926 sum=1.25689G		x 8.4
+check100Listeners_CCNotificationCenter                                1758 ns       1758 ns     398100 sum=151.863M
+------------------------------------------------------------------------------------------------------------------------------------------
+check1kListeners                                                      2170 ns       2170 ns     326478 sum=1.21623G		x 7.8
+check1kListeners_CCNotificationCenter                                17001 ns      16999 ns      41548 sum=158.493M
+------------------------------------------------------------------------------------------------------------------------------------------
+check10NotificationsFor1kListeners                                     267 ns        267 ns    2632700 sum=-1.79305G		x 52.3
+check10NotificationsFor1kListeners_CCNotificationCenter              13987 ns      13986 ns      51560 sum=44.2743M
+------------------------------------------------------------------------------------------------------------------------------------------
+check100NotificationsFor1kListeners                                    101 ns        101 ns    7100579 sum=-1.44982G		x 120
+check100NotificationsFor1kListeners_CCNotificationCenter             12128 ns      12127 ns      54017 sum=51.181M
+------------------------------------------------------------------------------------------------------------------------------------------
+check1kNotificationsFor1kListeners                                     102 ns        102 ns    6714698 sum=-1.74812G		x 117
+check1kNotificationsFor1kListeners_CCNotificationCenter              11940 ns      11939 ns      57722 sum=55.2338M
+------------------------------------------------------------------------------------------------------------------------------------------
+check100NotificationsFor10kListeners                                   305 ns        305 ns    2301484 sum=1.21936G		x 420
+check100NotificationsFor10kListeners_CCNotificationCenter           128244 ns     128233 ns       5297 sum=49.5221M
+------------------------------------------------------------------------------------------------------------------------------------------
+checkNotifyFor10kListenersWhenNoOneListens                               2 ns          2 ns  392590976 sum=0			x 63694 ;)
+checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns     127378 ns       5460 sum=0
 ```
 So comparing to CCNotificationCenter, EventBus is something like ~10x FASTER especially when we have more unique notifications.
