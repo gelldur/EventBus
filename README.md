@@ -14,13 +14,13 @@ from [cocos2d-x](https://github.com/cocos2d/cocos2d-x) library. Of course C++11 
 EventBus is:
 - Fast
 - Easy to use
-- Strong typed
+- Strongly typed
 - Free
 - Decouples notification senders and receivers
 
 # Usage
 
-Notify by Event object
+Notify by Event object:
 ```cpp
 Dexode::EventBus bus;
 Dexode::Event<int> simpleEvent{"simple"};
@@ -28,14 +28,14 @@ Dexode::Event<int> simpleEvent{"simple"};
 bus.notify(simpleEvent, 2);//Everyone who listens will receive this notification.
 ```
 
-Notify without Event object
+Notify without Event object:
 ```cpp
 Dexode::EventBus bus;
 //...
 bus.notify<int>("simple", 2);//Everyone who listens will receive this notification.
 ```
 
-Lambda listener
+Lambda listener:
 ```cpp
 Dexode::EventBus bus;
 //...
@@ -47,7 +47,7 @@ bus.unlistenAll(token);
 ```
 
 Listener is identified by `token`. Token is returned from EventBus::listen methods.
-We can register multiple listeners on one token.
+We can register multiple listeners on one token:
 ```cpp
 Dexode::EventBus bus;
 Dexode::Event<int> event{"simple"};
@@ -64,7 +64,7 @@ bus.unlistenAll(token);//Now those two lambdas will be removed from listeners
 ``` 
 
 If you don't want handle manually with `token` you can use `EventCollector` class.
-It is useful when we want have multiple listen in one class. So above example could look like this:
+It is useful when we want to have multiple listen in one class. So above example could look like this:
 
 ```cpp
 Dexode::EventBus bus;
@@ -82,6 +82,7 @@ collector.listen(event, [](int value) // another listener
 collector.unlistenAll();//Now those two lambdas will be removed from listeners
 ```
 
+Or as component of class:
 ```cpp
 class Example
 {
@@ -131,7 +132,7 @@ SET_TARGET_PROPERTIES(MyExecutable PROPERTIES
 TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 ```
 
-Also if you want you can install library and add it any other way you want.
+Also if you want you can install library and add it at any way you want.
 
 
 # Performance
@@ -148,6 +149,7 @@ check10NotificationsFor1kListeners_CCNotificationCenter              11172 ns   
 
 - [stanislawkabacinski](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
 - [kuhar](https://github.com/kuhar) for his advice and suggestions for EventBus
+- [swietlana](https://github.com/swietlana) for english correction and support ;)
 - [ruslo](https://github.com/ruslo) for this great example: https://github.com/forexample/package-example
 
 # License
