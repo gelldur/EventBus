@@ -9,8 +9,8 @@
 
 #include "Event.h"
 
-#if __cplusplus < 201402L
-	#error This library needs at least a C++14 compliant compiler
+#if __cplusplus < 201103L
+	#error This library needs at least a C++11 compliant compiler
 #endif
 
 namespace Dexode
