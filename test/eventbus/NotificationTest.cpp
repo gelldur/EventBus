@@ -3,49 +3,49 @@
 //
 
 #include <catch.hpp>
-#include <eventbus/Notification2.h>
+#include <eventbus/Event.h>
 
-TEST_CASE("eventbus/Notification same", "Notifications should be same")
+TEST_CASE("eventbus/Event same", "Notifications should be same")
 {
 	{
-		Dexode::Notification2<int> one("one");
-		Dexode::Notification2<int> two("one");
+		Dexode::Event<int> one("one");
+		Dexode::Event<int> two("one");
 		REQUIRE(one == two);
 	}
 	{
-		Dexode::Notification2<int> one("one");
-		Dexode::Notification2<signed> two("one");
+		Dexode::Event<int> one("one");
+		Dexode::Event<signed> two("one");
 		REQUIRE(one == two);//int == signed
 	}
 }
 
-TEST_CASE("eventbus/Notification not same", "Notifications should different")
+TEST_CASE("eventbus/Event not same", "Notifications should different")
 {
 	{
-		Dexode::Notification2<int> one("one");
-		Dexode::Notification2<int> two("two");
+		Dexode::Event<int> one("one");
+		Dexode::Event<int> two("two");
 		REQUIRE(one != two);
 	}
 	{
-		Dexode::Notification2<int> one("one");
-		Dexode::Notification2<int&> two("two");
+		Dexode::Event<int> one("one");
+		Dexode::Event<int&> two("two");
 		//REQUIRE(one != two); //Different types!
 	}
 	{
-		Dexode::Notification2<unsigned> one("one");
-		Dexode::Notification2<signed> two("one");
+		Dexode::Event<unsigned> one("one");
+		Dexode::Event<signed> two("one");
 		//REQUIRE(one != two); //Different types!
 	}
 	{
-		Dexode::Notification2<int, int> one("one");
-		Dexode::Notification2<int, unsigned> two("one");
+		Dexode::Event<int, int> one("one");
+		Dexode::Event<int, unsigned> two("one");
 		//REQUIRE(one != two); //Different types!
 	}
 }
 
-TEST_CASE("eventbus/Notification should copy constructable", "Notifications should be copy constructable")
+TEST_CASE("eventbus/Event should copy constructable", "Notifications should be copy constructable")
 {
-	Dexode::Notification2<int> one("one");
-	Dexode::Notification2<int> two = one;
+	Dexode::Event<int> one("one");
+	Dexode::Event<int> two = one;
 	REQUIRE(one == two);
 }

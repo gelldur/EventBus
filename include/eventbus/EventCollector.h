@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "Notifier.h"
+#include "EventBus.h"
 
 namespace Dexode
 {
@@ -14,8 +14,8 @@ namespace Dexode
 class EventCollector
 {
 public:
-	EventCollector(const std::shared_ptr<Notifier>& notifier);
-	EventCollector(Notifier& notifier = Notifier::getGlobal());
+	EventCollector(const std::shared_ptr<EventBus>& notifier);
+	EventCollector(EventBus* notifier);
 	EventCollector(EventCollector const& other);
 	EventCollector(EventCollector&& other);
 
@@ -25,16 +25,16 @@ public:
 	EventCollector& operator=(EventCollector&& other);
 
 	/**
-	 * Register listener for notification. Returns token used to unregister
+	 * Register listener for notification.
 	 *
 	 * @param notification - pass notification like "getNotificationXYZ()"
 	 * @param callback - your callback to handle notification
 	 */
 	template<typename ... Args>
-	void listen(const Notification<Args...>& notification
-				, typename notifier_traits<const std::function<void(Args...)>&>::type callback)
+	void listen(const Event<Args...>& notification
+				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
-		if (!callback)
+		if (!callback || !_notifier)
 		{
 			return;//Skip such things
 		}
@@ -48,6 +48,20 @@ public:
 		}
 	}
 
+	/**
+	 * Register listener for notification. Returns token used for unlisten
+	 *
+	 * @param notification - name of your notification
+	 * @param callback - your callback to handle notification
+	 * @return token used for unlisten
+	 */
+	template<typename ... Args>
+	void listen(const std::string& notificationName
+				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
+	{
+		listen(Dexode::Event<Args...>{notificationName}, callback);
+	}
+
 	void unlistenAll();
 
 	/**
@@ -56,12 +70,15 @@ public:
 	template<typename NotificationType, typename ... Args>
 	void unlisten(const NotificationType& notification)
 	{
-		_notifier->unlisten(_token, notification);
+		if (_notifier)
+		{
+			_notifier->unlisten(_token, notification);
+		}
 	}
 
 private:
 	int _token = 0;
-	std::shared_ptr<Notifier> _notifier;
+	std::shared_ptr<EventBus> _notifier;
 };
 
 }

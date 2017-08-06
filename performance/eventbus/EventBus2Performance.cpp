@@ -16,7 +16,7 @@ void checkNListeners(benchmark::State& state, const int listenersCount)
 	Dexode::EventBus bus;
 	int sum = 0;
 
-	Dexode::Notification2<int> simpleNotification("simple");
+	Dexode::Event<int> simpleNotification("simple");
 	for (int i = 0; i < listenersCount; ++i)
 	{
 		bus.listen(simpleNotification, [&](int value)
@@ -82,7 +82,7 @@ void checkNNotificationsForNListeners(benchmark::State& state, const int notific
 	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
 
 	//We generate here N different notifications
-	std::vector<Dexode::Notification2<int>> notifications;
+	std::vector<Dexode::Event<int>> notifications;
 	notifications.reserve(notificationsCount);
 	for (int i = 0; i < notificationsCount; ++i)
 	{
@@ -132,8 +132,8 @@ void check100NotificationsFor10kListeners_EventBus2(benchmark::State& state)
 void checkNotifyFor10kListenersWhenNoOneListens_EventBus2(benchmark::State& state)
 {
 	Dexode::EventBus bus;
-	Dexode::Notification2<int> simpleNotification("simple");
-	Dexode::Notification2<int> unknownNotification("unknown");
+	Dexode::Event<int> simpleNotification("simple");
+	Dexode::Event<int> unknownNotification("unknown");
 	int sum = 0;
 	for (int i = 0; i < 10000; ++i)
 	{

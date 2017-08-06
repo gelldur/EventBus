@@ -4,10 +4,12 @@
 
 #include <eventbus/EventCollector.h>
 
+#include <cassert>
+
 namespace
 {
 
-void null_deleter(Dexode::Notifier*)
+void null_deleter(Dexode::EventBus*)
 {
 }
 
@@ -16,17 +18,16 @@ void null_deleter(Dexode::Notifier*)
 namespace Dexode
 {
 
-EventCollector::EventCollector(const std::shared_ptr<Notifier>& notifier)
+EventCollector::EventCollector(const std::shared_ptr<EventBus>& notifier)
 		: _notifier(notifier)
 {
 	assert(_notifier);
 }
 
 //Maybe ugly but hey ;) Less code and simply i can :D
-EventCollector::EventCollector(Notifier& notifier)
-		: _notifier(&notifier, &null_deleter)
+EventCollector::EventCollector(EventBus* notifier)
+		: _notifier(notifier, &null_deleter)
 {
-	assert(_notifier);
 }
 
 EventCollector::EventCollector(EventCollector const& other)
@@ -79,7 +80,7 @@ EventCollector& EventCollector::operator=(EventCollector&& other)
 
 void EventCollector::unlistenAll()
 {
-	if (_token != 0)
+	if (_token != 0 && _notifier)
 	{
 		_notifier->unlistenAll(_token);
 	}

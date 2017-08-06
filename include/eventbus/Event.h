@@ -7,32 +7,32 @@ namespace Dexode
 {
 
 template<typename ... Args>
-class Notification2
+class Event
 {
 public:
 	using Callback = std::function<void(Args...)>;
 
-	constexpr explicit Notification2(const std::string& name)
+	constexpr explicit Event(const std::string& name)
 			: _key{std::hash<std::string>{}(name + typeid(Callback).name())}
 			, _name{name}
 	{
 	}
 
-	constexpr Notification2(const Notification2& other)
+	constexpr Event(const Event& other)
 			: _key{other._key}
 			, _name{other._name}
 	{
 	}
 
-	Notification2(Notification2&& other)
+	Event(Event&& other)
 			: _key{other._key}
 			, _name{other._name}
 	{
 	}
 
-	Notification2& operator=(Notification2&&) = delete;
+	Event& operator=(Event&&) = delete;
 
-	Notification2& operator=(const Notification2&) = delete;
+	Event& operator=(const Event&) = delete;
 
 	const size_t getKey() const
 	{
@@ -44,20 +44,20 @@ public:
 		return _name;
 	}
 
-	bool operator==(const Notification2& rhs) const
+	bool operator==(const Event& rhs) const
 	{
 		return _key == rhs._key &&
 			   _name == rhs._name;
 	}
 
-	bool operator!=(const Notification2& rhs) const
+	bool operator!=(const Event& rhs) const
 	{
 		return !(rhs == *this);
 	}
 
-	friend std::ostream& operator<<(std::ostream& stream, const Notification2& notification)
+	friend std::ostream& operator<<(std::ostream& stream, const Event& notification)
 	{
-		stream << "Notification{name: " << notification._name << " key: " << notification._key;
+		stream << "Event{name: " << notification._name << " key: " << notification._key;
 		return stream;
 	}
 
@@ -66,11 +66,11 @@ private:
 	const std::string _name;
 };
 
-template<typename NotificationType>
-struct notification_traits;
+template<typename EventType>
+struct event_traits;
 
 template<typename ... Args>
-struct notification_traits<Notification2<Args...>>
+struct event_traits<Event<Args...>>
 {
 	using callback_type = typename std::function<void(Args...)>;
 };

@@ -10,7 +10,7 @@
 TEST_CASE("eventbus/Simple test", "Simple test")
 {
 	Dexode::EventBus bus;
-	Dexode::Notification2<int> simpleNotification{"simple"};
+	Dexode::Event<int> simpleNotification{"simple"};
 
 	const auto token = bus.listen(simpleNotification, [](int value)
 	{
@@ -31,8 +31,8 @@ TEST_CASE("eventbus/Simple test", "Simple test")
 TEST_CASE("eventbus/Multiple listen on same token", "Listening on the same token")
 {
 	Dexode::EventBus bus;
-	Dexode::Notification2<int> simpleNotification{"simple"};
-	Dexode::Notification2<int&> simpleRefNotification{"simple"};
+	Dexode::Event<int> simpleNotification{"simple"};
+	Dexode::Event<int&> simpleRefNotification{"simple"};
 	const auto token = bus.listen(simpleRefNotification, [](int& value)
 	{
 		REQUIRE(value == 3);
@@ -63,7 +63,7 @@ TEST_CASE("eventbus/EventBus listen", "Listen without notification object. Using
 		REQUIRE(value == 3);
 	});
 
-	Dexode::Notification2<int> simpleNotification{"simple"};
+	Dexode::Event<int> simpleNotification{"simple"};
 	REQUIRE(isCalled == 0);
 	bus.notify(simpleNotification, 3);
 	REQUIRE(isCalled == 1);
@@ -103,4 +103,45 @@ TEST_CASE("eventbus/EventBus listen & notify", "Listen & notify without notifica
 	});
 	bus.notify<int>("simple", 1);
 	REQUIRE(isCalled == 2);
+}
+
+TEST_CASE("eventbus/EventBus type conversion", "Check for type conversion")
+{
+	class Example
+	{
+	public:
+		Example(Dexode::EventBus& bus)
+		{
+			Dexode::Event<int> event{"event1"};
+			_token = bus.listen(event, std::bind(&Example::onEvent1, this, std::placeholders::_1));
+			bus.listen(_token, event, std::bind(&Example::onEvent2, this, std::placeholders::_1));
+		}
+
+		int calledEvent1 = 0;
+
+		void onEvent1(int value)
+		{
+			++calledEvent1;
+		}
+
+		int calledEvent2 = 0;
+
+		void onEvent2(bool value)
+		{
+			++calledEvent2;
+		}
+
+	private:
+		int _token;
+	};
+
+	//EventCollector sample
+	Dexode::EventBus bus;
+	Example ex{bus};
+
+	REQUIRE(ex.calledEvent1 == 0);
+	REQUIRE(ex.calledEvent2 == 0);
+	bus.notify<int>("event1", 2);
+	REQUIRE(ex.calledEvent1 == 1);
+	REQUIRE(ex.calledEvent2 == 0);
 }

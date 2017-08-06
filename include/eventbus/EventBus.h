@@ -5,8 +5,9 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <cassert>
 
-#include "Notification2.h"
+#include "Event.h"
 
 #if __cplusplus < 201402L
 	#error This library needs at least a C++14 compliant compiler
@@ -15,16 +16,11 @@
 namespace Dexode
 {
 
-namespace
-{
-
 template<typename T>
 struct eventbus_traits
 {
 	typedef T type;
 };
-
-}
 
 class EventBus
 {
@@ -45,41 +41,41 @@ public:
 	/**
 	 * Register listener for notification. Returns token used for unlisten
 	 *
-	 * @param notification
+	 * @param event
 	 * @param callback - your callback to handle notification
 	 * @return token used for unlisten
 	 */
 	template<typename ... Args>
-	int listen(const Notification2<Args...>& notification
+	int listen(const Event<Args...>& event
 			   , typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
 		const int token = ++_tokener;
-		listen(token, notification, callback);
+		listen(token, event, callback);
 		return token;
 	}
 
 	/**
 	 * Register listener for notification. Returns token used for unlisten
 	 *
-	 * @param notification - name of your notification
+	 * @param eventName - name of your event
 	 * @param callback - your callback to handle notification
 	 * @return token used for unlisten
 	 */
 	template<typename ... Args>
-	int listen(const std::string& notificationName
+	int listen(const std::string& eventName
 			   , typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
-		return listen(Dexode::Notification2<Args...>{notificationName}, callback);
+		return listen(Dexode::Event<Args...>{eventName}, callback);
 	}
 
 	/**
 	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
-	 * @param notification - pass notification like "getNotificationXYZ()"
+	 * @param event - pass notification like "getNotificationXYZ()"
 	 * @param callback - your callback to handle notification
 	 */
 	template<typename ... Args>
 	void listen(const int token
-				, const Notification2<Args...>& notification
+				, const Event<Args...>& event
 				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
 		using CallbackType = std::function<void(Args...)>;
@@ -87,7 +83,7 @@ public:
 
 		assert(callback && "Please set it");//Check for valid object
 
-		std::unique_ptr<VectorInterface>& vector = _callbacks[notification.getKey()];
+		std::unique_ptr<VectorInterface>& vector = _callbacks[event.getKey()];
 		if (vector == nullptr)
 		{
 			vector.reset(new Vector{});
@@ -111,25 +107,25 @@ public:
 
 	/**
 	 * @param token - token from EventBus::listen
-	 * @param notification - notification you wan't to unlisten. @see Notiier::listen
+	 * @param event - notification you wan't to unlisten. @see Notiier::listen
 	 */
-	template<typename NotificationType, typename ... Args>
-	void unlisten(const int token, const NotificationType& notification)
+	template<typename EventType, typename ... Args>
+	void unlisten(const int token, const EventType& event)
 	{
-		auto found = _callbacks.find(notification.getKey());
+		auto found = _callbacks.find(event.getKey());
 		if (found != _callbacks.end())
 		{
 			found.second->remove(token);
 		}
 	}
 
-	template<typename NotificationType, typename ... Args>
-	void notify(const NotificationType& notification, Args&& ... params)
+	template<typename EventType, typename ... Args>
+	void notify(const EventType& event, Args&& ... params)
 	{
-		using CallbackType = typename notification_traits<NotificationType>::callback_type;
+		using CallbackType = typename event_traits<EventType>::callback_type;
 		using Vector = VectorImpl<CallbackType>;
 
-		auto found = _callbacks.find(notification.getKey());
+		auto found = _callbacks.find(event.getKey());
 		if (found == _callbacks.end())
 		{
 			return;// no such notifications
@@ -148,12 +144,12 @@ public:
 
 	// We need to call this in form like: notify<int>("yes",value)
 	// We can't reduce it to notify("yes",value)
-	// It wouldn't be obvious which to call Notification<int> or Notification<int&>
+	// It wouldn't be obvious which to call Event<int> or Event<int&>
 	// So it can take to a lot of mistakes
 	template<typename ... Args>
-	void notify(const std::string& notificationName, Args&& ... params)
+	void notify(const std::string& eventName, Args&& ... params)
 	{
-		notify(Dexode::Notification2<Args...>{notificationName}, std::forward<Args>(params)...);
+		notify(Dexode::Event<Args...>{eventName}, std::forward<Args>(params)...);
 	}
 
 private:

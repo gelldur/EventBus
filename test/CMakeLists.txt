@@ -4,7 +4,9 @@
 ADD_EXECUTABLE(EventBusTest
 		eventbus/EventCollectorTest.cpp
 		eventbus/NotifierTest.cpp
-		eventbus/NotificationTest.cpp)
+		eventbus/NotificationTest.cpp
+		eventbus/sample.cpp
+		)
 
 SET_TARGET_PROPERTIES(EventBusTest PROPERTIES
 		CXX_STANDARD 14

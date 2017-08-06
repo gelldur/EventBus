@@ -74,7 +74,7 @@ check1kNotificationsFor1kListeners_CCNotificationCenter               9711 ns   
 -----------------------------------------------------------------------------------------------------------------------
 checkNotifyFor10kListenersWhenNoOneListens                               2 ns          2 ns  399367972 sum=0
 checkNotifyFor10kListenersWhenNoOneListens_EventBus2                     2 ns          2 ns  400616370 sum=0
-checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     125173 ns     125162 ns       5657 sum=0```
+checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     125173 ns     125162 ns       5657 sum=0
 -----------------------------------------------------------------------------------------------------------------------
 checkSimpleNotification                                                  7 ns          7 ns  100833112 sum=384.648M
 checkSimpleNotification_EventBus2                                        5 ns          5 ns  144959897 sum=552.978M

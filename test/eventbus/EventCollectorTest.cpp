@@ -6,65 +6,57 @@
 
 #include <eventbus/EventCollector.h>
 
-namespace
-{
-
-MAKE_NOTIFICATION(SimpleNotification, int);
-
-MAKE_NOTIFICATION(RefNotification, int &);
-
-}
-
 TEST_CASE("eventbus/EventCollector sample", "Simple test for EventCollector")
 {
-	Dexode::Notifier bus;
+	Dexode::EventBus bus;
 	int callCount = 0;
 	{
-		Dexode::EventCollector listener{bus};
-		listener.listen(getNotificationSimpleNotification(), [&](int value)
+		Dexode::EventCollector listener{&bus};
+		listener.listen<int>("simple", [&](int value)
 		{
 			REQUIRE(value == 3);
 			++callCount;
 		});
-		bus.notify(getNotificationSimpleNotification(), 3);
+		bus.notify<int>("simple", 3);
 		REQUIRE(callCount == 1);
 	}
-	bus.notify(getNotificationSimpleNotification(), 2);
+	bus.notify<int>("simple", 2);
 	REQUIRE(callCount == 1);
 }
 
 TEST_CASE("eventbus/EventCollector unlistenAll", "EventCollector::unlistenAll")
 {
-	Dexode::Notifier bus;
-	Dexode::EventCollector listener{bus};
+	Dexode::EventBus bus;
+	Dexode::EventCollector listener{&bus};
 
 	int callCount = 0;
-	listener.listen(getNotificationSimpleNotification(), [&](int value)
+	listener.listen<int>("simple", [&](int value)
 	{
 		REQUIRE(value == 3);
 		++callCount;
 	});
-	bus.notify(getNotificationSimpleNotification(), 3);
+	bus.notify<int>("simple", 3);
 	listener.unlistenAll();
 
-	bus.notify(getNotificationSimpleNotification(), 2);
+	bus.notify<int>("simple", 2);
 	REQUIRE(callCount == 1);
 }
 
 TEST_CASE("eventbus/EventCollector reset", "EventCollector reset when we reasign")
 {
-	Dexode::Notifier bus;
+	Dexode::EventBus bus;
 	int callCount = 0;
-	Dexode::EventCollector listener{bus};
-	listener.listen(getNotificationSimpleNotification(), [&](int value)
+	Dexode::EventCollector listener{&bus};
+	Dexode::Event<int> simple{"simple"};
+	listener.listen(simple, [&](int value)
 	{
 		REQUIRE(value == 3);
 		++callCount;
 	});
-	bus.notify(getNotificationSimpleNotification(), 3);
+	bus.notify(simple, 3);
 	REQUIRE(callCount == 1);
-	listener = {};
+	listener = {nullptr};
 
-	bus.notify(getNotificationSimpleNotification(), 2);
+	bus.notify(simple, 2);
 	REQUIRE(callCount == 1);
 }
