@@ -5,7 +5,6 @@ ADD_EXECUTABLE(EventBusTest
 		eventbus/EventCollectorTest.cpp
 		eventbus/NotifierTest.cpp
 		eventbus/NotificationTest.cpp
-		eventbus/sample.cpp
 		)
 
 SET_TARGET_PROPERTIES(EventBusTest PROPERTIES
@@ -14,7 +13,8 @@ SET_TARGET_PROPERTIES(EventBusTest PROPERTIES
 		)
 
 TARGET_COMPILE_OPTIONS(EventBusTest
-		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor #-Werror
+		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor -Wno-gnu
+		-Werror
 		)
 
 TARGET_INCLUDE_DIRECTORIES(EventBusTest PRIVATE Catch/single_include/)

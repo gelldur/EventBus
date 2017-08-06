@@ -13,7 +13,8 @@ ADD_EXECUTABLE(EventBusPerformance
 		)
 
 TARGET_COMPILE_OPTIONS(EventBusPerformance
-		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor #-Werror
+		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor
+		-Werror
 		)
 
 SET_TARGET_PROPERTIES(EventBusPerformance PROPERTIES

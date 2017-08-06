@@ -20,12 +20,12 @@ TARGET_INCLUDE_DIRECTORIES(EventBus PUBLIC
 		)
 
 TARGET_COMPILE_OPTIONS(EventBus
-		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor #-Werror
+		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor -Wno-gnu
+		-Werror
 		)
 
 SET_TARGET_PROPERTIES(EventBus PROPERTIES
 		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED YES
 		)
 
 TARGET_COMPILE_FEATURES(EventBus
