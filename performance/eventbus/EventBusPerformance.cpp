@@ -4,20 +4,20 @@
 #include <random>
 
 #include <benchmark/benchmark.h>
-#include <eventbus/Notifier.h>
+#include <eventbus/EventBus.h>
 
 namespace
 {
 
-MAKE_NOTIFICATION(SimpleNotification, int);
-
 void checkNListeners(benchmark::State& state, const int listenersCount)
 {
-	Dexode::Notifier bus;
+	Dexode::EventBus bus;
 	int sum = 0;
+
+	Dexode::Event<int> simple{"simple"};
 	for (int i = 0; i < listenersCount; ++i)
 	{
-		bus.listen(getNotificationSimpleNotification(), [&](int value)
+		bus.listen(simple, [&](int value)
 		{
 			benchmark::DoNotOptimize(sum += value * 2);
 		});
@@ -25,7 +25,7 @@ void checkNListeners(benchmark::State& state, const int listenersCount)
 
 	while (state.KeepRunning())//Performance area!
 	{
-		bus.notify(getNotificationSimpleNotification(), 2);
+		bus.notify(simple, 2);
 	}
 	state.counters["sum"] = sum;
 }
@@ -80,14 +80,14 @@ void checkNNotificationsForNListeners(benchmark::State& state, const int notific
 	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
 
 	//We generate here N different notifications
-	std::vector<Dexode::Notification<int>> notifications;
+	std::vector<Dexode::Event<int>> notifications;
 	notifications.reserve(notificationsCount);
 	for (int i = 0; i < notificationsCount; ++i)
 	{
-		notifications.emplace_back(691283);
+		notifications.emplace_back(std::string{"event_"} + std::to_string(i));
 	}
 
-	Dexode::Notifier bus;
+	Dexode::EventBus bus;
 	int sum = 0;
 	for (int i = 0; i < listenersCount; ++i)//We register M listeners for N notifications using uniform distribution
 	{
@@ -127,15 +127,15 @@ void check100NotificationsFor10kListeners(benchmark::State& state)
 	checkNNotificationsForNListeners(state, 100, 10000);
 }
 
-MAKE_NOTIFICATION(UnknownNotification, int);
-
 void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 {
-	Dexode::Notifier bus;
+	Dexode::EventBus bus;
 	int sum = 0;
+	Dexode::Event<int> simple{"simple"};
+	Dexode::Event<int> unknown{"unknown"};
 	for (int i = 0; i < 10000; ++i)
 	{
-		bus.listen(getNotificationSimpleNotification(), [&](int value)
+		bus.listen(simple, [&](int value)
 		{
 			benchmark::DoNotOptimize(sum += value * 2);
 		});
@@ -143,7 +143,7 @@ void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 
 	while (state.KeepRunning())//Performance area!
 	{
-		bus.notify(getNotificationUnknownNotification(), 2);
+		bus.notify(unknown, 2);
 	}
 	state.counters["sum"] = sum;
 }

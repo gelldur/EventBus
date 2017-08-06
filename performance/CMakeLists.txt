@@ -8,7 +8,6 @@ ADD_SUBDIRECTORY(benchmark/)
 
 ADD_EXECUTABLE(EventBusPerformance
 		eventbus/EventBusPerformance.cpp
-		eventbus/EventBus2Performance.cpp
 		${CCNOTIFICATION_CENTER_SRC}
 		)
 
