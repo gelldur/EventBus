@@ -28,7 +28,7 @@ So below all numbers are in release.
 
 This library as you can read in main README.md was inspired by [CCNotificationCenter](https://github.com/cocos2d/cocos2d-x/blob/v2/cocos2dx/support/CCNotificationCenter.h) from cocos2d-x game engine.  
 So I want to present comparision of performance of this two. Of course this is only showcase.  
-I don't want to add submodule of cocos2d-x so simply I run it only and present results. Cocos2d-x was also build as release. If you want to repeat it here are steps I followed:
+I don't want to add submodule of cocos2d-x so simply I run it only and present results. Cocos2d-x was also build as release. If you want to repeat it, here are steps I followed:
 ```commandline
 cd performance # From root of this project
 git clone -b v2 https://github.com/cocos2d/cocos2d-x.git #this can take some time :/ it need to download ~900 MB

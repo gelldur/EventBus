@@ -11,7 +11,7 @@ EventBus was created because I want something easy to use and faster than [CCNot
 from [cocos2d-x](https://github.com/cocos2d/cocos2d-x) library. Of course C++11 support was mandatory.
 
 
-EventBus is:
+EventBus main goals:
 - Fast
 - Easy to use
 - Strongly typed
@@ -63,8 +63,8 @@ bus.listen(token, event, [](int value) // another listener
 bus.unlistenAll(token);//Now those two lambdas will be removed from listeners
 ``` 
 
-If you don't want handle manually with `token` you can use `EventCollector` class.
-It is useful when we want to have multiple listen in one class. So above example could look like this:
+If you don't want to handle manually with `token` you can use `EventCollector` class.
+It is useful when we want to have multiple listeners in one class. So above example could look like this:
 
 ```cpp
 Dexode::EventBus bus;
