@@ -170,7 +170,10 @@ public:
 private:
 	struct VectorInterface
 	{
-		virtual ~VectorInterface() = default;
+		virtual ~VectorInterface()
+		{
+			removeAll();
+		}
 
 		virtual void remove(const int token) = 0;
 		virtual void removeAll() = 0;
@@ -180,11 +183,6 @@ private:
 	struct VectorImpl : public VectorInterface
 	{
 		std::vector<std::pair<Type, int>> container;
-
-		virtual ~VectorImpl()
-		{
-			removeAll();
-		}
 
 		virtual void removeAll() override
 		{
@@ -198,11 +196,10 @@ private:
 					{
 						return element.second == token;
 					});
-			if (removeFrom == container.end())
+			if (removeFrom != container.end())
 			{
-				return;
+				container.erase(removeFrom, container.end());
 			}
-			container.erase(removeFrom, container.end());
 		}
 	};
 
