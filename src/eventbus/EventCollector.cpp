@@ -18,26 +18,26 @@ void null_deleter(Dexode::EventBus*)
 namespace Dexode
 {
 
-EventCollector::EventCollector(const std::shared_ptr<EventBus>& notifier)
-		: _notifier(notifier)
+EventCollector::EventCollector(const std::shared_ptr<EventBus>& bus)
+		: _bus(bus)
 {
-	assert(_notifier);
+	assert(_bus);
 }
 
 //Maybe ugly but hey ;) Less code and simply i can :D
-EventCollector::EventCollector(EventBus* notifier)
-		: _notifier(notifier, &null_deleter)
+EventCollector::EventCollector(EventBus* bus)
+		: _bus(bus, &null_deleter)
 {
 }
 
 EventCollector::EventCollector(EventCollector const& other)
-		: _notifier(other._notifier)
+		: _bus(other._bus)
 {
 }
 
 EventCollector::EventCollector(EventCollector&& other)
 		: _token(other._token)
-		, _notifier(std::move(other._notifier))
+		, _bus(std::move(other._bus))
 {
 	other._token = 0;
 }
@@ -53,10 +53,10 @@ EventCollector& EventCollector::operator=(EventCollector const& other)
 	{
 		return *this;
 	}
-	if (other._notifier.get() != _notifier.get())
+	if (other._bus.get() != _bus.get())
 	{
 		unlistenAll();
-		_notifier = other._notifier;
+		_bus = other._bus;
 	}
 
 	return *this;
@@ -73,16 +73,16 @@ EventCollector& EventCollector::operator=(EventCollector&& other)
 
 	_token = other._token;
 	other._token = 0;
-	_notifier = std::move(other._notifier);
+	_bus = std::move(other._bus);
 
 	return *this;
 }
 
 void EventCollector::unlistenAll()
 {
-	if (_token != 0 && _notifier)
+	if (_token != 0 && _bus)
 	{
-		_notifier->unlistenAll(_token);
+		_bus->unlistenAll(_token);
 	}
 }
 

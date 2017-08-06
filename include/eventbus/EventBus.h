@@ -39,10 +39,10 @@ public:
 	EventBus& operator=(const EventBus&) = delete;
 
 	/**
-	 * Register listener for notification. Returns token used for unlisten
+	 * Register listener for event. Returns token used for unlisten.
 	 *
-	 * @param event
-	 * @param callback - your callback to handle notification
+	 * @param event - you want to listen for
+	 * @param callback - your callback to handle event
 	 * @return token used for unlisten
 	 */
 	template<typename ... Args>
@@ -55,10 +55,10 @@ public:
 	}
 
 	/**
-	 * Register listener for notification. Returns token used for unlisten
+	 * Register listener for event. Returns token used for unlisten.
 	 *
 	 * @param eventName - name of your event
-	 * @param callback - your callback to handle notification
+	 * @param callback - your callback to handle event
 	 * @return token used for unlisten
 	 */
 	template<typename ... Args>
@@ -70,8 +70,8 @@ public:
 
 	/**
 	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
-	 * @param event - pass notification like "getNotificationXYZ()"
-	 * @param callback - your callback to handle notification
+	 * @param event - you want to listen for
+	 * @param callback - your callback to handle event
 	 */
 	template<typename ... Args>
 	void listen(const int token
@@ -81,7 +81,7 @@ public:
 		using CallbackType = std::function<void(Args...)>;
 		using Vector = VectorImpl<CallbackType>;
 
-		assert(callback && "Please set it");//Check for valid object
+		assert(callback && "callback should be valid");//Check for valid object
 
 		std::unique_ptr<VectorInterface>& vector = _callbacks[event.getKey()];
 		if (vector == nullptr)
@@ -107,7 +107,7 @@ public:
 
 	/**
 	 * @param token - token from EventBus::listen
-	 * @param event - notification you wan't to unlisten. @see Notiier::listen
+	 * @param event - event you wan't to unlisten. @see Notiier::listen
 	 */
 	template<typename EventType, typename ... Args>
 	void unlisten(const int token, const EventType& event)
@@ -119,6 +119,14 @@ public:
 		}
 	}
 
+	/**
+	 * Notify all listeners for event with arguments
+	 *
+	 * @tparam EventType eg. Dexode::Event<int> event type
+	 * @tparam Args all your types of your event
+	 * @param event instance of Dexode::Event class
+	 * @param params arguments that you want to pass
+	 */
 	template<typename EventType, typename ... Args>
 	void notify(const EventType& event, Args&& ... params)
 	{
@@ -146,6 +154,13 @@ public:
 	// We can't reduce it to notify("yes",value)
 	// It wouldn't be obvious which to call Event<int> or Event<int&>
 	// So it can take to a lot of mistakes
+	/**
+	 * Notify all listeners for event with arguments
+	 *
+	 * @tparam Args all your types of your event
+	 * @param eventName name of event
+	 * @param params arguments that you want to pass
+	 */
 	template<typename ... Args>
 	void notify(const std::string& eventName, Args&& ... params)
 	{

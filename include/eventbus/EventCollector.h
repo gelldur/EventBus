@@ -14,8 +14,8 @@ namespace Dexode
 class EventCollector
 {
 public:
-	EventCollector(const std::shared_ptr<EventBus>& notifier);
-	EventCollector(EventBus* notifier);
+	EventCollector(const std::shared_ptr<EventBus>& bus);
+	EventCollector(EventBus* bus);
 	EventCollector(EventCollector const& other);
 	EventCollector(EventCollector&& other);
 
@@ -25,60 +25,60 @@ public:
 	EventCollector& operator=(EventCollector&& other);
 
 	/**
-	 * Register listener for notification.
+	 * Register listener for event.
 	 *
-	 * @param notification - pass notification like "getNotificationXYZ()"
-	 * @param callback - your callback to handle notification
+	 * @param event - you want to listen for
+	 * @param callback - your callback to handle event
 	 */
 	template<typename ... Args>
-	void listen(const Event<Args...>& notification
+	void listen(const Event<Args...>& event
 				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
-		if (!callback || !_notifier)
+		if (!callback || !_bus)
 		{
 			return;//Skip such things
 		}
 		if (_token == 0)
 		{
-			_token = _notifier->listen(notification, callback);
+			_token = _bus->listen(event, callback);
 		}
 		else
 		{
-			_notifier->listen(_token, notification, callback);
+			_bus->listen(_token, event, callback);
 		}
 	}
 
 	/**
 	 * Register listener for notification. Returns token used for unlisten
 	 *
-	 * @param notification - name of your notification
-	 * @param callback - your callback to handle notification
+	 * @param notification - name of your event
+	 * @param callback - your callback to handle event
 	 * @return token used for unlisten
 	 */
 	template<typename ... Args>
-	void listen(const std::string& notificationName
+	void listen(const std::string& eventName
 				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
 	{
-		listen(Dexode::Event<Args...>{notificationName}, callback);
+		listen(Dexode::Event<Args...>{eventName}, callback);
 	}
 
 	void unlistenAll();
 
 	/**
-	 * @param notification - notification you wan't to unlisten. @see Notiier::listen
+	 * @param event - notification you wan't to unlisten. @see Notiier::listen
 	 */
-	template<typename NotificationType, typename ... Args>
-	void unlisten(const NotificationType& notification)
+	template<typename EventType, typename ... Args>
+	void unlisten(const EventType& event)
 	{
-		if (_notifier)
+		if (_bus)
 		{
-			_notifier->unlisten(_token, notification);
+			_bus->unlisten(_token, event);
 		}
 	}
 
 private:
 	int _token = 0;
-	std::shared_ptr<EventBus> _notifier;
+	std::shared_ptr<EventBus> _bus;
 };
 
 }

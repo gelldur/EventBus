@@ -7,7 +7,6 @@
 
 void sampleUsages()
 {
-
 	{
 		//Notify by Event object
 		Dexode::EventBus bus;

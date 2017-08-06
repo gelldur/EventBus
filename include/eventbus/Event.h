@@ -12,6 +12,11 @@ class Event
 public:
 	using Callback = std::function<void(Args...)>;
 
+	/**
+	 * Creates unique Event for combination of event name and types of Event class
+	 *
+	 * @param name unique name to distinguish your event.
+	 */
 	constexpr explicit Event(const std::string& name)
 			: _key{std::hash<std::string>{}(name + typeid(Callback).name())}
 			, _name{name}
