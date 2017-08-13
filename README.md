@@ -1,4 +1,8 @@
 # EventBus
+
+[![Join the chat at https://gitter.im/EventBusCpp/Lobby](https://badges.gitter.im/EventBusCpp/Lobby.svg)](https://gitter.im/EventBusCpp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
 Simple and very fast event bus.
 The EventBus library is a convenient realization of the observer pattern.
 It works perfectly to supplement the implementation of MVC logic (model-view-controller) in event-driven UIs
