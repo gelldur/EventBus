@@ -5,20 +5,28 @@ language: cpp
 addons:
   apt:
     sources:
-        - llvm-toolchain-precise
-        - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.9
+      - ubuntu-toolchain-r-test
     packages:
-        - clang-3.7
-        - gcc-6
-        - g++-6
+      - clang-3.9
+      - gcc-6
+      - g++-6
 
-compiler:
-  - clang
-  - gcc
+matrix:
+  include:
+    - compiler: gcc
+      env: COMPILER=g++-6
 
-install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
+    - compiler: clang
+      env: COMPILER=clang++-3.9
+
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
+
+before_script:
+  - if [ "$COMPILER" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
+  - if [ "$COMPILER" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
 
 script:
   - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build .
