@@ -170,10 +170,7 @@ public:
 private:
 	struct VectorInterface
 	{
-		virtual ~VectorInterface()
-		{
-			removeAll();
-		}
+		virtual ~VectorInterface() = default;
 
 		virtual void remove(const int token) = 0;
 		virtual void removeAll() = 0;

@@ -162,4 +162,4 @@ BENCHMARK(check1kNotificationsFor1kListeners);
 BENCHMARK(check100NotificationsFor10kListeners);
 BENCHMARK(checkNotifyFor10kListenersWhenNoOneListens);
 
-BENCHMARK_MAIN();
+BENCHMARK_MAIN()
