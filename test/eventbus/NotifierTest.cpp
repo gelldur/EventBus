@@ -114,6 +114,7 @@ TEST_CASE("eventbus/EventBus type conversion", "Check for type conversion")
 		{
 			Dexode::Event<int> event{"event1"};
 			_token = bus.listen(event, std::bind(&Example::onEvent1, this, std::placeholders::_1));
+			// Using bind we can convert types
 			bus.listen(_token, event, std::bind(&Example::onEvent2, this, std::placeholders::_1));
 		}
 
@@ -143,5 +144,5 @@ TEST_CASE("eventbus/EventBus type conversion", "Check for type conversion")
 	REQUIRE(ex.calledEvent2 == 0);
 	bus.notify<int>("event1", 2);
 	REQUIRE(ex.calledEvent1 == 1);
-	REQUIRE(ex.calledEvent2 == 0);
+	REQUIRE(ex.calledEvent2 == 1);//Lookout for std::bind!
 }
