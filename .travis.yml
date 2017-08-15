@@ -1,0 +1,27 @@
+dist: trusty
+sudo: require
+language: cpp
+compiler:
+  - clang
+  - gcc
+
+addons:
+  apt:
+    sources:
+        - llvm-toolchain-precise
+        - ubuntu-toolchain-r-test
+    packages:
+        - clang-3.7
+        - g++-5
+        - gcc-5
+
+install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
+
+script:
+  - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build .
+  - ./test/EventBusTest # Run tests
+  - cd .. # exit from build-debug
+  - mkdir build-release && cd build-release && cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+  - ./test/EventBusTest # Run tests
