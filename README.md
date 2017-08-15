@@ -163,5 +163,5 @@ check10NotificationsFor1kListeners_CCNotificationCenter              11172 ns   
 
 # License
 
-EventBus source code can be used according to the Apache License, Version 2.0.  
+EventBus source code can be used according to the **Apache License, Version 2.0**.  
 For more information see [LICENSE](LICENSE) file
