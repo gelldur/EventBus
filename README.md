@@ -136,7 +136,12 @@ SET_TARGET_PROPERTIES(MyExecutable PROPERTIES
 TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 ```
 
-Also if you want you can install library and add it at any way you want.
+Also if you want you can install library and add it at any way you want.  
+Eg.
+```commandline
+cmake -DCMAKE_INSTALL_PREFIX=./install ..
+make && make install
+```
 
 
 # Performance
