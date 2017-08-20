@@ -156,7 +156,7 @@ check10NotificationsFor1kListeners_CCNotificationCenter              11172 ns   
 
 # Thanks to
 
-- [stanislawkabacinski](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
+- [staakk](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
 - [kuhar](https://github.com/kuhar) for his advice and suggestions for EventBus
 - [swietlana](https://github.com/swietlana) for english correction and support ;)
 - [ruslo](https://github.com/ruslo) for this great example: https://github.com/forexample/package-example
