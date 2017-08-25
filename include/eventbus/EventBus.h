@@ -167,6 +167,28 @@ public:
 		notify(Dexode::Event<Args...>{eventName}, std::forward<Args>(params)...);
 	}
 
+	/**
+	 * Notify all listeners for eventName.
+	 * This is wrapper method only
+	 *
+	 * @param eventName name of event
+	 */
+	void notify(const std::string& eventName)
+	{
+		notify(Dexode::Event<>{eventName});
+	}
+
+	/**
+	 * Notify all listeners for eventName.
+	 * This is wrapper method only
+	 *
+	 * @param eventName name of event
+	 */
+	void notify(const char* const eventName)
+	{
+		notify(Dexode::Event<>{eventName});
+	}
+
 private:
 	struct VectorInterface
 	{

@@ -171,7 +171,7 @@ TEST_CASE("eventbus/Different notification", "Valid check notification")
 	REQUIRE(called1 == false);
 
 	bus.notify(notification, 1);
-	
+
 	REQUIRE(called1 == true);
 	REQUIRE(called2 == false);
 	called1 = false;
