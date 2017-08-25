@@ -146,3 +146,38 @@ TEST_CASE("eventbus/EventBus type conversion", "Check for type conversion")
 	REQUIRE(ex.calledEvent1 == 1);
 	REQUIRE(ex.calledEvent2 == 1);//Lookout for std::bind!
 }
+
+TEST_CASE("eventbus/Different notification", "Valid check notification")
+{
+	Dexode::EventBus bus;
+	Dexode::Event<int> notification{"simple1"};
+	Dexode::Event<int> notification2{"simple2"};
+
+	bool called1 = false;
+	bool called2 = false;
+
+	bus.listen(notification, [&called1](int value)
+	{
+		called1 = true;
+		REQUIRE(value == 1);
+	});
+
+	bus.listen(notification2, [&called2](int value)
+	{
+		called2 = true;
+		REQUIRE(value == 2);
+	});
+
+	REQUIRE(called1 == false);
+
+	bus.notify(notification, 1);
+	
+	REQUIRE(called1 == true);
+	REQUIRE(called2 == false);
+	called1 = false;
+
+	bus.notify(notification2, 2);
+
+	REQUIRE(called1 == false);
+	REQUIRE(called2 == true);
+}
