@@ -2,13 +2,12 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.2 FATAL_ERROR)
 
 # BUILD_SHARED_LIBS can controll build type!
 PROJECT(EventBus
-		VERSION 2.0.1
+		VERSION 2.1.0
 		LANGUAGES CXX
 		)
 
 ADD_LIBRARY(EventBus
 		src/eventbus/EventCollector.cpp include/eventbus/EventCollector.h
-		include/eventbus/Event.h
 		include/eventbus/EventBus.h
 		)
 ADD_LIBRARY(Dexode::EventBus ALIAS EventBus)

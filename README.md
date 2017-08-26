@@ -149,10 +149,20 @@ I have prepared some performance results. You can read about them [here](perform
 Small example:
 
 ```
-check10NotificationsFor1kListeners                                     273 ns        273 ns    2609987 sum=-1.81219G
-check10NotificationsFor1kListeners_EventBus2                           267 ns        267 ns    2652159 sum=-1.77676G
+check10NotificationsFor1kListeners                                     263 ns        263 ns    2668786 sum=-1.76281G
 check10NotificationsFor1kListeners_CCNotificationCenter              11172 ns      11171 ns      62865 sum=54.023M
+
+checkNotifyFor10kListenersWhenNoOneListens                              18 ns         18 ns   38976599 sum=0
+checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns     127378 ns       5460 sum=0
 ```
+
+# Future plans
+
+- Thread safe EventBus
+- Verbose messages for easy debugging
+- Fix removing/adding listeners during other notification
+- Write more and better tests
+- ...
 
 # Thanks to
 

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <map>
 #include <memory>
+#include <string>
+#include <typeinfo>
 #include <vector>
-#include <cassert>
-
-#include "Event.h"
 
 #if __cplusplus < 201103L
 	#error This library needs at least a C++11 compliant compiler
@@ -15,12 +15,6 @@
 
 namespace Dexode
 {
-
-template<typename T>
-struct eventbus_traits
-{
-	typedef T type;
-};
 
 class EventBus
 {
@@ -41,49 +35,31 @@ public:
 	/**
 	 * Register listener for event. Returns token used for unlisten.
 	 *
-	 * @param event - you want to listen for
+	 * @tparam Event - type you want to listen for
 	 * @param callback - your callback to handle event
 	 * @return token used for unlisten
 	 */
-	template<typename ... Args>
-	int listen(const Event<Args...>& event
-			   , typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
+	template<typename Event>
+	int listen(const std::function<void(const Event&)>& callback)
 	{
 		const int token = ++_tokener;
-		listen(token, event, callback);
+		listen<Event>(token, callback);
 		return token;
 	}
 
 	/**
-	 * Register listener for event. Returns token used for unlisten.
-	 *
-	 * @param eventName - name of your event
-	 * @param callback - your callback to handle event
-	 * @return token used for unlisten
-	 */
-	template<typename ... Args>
-	int listen(const std::string& eventName
-			   , typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
-	{
-		return listen(Dexode::Event<Args...>{eventName}, callback);
-	}
-
-	/**
+	 * @tparam Event - type you want to listen for
 	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
-	 * @param event - you want to listen for
 	 * @param callback - your callback to handle event
 	 */
-	template<typename ... Args>
-	void listen(const int token
-				, const Event<Args...>& event
-				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
+	template<typename Event>
+	void listen(const int token, const std::function<void(const Event&)>& callback)
 	{
-		using CallbackType = std::function<void(Args...)>;
-		using Vector = VectorImpl<CallbackType>;
+		using Vector = VectorImpl<Event>;
 
 		assert(callback && "callback should be valid");//Check for valid object
 
-		std::unique_ptr<VectorInterface>& vector = _callbacks[event.getKey()];
+		std::unique_ptr<VectorInterface>& vector = _callbacks[getTypeId<Event>()];
 		if (vector == nullptr)
 		{
 			vector.reset(new Vector{});
@@ -106,34 +82,31 @@ public:
 	}
 
 	/**
+	 * @tparam Event - type you want to unlisten. @see Notiier::listen
 	 * @param token - token from EventBus::listen
-	 * @param event - event you wan't to unlisten. @see Notiier::listen
 	 */
-	template<typename EventType, typename ... Args>
-	void unlisten(const int token, const EventType& event)
+	template<typename Event>
+	void unlisten(const int token)
 	{
-		auto found = _callbacks.find(event.getKey());
+		auto found = _callbacks.find(getTypeId<Event>());
 		if (found != _callbacks.end())
 		{
-			found.second->remove(token);
+			found->second->remove(token);
 		}
 	}
 
 	/**
-	 * Notify all listeners for event with arguments
+	 * Notify all listeners for event
 	 *
-	 * @tparam EventType eg. Dexode::Event<int> event type
-	 * @tparam Args all your types of your event
-	 * @param event instance of Dexode::Event class
-	 * @param params arguments that you want to pass
+	 * @param event your event struct
 	 */
-	template<typename EventType, typename ... Args>
-	void notify(const EventType& event, Args&& ... params)
+	template<typename Event>
+	void notify(const Event& event)
 	{
-		using CallbackType = typename event_traits<EventType>::callback_type;
-		using Vector = VectorImpl<CallbackType>;
-
-		auto found = _callbacks.find(event.getKey());
+		using Vector = VectorImpl<Event>;
+		//		constexpr auto typeId = getTypeId<Event>();
+		const auto typeId = getTypeId<Event>();
+		auto found = _callbacks.find(typeId);
 		if (found == _callbacks.end())
 		{
 			return;// no such notifications
@@ -143,50 +116,11 @@ public:
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
 
-		//Copy? TODO think about it Use 2 vectors?
-		for (auto& element : vectorImpl->container)
+		//TODO think about it Use 2 vectors?
+		for (const auto& element : vectorImpl->container)
 		{
-			element.first(std::forward<Args>(params)...);
+			element.first(event);
 		}
-	}
-
-	// We need to call this in form like: notify<int>("yes",value)
-	// We can't reduce it to notify("yes",value)
-	// It wouldn't be obvious which to call Event<int> or Event<int&>
-	// So it can take to a lot of mistakes
-	/**
-	 * Notify all listeners for event with arguments
-	 *
-	 * @tparam Args all your types of your event
-	 * @param eventName name of event
-	 * @param params arguments that you want to pass
-	 */
-	template<typename ... Args>
-	void notify(const std::string& eventName, Args&& ... params)
-	{
-		notify(Dexode::Event<Args...>{eventName}, std::forward<Args>(params)...);
-	}
-
-	/**
-	 * Notify all listeners for eventName.
-	 * This is wrapper method only
-	 *
-	 * @param eventName name of event
-	 */
-	void notify(const std::string& eventName)
-	{
-		notify(Dexode::Event<>{eventName});
-	}
-
-	/**
-	 * Notify all listeners for eventName.
-	 * This is wrapper method only
-	 *
-	 * @param eventName name of event
-	 */
-	void notify(const char* const eventName)
-	{
-		notify(Dexode::Event<>{eventName});
 	}
 
 private:
@@ -198,10 +132,11 @@ private:
 		virtual void removeAll() = 0;
 	};
 
-	template<typename Type>
+	template<typename Event>
 	struct VectorImpl : public VectorInterface
 	{
-		std::vector<std::pair<Type, int>> container;
+		using CallbackType = std::function<void(const Event&)>;
+		std::vector<std::pair<CallbackType, int>> container;
 
 		virtual void removeAll() override
 		{
@@ -211,7 +146,7 @@ private:
 		virtual void remove(const int token) override
 		{
 			auto removeFrom = std::remove_if(container.begin(), container.end()
-											 , [token](const std::pair<Type, int>& element)
+											 , [token](const std::pair<CallbackType, int>& element)
 					{
 						return element.second == token;
 					});
@@ -224,6 +159,13 @@ private:
 
 	int _tokener = 0;
 	std::map<std::size_t, std::unique_ptr<VectorInterface>> _callbacks;
+
+	template<typename T>
+	static const std::size_t getTypeId()
+	{
+		//std::hash<std::string>{}(typeid(T).name() is slower
+		return typeid(T).hash_code();
+	}
 };
 
 } /* namespace Dexode */

@@ -27,12 +27,11 @@ public:
 	/**
 	 * Register listener for event.
 	 *
-	 * @param event - you want to listen for
+	 * @tparam Event - type you want to listen for
 	 * @param callback - your callback to handle event
 	 */
-	template<typename ... Args>
-	void listen(const Event<Args...>& event
-				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
+	template<typename Event>
+	void listen(const std::function<void(const Event&)>& callback)
 	{
 		if (!callback || !_bus)
 		{
@@ -40,39 +39,25 @@ public:
 		}
 		if (_token == 0)
 		{
-			_token = _bus->listen(event, callback);
+			_token = _bus->listen<Event>(callback);
 		}
 		else
 		{
-			_bus->listen(_token, event, callback);
+			_bus->listen<Event>(_token, callback);
 		}
-	}
-
-	/**
-	 * Register listener for notification. Returns token used for unlisten
-	 *
-	 * @param notification - name of your event
-	 * @param callback - your callback to handle event
-	 * @return token used for unlisten
-	 */
-	template<typename ... Args>
-	void listen(const std::string& eventName
-				, typename eventbus_traits<const std::function<void(Args...)>&>::type callback)
-	{
-		listen(Dexode::Event<Args...>{eventName}, callback);
 	}
 
 	void unlistenAll();
 
 	/**
-	 * @param event - notification you wan't to unlisten. @see Notiier::listen
+	 * @tparam Event - type you want to unlisten. @see Notiier::listen
 	 */
-	template<typename EventType, typename ... Args>
-	void unlisten(const EventType& event)
+	template<typename Event>
+	void unlisten()
 	{
 		if (_bus)
 		{
-			_bus->unlisten(_token, event);
+			_bus->unlisten<Event>(_token);
 		}
 	}
 
