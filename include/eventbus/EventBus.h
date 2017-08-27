@@ -64,10 +64,9 @@ public:
 		{
 			vector.reset(new Vector{});
 		}
-
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
-		vectorImpl->container.emplace_back(std::make_pair(callback, token));
+		vectorImpl->add(token, callback);
 	}
 
 	/**
@@ -104,8 +103,7 @@ public:
 	void notify(const Event& event)
 	{
 		using Vector = VectorImpl<Event>;
-		//		constexpr auto typeId = getTypeId<Event>();
-		const auto typeId = getTypeId<Event>();
+		const auto typeId = getTypeId<Event>();//TODO think about constexpr
 		auto found = _callbacks.find(typeId);
 		if (found == _callbacks.end())
 		{
@@ -116,11 +114,12 @@ public:
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
 
-		//TODO think about it Use 2 vectors?
+		vectorImpl->beginTransaction();
 		for (const auto& element : vectorImpl->container)
 		{
-			element.first(event);
+			element.second(event);
 		}
+		vectorImpl->commitTransaction();
 	}
 
 private:
@@ -129,30 +128,72 @@ private:
 		virtual ~VectorInterface() = default;
 
 		virtual void remove(const int token) = 0;
-		virtual void removeAll() = 0;
 	};
 
 	template<typename Event>
 	struct VectorImpl : public VectorInterface
 	{
 		using CallbackType = std::function<void(const Event&)>;
-		std::vector<std::pair<CallbackType, int>> container;
-
-		virtual void removeAll() override
-		{
-			container.clear();
-		}
+		using ContainerElement = std::pair<int, CallbackType>;
+		using ContainerType = std::vector<ContainerElement>;
+		ContainerType container;
+		ContainerType toAdd;
+		std::vector<int> toRemove;
+		bool inTransaction = false;
 
 		virtual void remove(const int token) override
 		{
+			if (inTransaction)
+			{
+				toRemove.push_back(token);
+				return;
+			}
+
+			//Invalidation rules: https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
 			auto removeFrom = std::remove_if(container.begin(), container.end()
-											 , [token](const std::pair<CallbackType, int>& element)
+											 , [token](const ContainerElement& element)
 					{
-						return element.second == token;
+						return element.first == token;
 					});
 			if (removeFrom != container.end())
 			{
 				container.erase(removeFrom, container.end());
+			}
+		}
+
+		void add(const int token, const CallbackType& callback)
+		{
+			if (inTransaction)
+			{
+				toAdd.emplace_back(token, callback);
+			}
+			else
+			{
+				container.emplace_back(token, callback);
+			}
+		}
+
+		void beginTransaction()
+		{
+			inTransaction = true;
+		}
+
+		void commitTransaction()
+		{
+			inTransaction = false;
+
+			if (toAdd.empty() == false)
+			{
+				container.insert(container.end(), toAdd.begin(), toAdd.end());
+				toAdd.clear();
+			}
+			if (toRemove.empty() == false)
+			{
+				for (auto token : toRemove)
+				{
+					remove(token);
+				}
+				toRemove.clear();
 			}
 		}
 	};
