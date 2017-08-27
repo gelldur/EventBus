@@ -61,6 +61,8 @@ public:
 		}
 	}
 
+	const std::shared_ptr<EventBus>& getBus() const;
+
 private:
 	int _token = 0;
 	std::shared_ptr<EventBus> _bus;

@@ -86,4 +86,9 @@ void EventCollector::unlistenAll()
 	}
 }
 
+const std::shared_ptr<EventBus>& EventCollector::getBus() const
+{
+	return _bus;
+}
+
 }
