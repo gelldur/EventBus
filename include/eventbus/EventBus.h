@@ -139,11 +139,11 @@ private:
 		ContainerType container;
 		ContainerType toAdd;
 		std::vector<int> toRemove;
-		bool inTransaction = false;
+		int inTransaction = 0;
 
 		virtual void remove(const int token) override
 		{
-			if (inTransaction)
+			if (inTransaction > 0)
 			{
 				toRemove.push_back(token);
 				return;
@@ -163,7 +163,7 @@ private:
 
 		void add(const int token, const CallbackType& callback)
 		{
-			if (inTransaction)
+			if (inTransaction > 0)
 			{
 				toAdd.emplace_back(token, callback);
 			}
@@ -175,12 +175,17 @@ private:
 
 		void beginTransaction()
 		{
-			inTransaction = true;
+			++inTransaction;
 		}
 
 		void commitTransaction()
 		{
-			inTransaction = false;
+			--inTransaction;
+			if (inTransaction > 0)
+			{
+				return;
+			}
+			inTransaction = 0;
 
 			if (toAdd.empty() == false)
 			{
