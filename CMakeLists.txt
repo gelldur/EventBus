@@ -27,9 +27,9 @@ SET_TARGET_PROPERTIES(EventBus PROPERTIES
 		CXX_STANDARD 14
 		)
 
-TARGET_COMPILE_FEATURES(EventBus
-		PUBLIC cxx_auto_type cxx_variadic_templates
-		)
+#TARGET_COMPILE_FEATURES(EventBus
+#		PUBLIC cxx_auto_type cxx_variadic_templates
+#		)
 
 INSTALL(TARGETS EventBus EXPORT EventBusConfig
 		ARCHIVE DESTINATION lib/
@@ -45,6 +45,6 @@ INSTALL(EXPORT EventBusConfig
 EXPORT(TARGETS EventBus FILE EventBusConfig.cmake)
 
 
-ENABLE_TESTING()
-ADD_SUBDIRECTORY(test/)
-ADD_SUBDIRECTORY(performance/)
+#ENABLE_TESTING()
+#ADD_SUBDIRECTORY(test/)
+#ADD_SUBDIRECTORY(performance/)
