@@ -20,32 +20,68 @@ EventBus main goals:
 - Easy to use
 - Strongly typed
 - Free
+- tiny (~15 KB)
 - Decouples notification senders and receivers
 
 # Usage
 
-Notify by Event object:
+0. Store bus
+
 ```cpp
+// store it in controller / singleton / std::sharted_ptr whenever you want
 Dexode::EventBus bus;
-Dexode::Event<int> simpleEvent{"simple"};
-//...
-bus.notify(simpleEvent, 2);//Everyone who listens will receive this notification.
 ```
 
-Notify without Event object:
+1. Define events
+
 ```cpp
-Dexode::EventBus bus;
-//...
-bus.notify<int>("simple", 2);//Everyone who listens will receive this notification.
+namespace Event // optional namespace
+{
+	struct Gold
+	{
+		int goldReceived = 0;
+	};
+	
+	struct OK {}; // Simple event when user press "OK" button
+}
+```
+
+2. Subscribe
+
+```cpp
+// ...
+bus.listen<Event::Gold>
+			([](const auto& event) // listen with lambda
+			{
+				std::cout << "I received gold: " << event.goldReceived << "!" << std::endl;
+			});
+			
+HudLayer* hudLayer;
+// Hud layer will receive info about gold
+bus.listen<Event::Gold>(std::bind(&HudLayer::onGoldReceived,hudLayer,std::placeholders::_1));
+```
+
+3. Notify
+
+```cpp
+//Inform listeners about event
+bus.notify(Event::Gold{12}); // 1 way
+
+bus.notify<Event::Gold>({12}); // 2 way
+
+Event::Gold myGold{12};
+bus.notify(myGold); // 3 way
 ```
 
 Lambda listener:
 ```cpp
+struct SampleEvent {};
 Dexode::EventBus bus;
 //...
-int token = bus.listen<int>("simple", [](int value) // register listener
+int token = bus.listen<SampleEvent>([](const SampleEvent& event) // register listener
 {
 });
+
 //If we want unlisten exact listener we can use token for it
 bus.unlistenAll(token);
 ```
@@ -54,13 +90,13 @@ Listener is identified by `token`. Token is returned from EventBus::listen metho
 We can register multiple listeners on one token:
 ```cpp
 Dexode::EventBus bus;
-Dexode::Event<int> event{"simple"};
+struct SampleEvent {};
 //...
-int token = bus.listen(event, [](int value) // register listener
+int token = bus.listen<SimpleEvent>([](const auto& event) // register listener
 {
 });
 
-bus.listen(token, event, [](int value) // another listener
+bus.listen<SimpleEvent>(token, [](const auto& event) // another listener
 {
 });
 
@@ -72,14 +108,14 @@ It is useful when we want to have multiple listeners in one class. So above exam
 
 ```cpp
 Dexode::EventBus bus;
-Dexode::Event<int> event{"simple"};
+struct SampleEvent {};
 Dexode::EventCollector collector{&bus};
 //...
-collector.listen(event, [](int value) // register listener
+collector.listen<SampleEvent>([](const SampleEvent& event) // register listener
 {
 });
 
-collector.listen(event, [](int value) // another listener
+collector.listen<SampleEvent>([](const SampleEvent& event) // another listener
 {
 });
 
@@ -91,18 +127,18 @@ Or as component of class:
 class Example
 {
 public:
-	Example(Dexode::EventBus& bus)
-			: _collector{&bus}
+	Example(const std::shared_ptr<Dexode::EventBus>& bus)
+			: _collector{bus}
 	{
-		_collector.listen<int>("event1", std::bind(&Example::onEvent1, this, std::placeholders::_1));
-		_collector.listen<std::string>("event2", std::bind(&Example::onEvent2, this, std::placeholders::_1));
+		_collector.listen<SimpleEvent>(std::bind(&Example::onEvent1, this, std::placeholders::_1));
+		_collector.listen<OtherEvent>(std::bind(&Example::onEvent2, this, std::placeholders::_1));
 	}
 
-	void onEvent1(int value)
+	void onEvent1(const SimpleEvent& event)
 	{
 	}
 
-	void onEvent2(std::string value)
+	void onEvent2(const OtherEvent& event)
 	{
 	}
 
@@ -111,7 +147,7 @@ private:
 };
 
 //EventCollector sample
-Dexode::EventBus bus;
+std::shared_ptr<Dexode::EventBus> bus;
 Example ex{bus};
 //...
 bus.notify<int>("event1", 2);
@@ -128,21 +164,18 @@ ADD_EXECUTABLE(MyExecutable
 		main.cpp
 		)
 
-SET_TARGET_PROPERTIES(MyExecutable PROPERTIES
-		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED YES
-		)
-
 TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 ```
 
 Also if you want you can install library and add it at any way you want.  
 Eg.
 ```commandline
-cmake -DCMAKE_INSTALL_PREFIX=./install ..
+mkdir Release && cd Release
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install ..
 make && make install
 ```
 
+Now in `Release/install` library is placed. 
 
 # Performance
 I have prepared some performance results. You can read about them [here](performance/README.md)  
@@ -158,10 +191,10 @@ checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns   
 
 # Future plans
 
-- Thread safe EventBus
-- Verbose messages for easy debugging
-- Fix removing/adding listeners during other notification
 - Write more and better tests
+- Thread safe EventBus ?
+- Verbose messages for easy debugging ?
+- Generating graph flow ?
 - ...
 
 # Thanks to
