@@ -31,6 +31,30 @@ TEST_CASE("eventbus/Simple test", "Simple test")
 	bus.notify(SimpleEvent{1});
 }
 
+TEST_CASE("eventbus/Simple test2", "Simple test")
+{
+	Dexode::EventBus bus;
+	struct SimpleEvent
+	{
+		int value;
+	};
+
+	const auto token = bus.listen<SimpleEvent>([](const SimpleEvent& event)
+											   {
+												   REQUIRE(event.value == 3);
+											   });
+
+	bus.notify<SimpleEvent>({3});
+	bus.unlistenAll(token);
+	bus.notify(SimpleEvent{2});
+
+	bus.listen<SimpleEvent>([](const SimpleEvent& event)
+							{
+								REQUIRE(event.value == 1);
+							});
+	bus.notify(SimpleEvent{1});
+}
+
 TEST_CASE("eventbus/EventBus listen & notify", "Listen & notify without notification object. Using only string")
 {
 	int isCalled = 0;
@@ -339,4 +363,49 @@ TEST_CASE("eventbus/EventBus modification during notify5"
 
 	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 3);
+}
+
+TEST_CASE("eventbus/EventBus modification during nested notify"
+		  , "Remove listener during notification should not malform EventBus")
+{
+	Dexode::EventBus bus;
+	struct TestEvent {};
+	struct TestEvent2 {};
+
+	int token1 = 1;
+	int token2 = 2;
+	int token3 = 3;
+
+	int calls = 0;
+
+	bus.listen<TestEvent>
+			(token1, [&](const TestEvent& event)
+			{
+				bus.notify(TestEvent2{});
+
+				++calls;
+				bus.unlistenAll(token1);
+
+				bus.listen<TestEvent>
+						(token2, [&](const TestEvent& event)
+						{
+							++calls;
+							bus.unlistenAll(token1);
+							bus.unlistenAll(token3);
+							bus.unlistenAll(token2);
+						});
+			});
+	bus.listen<TestEvent>
+			(token3, [&](const TestEvent& event)
+			{
+				++calls;
+				bus.unlistenAll(token1);
+				bus.unlistenAll(token2);
+				bus.unlistenAll(token3);
+			});
+
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE(calls == 2);
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE(calls == 2);
 }
