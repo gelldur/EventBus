@@ -30,3 +30,6 @@
 build/
 cmake-build*/
 .idea/
+
+Release/
+Debug/
