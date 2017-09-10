@@ -11,17 +11,33 @@ ADD_EXECUTABLE(EventBusPerformance
 		${CCNOTIFICATION_CENTER_SRC}
 		)
 
-TARGET_COMPILE_OPTIONS(EventBusPerformance
-		PRIVATE -Wall -pedantic -Wno-unused-private-field -Wnon-virtual-dtor
+TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC
+		-Wall -pedantic
+		-Wno-unused-private-field
+		-Wnon-virtual-dtor
+		-Wno-gnu
 		-Werror
 		)
+
+SET(EVENTBUS_DEBUG_FLAGS
+		-O0 -fno-inline
+		-DDEBUG
+		-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+		)
+
+SET(EVENTBUS_RELEASE_FLAGS
+		-DNDEBUG
+		)
+
+TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
+TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC "$<$<CONFIG:RELEASE>:${EVENTBUS_RELEASE_FLAGS}>")
 
 SET_TARGET_PROPERTIES(EventBusPerformance PROPERTIES
 		CXX_STANDARD 14
 		CXX_STANDARD_REQUIRED YES
 		)
 
-TARGET_INCLUDE_DIRECTORIES(EventBusPerformance PRIVATE
+TARGET_INCLUDE_DIRECTORIES(EventBusPerformance PUBLIC
 		./
 		${CCNOTIFICATION_CENTER_INCLUDE}
 		)
