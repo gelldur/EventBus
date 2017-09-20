@@ -23,6 +23,10 @@ EventBus main goals:
 - tiny (~15 KB)
 - Decouples notification senders and receivers
 
+# Sample
+You can checkout [sample/](sample/)  
+If you want to play with sample online checkout this link: [wandbox.org](https://wandbox.org/permlink/p3xeQaosuxv6w1rv)
+
 # Usage
 
 0. Store bus
