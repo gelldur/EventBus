@@ -30,7 +30,7 @@ EventCollector::EventCollector(EventBus* bus)
 {
 }
 
-EventCollector::EventCollector(EventCollector const& other)
+EventCollector::EventCollector(const EventCollector& other)
 		: _bus(other._bus)
 {
 }
@@ -47,7 +47,7 @@ EventCollector::~EventCollector()
 	unlistenAll();
 }
 
-EventCollector& EventCollector::operator=(EventCollector const& other)
+EventCollector& EventCollector::operator=(const EventCollector& other)
 {
 	if (this == &other)
 	{
