@@ -4,7 +4,7 @@ OPTION(PERFORMANCE "Enable/Disable performance subdirectory" OFF)
 
 # BUILD_SHARED_LIBS can controll build type!
 PROJECT(EventBus
-		VERSION 2.1.4
+		VERSION 2.2.0
 		LANGUAGES CXX
 		)
 
