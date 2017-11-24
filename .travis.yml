@@ -30,8 +30,8 @@ before_script:
   - if [ "$COMPILER" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
 
 script:
-  - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TEST=YES .. && cmake --build .
+  - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=YES .. && cmake --build .
   - ./test/EventBusTest # Run tests
   - cd .. # exit from build-debug
-  - mkdir build-release && cd build-release && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TEST=YES .. && cmake --build .
+  - mkdir build-release && cd build-release && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=YES .. && cmake --build .
   - ./test/EventBusTest # Run tests
