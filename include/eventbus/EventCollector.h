@@ -25,9 +25,14 @@ public:
 	 * @param event your event struct
 	 */
 	template<typename Event>
-	void notify(const Event& event)
+	void notify(const Event& event) const
 	{
 		_bus->notify(event);
+	}
+
+	std::shared_ptr<EventBus> extract()
+	{
+		return _bus;
 	}
 
 private:
