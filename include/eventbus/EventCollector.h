@@ -11,6 +11,29 @@
 namespace Dexode
 {
 
+class BusAttorney
+{
+public:
+	BusAttorney(std::shared_ptr<EventBus> bus)
+			: _bus(std::move(bus))
+	{
+	}
+
+	/**
+	 * Notify all listeners for event
+	 *
+	 * @param event your event struct
+	 */
+	template<typename Event>
+	void notify(const Event& event)
+	{
+		_bus->notify(event);
+	}
+
+private:
+	std::shared_ptr<EventBus> _bus;
+};
+
 class EventCollector
 {
 public:
@@ -61,7 +84,10 @@ public:
 		}
 	}
 
-	const std::shared_ptr<EventBus>& getBus() const;
+	bool isUsing(const std::shared_ptr<EventBus>& bus) const;
+
+	///I wan't explicitly say getBus. Ok we could add method for notify but this is more explicit
+	BusAttorney getBus() const;
 
 private:
 	int _token = 0;
