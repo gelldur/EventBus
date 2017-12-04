@@ -13,10 +13,9 @@ SET_TARGET_PROPERTIES(EventBusTest PROPERTIES
 
 TARGET_COMPILE_OPTIONS(EventBusTest PUBLIC
 		-Wall -pedantic
-		-Wno-unused-private-field
 		-Wnon-virtual-dtor
-		-Wno-gnu
 		-Werror
+		-Wno-error=deprecated-declarations
 		)
 
 SET(EVENTBUS_DEBUG_FLAGS

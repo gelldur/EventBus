@@ -22,10 +22,9 @@ TARGET_INCLUDE_DIRECTORIES(EventBus PUBLIC
 
 TARGET_COMPILE_OPTIONS(EventBus PRIVATE
 		-Wall -pedantic
-		-Wno-unused-private-field
 		-Wnon-virtual-dtor
-		-Wno-gnu
 		-Werror
+		-Wno-error=deprecated-declarations
 		)
 
 SET_TARGET_PROPERTIES(EventBus PROPERTIES
