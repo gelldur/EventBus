@@ -207,7 +207,7 @@ private:
 	std::map<std::size_t, std::unique_ptr<VectorInterface>> _callbacks;
 
 	template<typename T>
-	static const std::size_t getTypeId()
+	static std::size_t getTypeId()
 	{
 		//std::hash<std::string>{}(typeid(T).name() is slower
 		return typeid(T).hash_code();
