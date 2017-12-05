@@ -15,6 +15,7 @@ TARGET_COMPILE_OPTIONS(EventBusTest PUBLIC
 		-Wall -pedantic
 		-Wnon-virtual-dtor
 		-Werror
+		-Wno-error=unknown-argument
 		-Wno-error=deprecated-declarations
 		)
 

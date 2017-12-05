@@ -24,6 +24,7 @@ TARGET_COMPILE_OPTIONS(EventBus PRIVATE
 		-Wall -pedantic
 		-Wnon-virtual-dtor
 		-Werror
+		-Wno-error=unknown-argument
 		-Wno-error=deprecated-declarations
 		)
 
