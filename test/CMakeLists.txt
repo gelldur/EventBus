@@ -15,9 +15,13 @@ TARGET_COMPILE_OPTIONS(EventBusTest PUBLIC
 		-Wall -pedantic
 		-Wnon-virtual-dtor
 		-Werror
-		-Wno-error=unknown-argument
 		-Wno-error=deprecated-declarations
 		)
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	TARGET_COMPILE_OPTIONS(EventBusTest PRIVATE
+		-Wno-error=unknown-argument
+		)
+ENDIF()
 
 SET(EVENTBUS_DEBUG_FLAGS
 		-O0 -fno-inline

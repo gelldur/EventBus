@@ -24,9 +24,14 @@ TARGET_COMPILE_OPTIONS(EventBus PRIVATE
 		-Wall -pedantic
 		-Wnon-virtual-dtor
 		-Werror
-		-Wno-error=unknown-argument
 		-Wno-error=deprecated-declarations
 		)
+
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	TARGET_COMPILE_OPTIONS(EventBus PRIVATE
+		-Wno-error=unknown-argument
+		)
+ENDIF()
 
 SET_TARGET_PROPERTIES(EventBus PROPERTIES
 		CXX_STANDARD 14
