@@ -6,13 +6,13 @@ ADD_EXECUTABLE(Sample
 		src/main.cpp
 		)
 
-TARGET_COMPILE_OPTIONS(Sample PUBLIC
-		-Wall -pedantic
-		-Wno-unused-private-field
-		-Wnon-virtual-dtor
-		-Wno-gnu
-		-Werror
-		)
+# TARGET_COMPILE_OPTIONS(Sample PUBLIC
+# 		-Wall -pedantic
+# 		-Wno-unused-private-field
+# 		-Wnon-virtual-dtor
+# 		-Wno-gnu
+# 		-Werror
+# 		)
 
 SET_TARGET_PROPERTIES(Sample PROPERTIES
 		CXX_STANDARD 14

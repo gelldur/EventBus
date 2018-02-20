@@ -20,12 +20,12 @@ TARGET_INCLUDE_DIRECTORIES(EventBus PUBLIC
 		PRIVATE src/
 		)
 
-TARGET_COMPILE_OPTIONS(EventBus PRIVATE
-		-Wall -pedantic
-		-Wnon-virtual-dtor
-		-Werror
-		-Wno-error=deprecated-declarations
-		)
+# TARGET_COMPILE_OPTIONS(EventBus PRIVATE
+# 		-Wall -pedantic
+# 		-Wnon-virtual-dtor
+# 		-Werror
+# 		-Wno-error=deprecated-declarations
+# 		)
 
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	TARGET_COMPILE_OPTIONS(EventBus PRIVATE

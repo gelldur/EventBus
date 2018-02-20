@@ -11,13 +11,13 @@ ADD_EXECUTABLE(EventBusPerformance
 		${CCNOTIFICATION_CENTER_SRC}
 		)
 
-TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC
-		-Wall -pedantic
-		-Wno-unused-private-field
-		-Wnon-virtual-dtor
-		-Wno-gnu
-		-Werror
-		)
+# TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC
+# 		-Wall -pedantic
+# 		-Wno-unused-private-field
+# 		-Wnon-virtual-dtor
+# 		-Wno-gnu
+# 		-Werror
+# 		)
 
 SET(EVENTBUS_DEBUG_FLAGS
 		-O0 -fno-inline
