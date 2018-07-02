@@ -22,6 +22,12 @@ EventBus main goals:
 - Free
 - tiny (~15 KB)
 - Decouples notification senders and receivers
+- on every platform you need (crossplatform)
+
+# Brief @ presentation
+
+Presentation [google docs](https://docs.google.com/presentation/d/1apAlKcVWo9FcqkPqL8108a1Fy9LGmhgLT56hSVpoI3w/edit?usp=sharing)
+
 
 # Sample
 You can checkout [sample/](sample/)  
@@ -32,7 +38,7 @@ If you want to play with sample online checkout this link: [wandbox.org](https:/
 0. Store bus
 
 ```cpp
-// store it in controller / singleton / std::sharted_ptr whenever you want
+// store it in controller / singleton / std::sharted_ptr whatever you want
 Dexode::EventBus bus;
 ```
 
@@ -201,6 +207,9 @@ checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns   
 - Generating graph flow ?
 - ...
 
+# Issues ?
+Please report here issue / question / whatever in 99% I will answer ;)
+
 # Thanks to
 
 - [staakk](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
@@ -212,3 +221,5 @@ checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns   
 
 EventBus source code can be used according to the **Apache License, Version 2.0**.  
 For more information see [LICENSE](LICENSE) file
+
+If you don't like to read to much here is sumup about license [Apache 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)#summary)
