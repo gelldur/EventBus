@@ -87,11 +87,6 @@ void EventCollector::unlistenAll()
 	}
 }
 
-BusAttorney EventCollector::getBus() const
-{
-	return BusAttorney{_bus};
-}
-
 bool EventCollector::isUsing(const std::shared_ptr<EventBus>& bus) const
 {
 	return _bus == bus;

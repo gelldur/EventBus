@@ -11,36 +11,6 @@
 namespace Dexode
 {
 
-class [[deprecated("This class will be removed, is breaking API")]] BusAttorney
-{
-public:
-	BusAttorney(std::shared_ptr<EventBus> bus)
-			: _bus(std::move(bus))
-	{
-	}
-
-	/**
-	 * Notify all listeners for event
-	 *
-	 * @param event your event struct
-	 */
-	template<typename Event>
-	[[deprecated]]
-	void notify(const Event& event) const
-	{
-		_bus->notify(event);
-	}
-
-	[[deprecated]]
-	std::shared_ptr<EventBus> extract() const
-	{
-		return _bus;
-	}
-
-private:
-	std::shared_ptr<EventBus> _bus;
-};
-
 class EventCollector
 {
 public:
@@ -92,10 +62,6 @@ public:
 	}
 
 	bool isUsing(const std::shared_ptr<EventBus>& bus) const;
-
-	///I wan't explicitly say getBus. Ok we could add method for notify but this is more explicit
-	[[deprecated("This method will be removed, is breaking encapsulation")]]
-	BusAttorney getBus() const;
 
 private:
 	int _token = 0;
