@@ -24,15 +24,26 @@ target_include_directories(EventBus PUBLIC
 		PRIVATE lib/src/
 		)
 
-install(TARGETS EventBus EXPORT EventBusConfig
+install(TARGETS EventBus EXPORT EventBusTargets
 		ARCHIVE DESTINATION lib/
 		LIBRARY DESTINATION lib/
 		RUNTIME DESTINATION bin/
 		INCLUDES DESTINATION lib/include/
 		)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION lib/include/ FILES_MATCHING PATTERN "*.h*")
-install(EXPORT EventBusConfig
-		DESTINATION cmake/
+
+install(EXPORT EventBusTargets
+		DESTINATION lib/cmake/EventBus
+		FILE EventBusTargets.cmake
 		NAMESPACE Dexode::
 		)
-export(TARGETS EventBus FILE EventBusConfig.cmake)
+
+# Copy public headers
+install(DIRECTORY include/eventbus
+		DESTINATION include/
+		)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(EventBusConfigVersion.cmake COMPATIBILITY SameMajorVersion)
+
+install(FILES EventBusConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/EventBusConfigVersion.cmake
+		DESTINATION lib/cmake/EventBus)

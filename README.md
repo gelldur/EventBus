@@ -180,8 +180,12 @@ TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 Also if you want you can install library and add it at any way you want.  
 Eg.
 ```commandline
-mkdir Release && cd Release
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install ..
+mkdir -p lib/build/install_here
+cd lib/build
+cmake -DCMAKE_BUILD_TYPE=Relase -DCMAKE_INSTALL_PREFIX=./install_here/ ..
+
+cmake --build . --target install
+# OR
 make && make install
 ```
 
