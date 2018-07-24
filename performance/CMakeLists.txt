@@ -28,7 +28,6 @@ target_compile_options(EventBusPerformance PUBLIC
 set(EVENTBUS_DEBUG_FLAGS
 		-O0 -fno-inline
 		-DDEBUG
-		-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 		)
 
 
