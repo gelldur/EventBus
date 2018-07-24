@@ -205,6 +205,7 @@ checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns   
 - Thread safe EventBus ?
 - Verbose messages for easy debugging ?
 - Generating graph flow ?
+- Add nice documentation [like in POCO](https://pocoproject.org/slides/090-NotificationsEvents.pdf)
 - ...
 
 # Issues ?
