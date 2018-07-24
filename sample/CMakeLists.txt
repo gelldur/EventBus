@@ -1,23 +1,13 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
-PROJECT(Sample LANGUAGES CXX)
+project(Sample LANGUAGES CXX)
 
-ADD_EXECUTABLE(Sample
+add_executable(Sample
 		src/main.cpp
 		)
 
-TARGET_COMPILE_OPTIONS(Sample PUBLIC
-		-Wall -pedantic
-		-Wno-unused-private-field
-		-Wnon-virtual-dtor
-		-Wno-gnu
-		-Werror
-		)
+if(NOT TARGET Dexode::EventBus)
+	find_package(EventBus CONFIG REQUIRED)
+endif()
 
-SET_TARGET_PROPERTIES(Sample PROPERTIES
-		CXX_STANDARD 14
-		)
-
-ADD_SUBDIRECTORY(../ EventBus/)
-
-TARGET_LINK_LIBRARIES(Sample PRIVATE Dexode::EventBus)
+target_link_libraries(Sample PRIVATE Dexode::EventBus)
