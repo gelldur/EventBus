@@ -11,11 +11,11 @@ namespace Dexode
 {
 
 template <typename>
-void type_id()
+void type_id() // Helper for getting "type id"
 {
 }
 
-using type_id_t = void (*)();
+using type_id_t = void (*)(); // Function pointer
 
 class EventBus
 {
