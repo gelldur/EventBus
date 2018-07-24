@@ -12,6 +12,13 @@
 namespace Dexode
 {
 
+template <typename>
+void type_id()
+{
+}
+
+using type_id_t = void (*)();
+
 class EventBus
 {
 public:
@@ -55,8 +62,8 @@ public:
 
 		assert(callback && "callback should be valid");//Check for valid object
 
-		std::unique_ptr<VectorInterface>& vector = _callbacks[getTypeId<Event>()];
-		if (vector == nullptr)
+		std::unique_ptr<VectorInterface>& vector = _callbacks[type_id<Event>];
+		if(vector == nullptr)
 		{
 			vector.reset(new Vector{});
 		}
@@ -83,8 +90,8 @@ public:
 	template<typename Event>
 	void unlisten(const int token)
 	{
-		auto found = _callbacks.find(getTypeId<Event>());
-		if (found != _callbacks.end())
+		auto found = _callbacks.find(type_id<Event>);
+		if(found != _callbacks.end())
 		{
 			found->second->remove(token);
 		}
@@ -99,9 +106,8 @@ public:
 	void notify(const Event& event)
 	{
 		using Vector = VectorImpl<Event>;
-		const auto typeId = getTypeId<Event>();//TODO think about constexpr
-		auto found = _callbacks.find(typeId);
-		if (found == _callbacks.end())
+		auto found = _callbacks.find(type_id<Event>);
+		if(found == _callbacks.end())
 		{
 			return;// no such notifications
 		}
@@ -200,14 +206,7 @@ private:
 	};
 
 	int _tokener = 0;
-	std::map<std::size_t, std::unique_ptr<VectorInterface>> _callbacks;
-
-	template<typename T>
-	static std::size_t getTypeId()
-	{
-		//std::hash<std::string>{}(typeid(T).name() is slower
-		return typeid(T).hash_code();
-	}
+	std::map<type_id_t, std::unique_ptr<VectorInterface>> _callbacks;
 };
 
 } /* namespace Dexode */
