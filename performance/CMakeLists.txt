@@ -17,7 +17,7 @@ endif ()
 add_executable(EventBusPerformance
 		src/EventBusPerformance.cpp
 		${CCNOTIFICATION_CENTER_SRC}
-		$<$<BOOL:${Poco_FOUND}>:src/PocoEventBus.cpp>
+		$<$<BOOL:${Poco_FOUND}>:src/PocoNotificationCenterPerformance.cpp>
 		)
 
 target_compile_options(EventBusPerformance PUBLIC
