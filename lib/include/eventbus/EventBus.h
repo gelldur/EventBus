@@ -54,7 +54,6 @@ public:
 		using Vector = VectorImpl<Event>;
 
 		assert(callback && "callback should be valid");//Check for valid object
-		std::unique_ptr<VectorInterface> vector2;
 
 		std::unique_ptr<VectorInterface>& vector = _callbacks[getTypeId<Event>()];
 		if (vector == nullptr)
@@ -64,7 +63,6 @@ public:
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
 		vectorImpl->add(token, callback);
-		std::unique_ptr<VectorInterface> vector3;
 	}
 
 	/**
