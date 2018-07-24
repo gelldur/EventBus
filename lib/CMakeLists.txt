@@ -28,7 +28,7 @@ install(TARGETS EventBus EXPORT EventBusTargets
 		ARCHIVE DESTINATION lib/
 		LIBRARY DESTINATION lib/
 		RUNTIME DESTINATION bin/
-		INCLUDES DESTINATION lib/include/
+		INCLUDES DESTINATION include/
 		)
 
 install(EXPORT EventBusTargets
