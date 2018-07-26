@@ -222,6 +222,11 @@ Please report here issue / question / whatever in 99% I will answer ;)
 - [swietlana](https://github.com/swietlana) for english correction and support ;)
 - [ruslo](https://github.com/ruslo) for this great example: https://github.com/forexample/package-example
 
+## For modern cmake refer
+
+ - https://github.com/forexample/package-example
+ - https://www.youtube.com/watch?v=6sWec7b0JIc
+
 # License
 
 EventBus source code can be used according to the **Apache License, Version 2.0**.  
