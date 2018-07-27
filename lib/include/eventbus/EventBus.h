@@ -12,13 +12,21 @@ namespace Dexode
 
 template <typename>
 void type_id() // Helper for getting "type id"
-{
-}
+{}
 
 using type_id_t = void (*)(); // Function pointer
 
 class EventBus
 {
+	template <class Event>
+	constexpr void validateEvent()
+	{
+		static_assert(std::is_const<Event>::value == false, "Struct must be without const");
+		static_assert(std::is_volatile<Event>::value == false, "Struct must be without volatile");
+		static_assert(std::is_reference<Event>::value == false, "Struct must be without reference");
+		static_assert(std::is_pointer<Event>::value == false, "Struct must be without pointer");
+	}
+
 public:
 	EventBus() = default;
 
@@ -43,6 +51,8 @@ public:
 	template <typename Event>
 	int listen(const std::function<void(const Event&)>& callback)
 	{
+		validateEvent<Event>();
+
 		const int token = ++_tokener;
 		listen<Event>(token, callback);
 		return token;
@@ -56,6 +66,8 @@ public:
 	template <typename Event>
 	void listen(const int token, const std::function<void(const Event&)>& callback)
 	{
+		validateEvent<Event>();
+
 		using Vector = VectorImpl<Event>;
 
 		assert(callback && "callback should be valid"); //Check for valid object
@@ -88,6 +100,8 @@ public:
 	template <typename Event>
 	void unlisten(const int token)
 	{
+		validateEvent<Event>();
+
 		auto found = _callbacks.find(type_id<Event>);
 		if(found != _callbacks.end())
 		{
@@ -103,8 +117,11 @@ public:
 	template <typename Event>
 	void notify(const Event& event)
 	{
-		using Vector = VectorImpl<Event>;
-		auto found = _callbacks.find(type_id<Event>);
+		using CleanEventType = typename std::remove_const<Event>::type;
+		validateEvent<CleanEventType>();
+
+		using Vector = VectorImpl<CleanEventType>;
+		auto found = _callbacks.find(type_id<CleanEventType>);
 		if(found == _callbacks.end())
 		{
 			return; // no such notifications
@@ -151,9 +168,9 @@ private:
 
 			//Invalidation rules: https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
 			auto removeFrom = std::remove_if(
-			    container.begin(), container.end(), [token](const ContainerElement& element) {
-				    return element.first == token;
-			    });
+				container.begin(), container.end(), [token](const ContainerElement& element) {
+					return element.first == token;
+				});
 			if(removeFrom != container.end())
 			{
 				container.erase(removeFrom, container.end());
