@@ -1,7 +1,15 @@
-os: linux
 dist: trusty
 sudo: require
 language: cpp
+osx_image: xcode9.4
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - gcc
+  - clang
 
 addons:
   apt:
@@ -12,8 +20,12 @@ addons:
       - clang-3.9
       - gcc-6
       - g++-6
+      - cmake
 
 matrix:
+  exclude: # On OSX g++ is a symlink to clang++ by default
+    - os: osx
+      compiler: gcc
   include:
     - compiler: gcc
       env: COMPILER=g++-6
@@ -26,12 +38,14 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
 
 before_script:
-  - if [ "$COMPILER" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
-  - if [ "$COMPILER" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
+  - if [ "$COMPILER" = "g++-6"        ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="g++-6" CC="gcc-6";              fi
+  - if [ "$COMPILER" = "clang++-3.9"  ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
 
 script:
-  - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=YES .. && cmake --build .
-  - ./test/EventBusTest # Run tests
-  - cd .. # exit from build-debug
-  - mkdir build-release && cd build-release && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=YES .. && cmake --build .
-  - ./test/EventBusTest # Run tests
+  #Build & Install library
+  - (mkdir -p lib/build-debug/ &&  cd lib/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
+  - (mkdir -p lib/build-release/ &&  cd lib/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
+  # Run tests
+  - (mkdir -p test/build-debug/ &&  cd test/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+  - (mkdir -p test/build-release/ &&  cd test/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+
