@@ -20,7 +20,7 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['gcc-7', 'g++-7', 'cmake', 'catch']
+          packages: ['gcc-7', 'g++-7', 'cmake']
       env: COMPILER='g++-7'
 
     - os: linux
@@ -28,7 +28,7 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['clang-3.9', 'cmake', 'catch']
+          packages: ['clang-3.9', 'cmake']
       env: COMPILER='clang++-3.9'
 
     - os: linux
@@ -36,7 +36,7 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake', 'catch']
+          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
       env: COMPILER='clang++-6.0'
 
     # - os: osx
@@ -46,7 +46,10 @@ matrix:
 
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
+  # Install catch 2 dependency
+  - wget https://github.com/catchorg/Catch2/archive/master.zip
+  - unzip master.zip && cd Catch2-master && mkdir -p build/ && cd build/
+  - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
 
 before_script:
   - if [ "$COMPILER" = "g++-6"        ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="g++-6" CC="gcc-6";              fi
