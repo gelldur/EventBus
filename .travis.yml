@@ -50,6 +50,7 @@ before_install:
   - wget https://github.com/catchorg/Catch2/archive/master.zip
   - unzip master.zip && cd Catch2-master && mkdir -p build/ && cd build/
   - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
+  - cd ../..
 
 before_script:
   - if [ "$COMPILER" = "g++-6"        ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="g++-6" CC="gcc-6";              fi
