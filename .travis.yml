@@ -28,14 +28,6 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['clang-3.9', 'cmake']
-      env: COMPILER='clang++-3.9'
-
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources: *all_sources
           packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
       env: COMPILER='clang++-6.0'
 
@@ -51,10 +43,6 @@ before_install:
   - unzip v2.2.3.zip && cd Catch2-2.2.3 && mkdir -p build/ && cd build/
   - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
   - cd ../..
-
-before_script:
-  - if [ "$COMPILER" = "g++-6"        ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="g++-6" CC="gcc-6";              fi
-  - if [ "$COMPILER" = "clang++-3.9"  ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
 
 script:
   #Build & Install library
