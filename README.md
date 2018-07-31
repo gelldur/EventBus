@@ -180,8 +180,12 @@ TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 Also if you want you can install library and add it at any way you want.  
 Eg.
 ```commandline
-mkdir Release && cd Release
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install ..
+mkdir -p lib/build/
+cd lib/build
+cmake -DCMAKE_BUILD_TYPE=Relase -DCMAKE_INSTALL_PREFIX=~/.local/ ..
+
+cmake --build . --target install
+# OR
 make && make install
 ```
 
@@ -205,6 +209,7 @@ checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns   
 - Thread safe EventBus ?
 - Verbose messages for easy debugging ?
 - Generating graph flow ?
+- Add nice documentation [like in POCO](https://pocoproject.org/slides/090-NotificationsEvents.pdf)
 - ...
 
 # Issues ?
@@ -216,6 +221,11 @@ Please report here issue / question / whatever in 99% I will answer ;)
 - [kuhar](https://github.com/kuhar) for his advice and suggestions for EventBus
 - [swietlana](https://github.com/swietlana) for english correction and support ;)
 - [ruslo](https://github.com/ruslo) for this great example: https://github.com/forexample/package-example
+
+## For modern cmake refer
+
+ - https://github.com/forexample/package-example
+ - https://www.youtube.com/watch?v=6sWec7b0JIc
 
 # License
 

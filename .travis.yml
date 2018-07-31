@@ -1,37 +1,54 @@
-os: linux
-dist: trusty
-sudo: require
 language: cpp
+sudo: false
 
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-precise-3.9
-      - ubuntu-toolchain-r-test
-    packages:
-      - clang-3.9
-      - gcc-6
-      - g++-6
+common_sources: &all_sources
+  - ubuntu-toolchain-r-test
+  - llvm-toolchain-trusty
+  - llvm-toolchain-trusty-3.9
+  - llvm-toolchain-trusty-4.0
+  - llvm-toolchain-trusty-5.0
+  - llvm-toolchain-trusty-6.0
 
 matrix:
-  include:
-    - compiler: gcc
-      env: COMPILER=g++-6
+  exclude: # On OSX g++ is a symlink to clang++ by default
+    - os: osx
+      compiler: gcc
 
-    - compiler: clang
-      env: COMPILER=clang++-3.9
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['gcc-7', 'g++-7', 'cmake']
+      env: COMPILER='g++-7'
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
+      env: COMPILER='clang++-6.0'
+
+    - os: osx
+      osx_image: xcode9.4
+      compiler: clang
+      env: COMPILER='clang++'
 
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
-
-before_script:
-  - if [ "$COMPILER" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
-  - if [ "$COMPILER" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
+  # Install catch 2 dependency
+  - wget https://github.com/catchorg/Catch2/archive/v2.2.3.zip
+  - unzip v2.2.3.zip && cd Catch2-2.2.3 && mkdir -p build/ && cd build/
+  - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
+  - cd ../..
 
 script:
-  - mkdir build-debug && cd build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=YES .. && cmake --build .
-  - ./test/EventBusTest # Run tests
-  - cd .. # exit from build-debug
-  - mkdir build-release && cd build-release && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=YES .. && cmake --build .
-  - ./test/EventBusTest # Run tests
+  #Build & Install library
+  - (mkdir -p lib/build-debug/ &&  cd lib/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
+  - (mkdir -p lib/build-release/ &&  cd lib/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
+  # Run tests
+  - (mkdir -p test/build-debug/ &&  cd test/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+  - (mkdir -p test/build-release/ &&  cd test/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+

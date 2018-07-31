@@ -49,6 +49,7 @@ EventCollector::~EventCollector()
 
 EventCollector& EventCollector::operator=(const EventCollector& other)
 {
+	std::unique_ptr<int> vector3;
 	if (this == &other)
 	{
 		return *this;
@@ -84,11 +85,6 @@ void EventCollector::unlistenAll()
 	{
 		_bus->unlistenAll(_token);
 	}
-}
-
-BusAttorney EventCollector::getBus() const
-{
-	return BusAttorney{_bus};
 }
 
 bool EventCollector::isUsing(const std::shared_ptr<EventBus>& bus) const

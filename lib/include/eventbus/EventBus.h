@@ -5,15 +5,28 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <string>
-#include <typeinfo>
 #include <vector>
 
 namespace Dexode
 {
 
+template <typename>
+void type_id() // Helper for getting "type id"
+{}
+
+using type_id_t = void (*)(); // Function pointer
+
 class EventBus
 {
+	template <class Event>
+	constexpr void validateEvent()
+	{
+		static_assert(std::is_const<Event>::value == false, "Struct must be without const");
+		static_assert(std::is_volatile<Event>::value == false, "Struct must be without volatile");
+		static_assert(std::is_reference<Event>::value == false, "Struct must be without reference");
+		static_assert(std::is_pointer<Event>::value == false, "Struct must be without pointer");
+	}
+
 public:
 	EventBus() = default;
 
@@ -35,9 +48,11 @@ public:
 	 * @param callback - your callback to handle event
 	 * @return token used for unlisten
 	 */
-	template<typename Event>
+	template <typename Event>
 	int listen(const std::function<void(const Event&)>& callback)
 	{
+		validateEvent<Event>();
+
 		const int token = ++_tokener;
 		listen<Event>(token, callback);
 		return token;
@@ -48,15 +63,17 @@ public:
 	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
 	 * @param callback - your callback to handle event
 	 */
-	template<typename Event>
+	template <typename Event>
 	void listen(const int token, const std::function<void(const Event&)>& callback)
 	{
+		validateEvent<Event>();
+
 		using Vector = VectorImpl<Event>;
 
-		assert(callback && "callback should be valid");//Check for valid object
+		assert(callback && "callback should be valid"); //Check for valid object
 
-		std::unique_ptr<VectorInterface>& vector = _callbacks[getTypeId<Event>()];
-		if (vector == nullptr)
+		std::unique_ptr<VectorInterface>& vector = _callbacks[type_id<Event>];
+		if(vector == nullptr)
 		{
 			vector.reset(new Vector{});
 		}
@@ -70,7 +87,7 @@ public:
 	 */
 	void unlistenAll(const int token)
 	{
-		for (auto& element : _callbacks)
+		for(auto& element : _callbacks)
 		{
 			element.second->remove(token);
 		}
@@ -80,11 +97,13 @@ public:
 	 * @tparam Event - type you want to unlisten. @see Notiier::listen
 	 * @param token - token from EventBus::listen
 	 */
-	template<typename Event>
+	template <typename Event>
 	void unlisten(const int token)
 	{
-		auto found = _callbacks.find(getTypeId<Event>());
-		if (found != _callbacks.end())
+		validateEvent<Event>();
+
+		auto found = _callbacks.find(type_id<Event>);
+		if(found != _callbacks.end())
 		{
 			found->second->remove(token);
 		}
@@ -95,15 +114,17 @@ public:
 	 *
 	 * @param event your event struct
 	 */
-	template<typename Event>
+	template <typename Event>
 	void notify(const Event& event)
 	{
-		using Vector = VectorImpl<Event>;
-		const auto typeId = getTypeId<Event>();//TODO think about constexpr
-		auto found = _callbacks.find(typeId);
-		if (found == _callbacks.end())
+		using CleanEventType = typename std::remove_const<Event>::type;
+		validateEvent<CleanEventType>();
+
+		using Vector = VectorImpl<CleanEventType>;
+		auto found = _callbacks.find(type_id<CleanEventType>);
+		if(found == _callbacks.end())
 		{
-			return;// no such notifications
+			return; // no such notifications
 		}
 
 		std::unique_ptr<VectorInterface>& vector = found->second;
@@ -111,7 +132,7 @@ public:
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
 
 		vectorImpl->beginTransaction();
-		for (const auto& element : vectorImpl->container)
+		for(const auto& element : vectorImpl->container)
 		{
 			element.second(event);
 		}
@@ -126,7 +147,7 @@ private:
 		virtual void remove(const int token) = 0;
 	};
 
-	template<typename Event>
+	template <typename Event>
 	struct VectorImpl : public VectorInterface
 	{
 		using CallbackType = std::function<void(const Event&)>;
@@ -139,19 +160,18 @@ private:
 
 		virtual void remove(const int token) override
 		{
-			if (inTransaction > 0)
+			if(inTransaction > 0)
 			{
 				toRemove.push_back(token);
 				return;
 			}
 
 			//Invalidation rules: https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
-			auto removeFrom = std::remove_if(container.begin(), container.end()
-											 , [token](const ContainerElement& element)
-					{
-						return element.first == token;
-					});
-			if (removeFrom != container.end())
+			auto removeFrom = std::remove_if(
+				container.begin(), container.end(), [token](const ContainerElement& element) {
+					return element.first == token;
+				});
+			if(removeFrom != container.end())
 			{
 				container.erase(removeFrom, container.end());
 			}
@@ -159,7 +179,7 @@ private:
 
 		void add(const int token, const CallbackType& callback)
 		{
-			if (inTransaction > 0)
+			if(inTransaction > 0)
 			{
 				toAdd.emplace_back(token, callback);
 			}
@@ -177,20 +197,20 @@ private:
 		void commitTransaction()
 		{
 			--inTransaction;
-			if (inTransaction > 0)
+			if(inTransaction > 0)
 			{
 				return;
 			}
 			inTransaction = 0;
 
-			if (toAdd.empty() == false)
+			if(toAdd.empty() == false)
 			{
 				container.insert(container.end(), toAdd.begin(), toAdd.end());
 				toAdd.clear();
 			}
-			if (toRemove.empty() == false)
+			if(toRemove.empty() == false)
 			{
-				for (auto token : toRemove)
+				for(auto token : toRemove)
 				{
 					remove(token);
 				}
@@ -200,14 +220,7 @@ private:
 	};
 
 	int _tokener = 0;
-	std::map<std::size_t, std::unique_ptr<VectorInterface>> _callbacks;
-
-	template<typename T>
-	static std::size_t getTypeId()
-	{
-		//std::hash<std::string>{}(typeid(T).name() is slower
-		return typeid(T).hash_code();
-	}
+	std::map<type_id_t, std::unique_ptr<VectorInterface>> _callbacks;
 };
 
 } /* namespace Dexode */

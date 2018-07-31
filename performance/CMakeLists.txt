@@ -1,17 +1,26 @@
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+
 # http://www.levelofindirection.com/journal/2010/12/28/unit-testing-in-c-and-objective-c-just-got-easier.html
 # Thanks for CATCH!
 
-ADD_SUBDIRECTORY(benchmark/)
+find_package(Poco COMPONENTS Foundation Util)
+
+add_subdirectory(benchmark/)
+
+if (NOT TARGET Dexode::EventBus)
+	find_package(EventBus CONFIG REQUIRED)
+endif ()
 
 # If you want to compare with CCNotificationCenter read about it in README and uncomment line below
 #INCLUDE(cocos2d-x-compare/Cocos2dxCompare.cmake)
 
-ADD_EXECUTABLE(EventBusPerformance
-		eventbus/EventBusPerformance.cpp
+add_executable(EventBusPerformance
+		src/EventBusPerformance.cpp
 		${CCNOTIFICATION_CENTER_SRC}
+		$<$<BOOL:${Poco_FOUND}>:src/PocoNotificationCenterPerformance.cpp>
 		)
 
-TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC
+target_compile_options(EventBusPerformance PUBLIC
 		-Wall -pedantic
 		-Wno-unused-private-field
 		-Wnon-virtual-dtor
@@ -19,27 +28,22 @@ TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC
 		-Werror
 		)
 
-SET(EVENTBUS_DEBUG_FLAGS
+set(EVENTBUS_DEBUG_FLAGS
 		-O0 -fno-inline
 		-DDEBUG
-		-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 		)
 
-SET(EVENTBUS_RELEASE_FLAGS
-		-DNDEBUG
-		)
 
-TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
-TARGET_COMPILE_OPTIONS(EventBusPerformance PUBLIC "$<$<CONFIG:RELEASE>:${EVENTBUS_RELEASE_FLAGS}>")
+target_compile_options(EventBusPerformance PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
-SET_TARGET_PROPERTIES(EventBusPerformance PROPERTIES
-		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED YES
-		)
-
-TARGET_INCLUDE_DIRECTORIES(EventBusPerformance PUBLIC
-		./
+target_include_directories(EventBusPerformance PUBLIC
+		src/
 		${CCNOTIFICATION_CENTER_INCLUDE}
 		)
 
-TARGET_LINK_LIBRARIES(EventBusPerformance PUBLIC Dexode::EventBus benchmark)
+target_link_libraries(EventBusPerformance PUBLIC
+		Dexode::EventBus
+		benchmark
+		$<$<BOOL:${Poco_FOUND}>:Poco::Foundation>
+		$<$<BOOL:${Poco_FOUND}>:Poco::Util>
+		)

@@ -1,0 +1,104 @@
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+
+# BUILD_SHARED_LIBS can controll build type!
+project(EventBus
+		VERSION 2.2.0
+		LANGUAGES CXX
+		)
+
+# Dependencies
+# No dependencies for EventBus yay!
+
+# Introduce variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
+
+# Layout. This works for all platforms:
+#   * <prefix>/lib*/cmake/<PROJECT-NAME>
+#   * <prefix>/lib*/
+#   * <prefix>/include/
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+# Library definition
+add_library(EventBus
+		src/EventCollector.cpp include/eventbus/EventCollector.h
+		include/eventbus/EventBus.h
+		)
+add_library(Dexode::EventBus ALIAS EventBus)
+
+target_compile_features(EventBus PUBLIC cxx_std_14)
+
+target_include_directories(EventBus PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+		$<INSTALL_INTERFACE:include/>
+		PRIVATE lib/src/
+		)
+
+# Add definitions for targets
+# Values:
+#   * Debug:   -DEVENTBUS_DEBUG=1
+#   * Release: -DEVENTBUS_DEBUG=0
+#   * other:   -DEVENTBUS_DEBUG=0
+target_compile_definitions(EventBus PUBLIC "EVENTBUS_DEBUG=$<CONFIG:Debug>")
+
+
+# Configuration
+set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
+set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
+set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
+set(namespace "Dexode::")
+
+# Targets:
+#   * <prefix>/lib/libEventBus.a
+#   * header location after install: <prefix>/include/eventbus/EventBus.h
+#   * headers can be included by C++ code `#include <eventbus/EventBus.h>`
+install(TARGETS EventBus
+		EXPORT "${TARGETS_EXPORT_NAME}"
+		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+		INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+		)
+
+# Export headers
+install(DIRECTORY include/eventbus
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+		)
+
+# Include module with fuction 'write_basic_package_version_file'
+include(CMakePackageConfigHelpers)
+
+# Configure '<PROJECT-NAME>ConfigVersion.cmake'
+# Use:
+#   * PROJECT_VERSION
+write_basic_package_version_file(
+		"${version_config}" COMPATIBILITY SameMajorVersion
+)
+
+# Configure '<PROJECT-NAME>Config.cmake'
+# Use variables:
+#   * TARGETS_EXPORT_NAME
+#   * PROJECT_NAME
+configure_package_config_file(
+		"cmake/Config.cmake.in"
+		"${project_config}"
+		INSTALL_DESTINATION "${config_install_dir}"
+)
+
+# Config
+#   * <prefix>/lib/cmake/EventBusventBusConfig.cmake
+#   * <prefix>/lib/cmake/EventBus/EventBusConfigVersion.cmake
+install(
+		FILES "${project_config}" "${version_config}"
+		DESTINATION "${config_install_dir}"
+)
+
+# Config
+#   * <prefix>/lib/cmake/EventBus/EventBusTargets.cmake
+install(EXPORT "${TARGETS_EXPORT_NAME}"
+		DESTINATION "${config_install_dir}"
+		NAMESPACE "${namespace}"
+		)
