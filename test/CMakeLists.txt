@@ -7,11 +7,12 @@ project(EventBusTest)
 
 # Dependencies
 enable_testing()
-if(NOT TARGET Dexode::EventBus)
+if (NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)
-endif()
+endif ()
 
-find_package(Catch2 REQUIRED)
+# From 2.3.X they broke back compatibility
+find_package(Catch2 2.2 REQUIRED)
 
 # Target definition
 add_executable(EventBusTest
@@ -46,7 +47,7 @@ set(EVENTBUS_DEBUG_FLAGS
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
-
 target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch)
+
 
 add_test(NAME EventBus.UnitTests COMMAND EventBusTest)

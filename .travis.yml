@@ -1,45 +1,48 @@
-dist: trusty
-sudo: require
 language: cpp
-osx_image: xcode9.4
+sudo: false
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-precise-3.9
-      - ubuntu-toolchain-r-test
-    packages:
-      - clang-3.9
-      - gcc-6
-      - g++-6
-      - cmake
+common_sources: &all_sources
+  - ubuntu-toolchain-r-test
+  - llvm-toolchain-trusty
+  - llvm-toolchain-trusty-3.9
+  - llvm-toolchain-trusty-4.0
+  - llvm-toolchain-trusty-5.0
+  - llvm-toolchain-trusty-6.0
 
 matrix:
   exclude: # On OSX g++ is a symlink to clang++ by default
     - os: osx
       compiler: gcc
-  include:
-    - compiler: gcc
-      env: COMPILER=g++-6
 
-    - compiler: clang
-      env: COMPILER=clang++-3.9
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['gcc-7', 'g++-7', 'cmake']
+      env: COMPILER='g++-7'
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: *all_sources
+          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
+      env: COMPILER='clang++-6.0'
+
+    - os: osx
+      osx_image: xcode9.4
+      compiler: clang
+      env: COMPILER='clang++'
 
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
-
-before_script:
-  - if [ "$COMPILER" = "g++-6"        ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="g++-6" CC="gcc-6";              fi
-  - if [ "$COMPILER" = "clang++-3.9"  ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
+  # Install catch 2 dependency
+  - wget https://github.com/catchorg/Catch2/archive/v2.2.3.zip
+  - unzip v2.2.3.zip && cd Catch2-2.2.3 && mkdir -p build/ && cd build/
+  - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
+  - cd ../..
 
 script:
   #Build & Install library
