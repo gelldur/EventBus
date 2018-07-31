@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # BUILD_SHARED_LIBS can controll build type!
 project(EventBus
-		VERSION 2.2.0
+		VERSION 2.3.0
 		LANGUAGES CXX
 		)
 
