@@ -47,8 +47,8 @@ matrix:
 
 before_install:
   # Install catch 2 dependency
-  - wget https://github.com/catchorg/Catch2/archive/master.zip
-  - unzip master.zip && cd Catch2-master && mkdir -p build/ && cd build/
+  - wget https://github.com/catchorg/Catch2/archive/v2.2.3.zip
+  - unzip master.zip && cd Catch2-2.2.3 && mkdir -p build/ && cd build/
   - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
   - cd ../..
 

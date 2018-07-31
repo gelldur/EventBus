@@ -11,7 +11,8 @@ if (NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)
 endif ()
 
-find_package(Catch2 REQUIRED)
+# From 2.3.X they broke back compatibility
+find_package(Catch2 2.2 REQUIRED)
 
 # Target definition
 add_executable(EventBusTest
@@ -46,11 +47,7 @@ set(EVENTBUS_DEBUG_FLAGS
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
-if (TARGET Catch2::Catch2) # Fix for naming library
-	target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch2)
-elseif (TARGET Catch2::Catch)
-	target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch)
-endif ()
+target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch)
 
 
 add_test(NAME EventBus.UnitTests COMMAND EventBusTest)
