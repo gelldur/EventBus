@@ -7,9 +7,9 @@ project(EventBusTest)
 
 # Dependencies
 enable_testing()
-if(NOT TARGET Dexode::EventBus)
+if (NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)
-endif()
+endif ()
 
 find_package(Catch2 REQUIRED)
 
@@ -46,7 +46,11 @@ set(EVENTBUS_DEBUG_FLAGS
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
+if (TARGET Catch2::Catch2) # Fix for naming library
+	target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch2)
+elseif (TARGET Catch2::Catch)
+	target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch)
+endif ()
 
-target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch)
 
 add_test(NAME EventBus.UnitTests COMMAND EventBusTest)
