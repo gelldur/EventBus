@@ -2,7 +2,7 @@
 // Created by Dawid Drozd aka Gelldur on 05.08.17.
 //
 
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <eventbus/EventCollector.h>
 
