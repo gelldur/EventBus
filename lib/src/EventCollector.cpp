@@ -49,7 +49,6 @@ EventCollector::~EventCollector()
 
 EventCollector& EventCollector::operator=(const EventCollector& other)
 {
-	std::unique_ptr<int> vector3;
 	if (this == &other)
 	{
 		return *this;
