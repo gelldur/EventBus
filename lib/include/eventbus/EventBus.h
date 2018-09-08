@@ -5,28 +5,15 @@
 #include <functional>
 #include <map>
 #include <memory>
-#include <vector>
+
+#include <eventbus/internal/common.h>
+#include <eventbus/internal/TransactionCallbackVector.h>
 
 namespace Dexode
 {
 
-template <typename>
-void type_id() // Helper for getting "type id"
-{}
-
-using type_id_t = void (*)(); // Function pointer
-
 class EventBus
 {
-	template <class Event>
-	constexpr void validateEvent()
-	{
-		static_assert(std::is_const<Event>::value == false, "Struct must be without const");
-		static_assert(std::is_volatile<Event>::value == false, "Struct must be without volatile");
-		static_assert(std::is_reference<Event>::value == false, "Struct must be without reference");
-		static_assert(std::is_pointer<Event>::value == false, "Struct must be without pointer");
-	}
-
 public:
 	EventBus() = default;
 
@@ -51,7 +38,7 @@ public:
 	template <typename Event>
 	int listen(const std::function<void(const Event&)>& callback)
 	{
-		validateEvent<Event>();
+		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
 		const int token = ++_tokener;
 		listen<Event>(token, callback);
@@ -66,13 +53,13 @@ public:
 	template <typename Event>
 	void listen(const int token, const std::function<void(const Event&)>& callback)
 	{
-		validateEvent<Event>();
+		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
-		using Vector = VectorImpl<Event>;
+		using Vector = Internal::TransactionCallbackVector<Event>;
 
 		assert(callback && "callback should be valid"); //Check for valid object
 
-		std::unique_ptr<VectorInterface>& vector = _callbacks[type_id<Event>];
+		std::unique_ptr<Internal::CallbackVector>& vector = _callbacks[Internal::type_id<Event>];
 		if(vector == nullptr)
 		{
 			vector.reset(new Vector{});
@@ -100,9 +87,9 @@ public:
 	template <typename Event>
 	void unlisten(const int token)
 	{
-		validateEvent<Event>();
+		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
-		auto found = _callbacks.find(type_id<Event>);
+		auto found = _callbacks.find(Internal::type_id<Event>);
 		if(found != _callbacks.end())
 		{
 			found->second->remove(token);
@@ -118,16 +105,16 @@ public:
 	void notify(const Event& event)
 	{
 		using CleanEventType = typename std::remove_const<Event>::type;
-		validateEvent<CleanEventType>();
+		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
-		using Vector = VectorImpl<CleanEventType>;
-		auto found = _callbacks.find(type_id<CleanEventType>);
+		using Vector = Internal::TransactionCallbackVector<CleanEventType>;
+		auto found = _callbacks.find(Internal::type_id<CleanEventType>);
 		if(found == _callbacks.end())
 		{
 			return; // no such notifications
 		}
 
-		std::unique_ptr<VectorInterface>& vector = found->second;
+		std::unique_ptr<Internal::CallbackVector>& vector = found->second;
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());
 
@@ -140,87 +127,8 @@ public:
 	}
 
 private:
-	struct VectorInterface
-	{
-		virtual ~VectorInterface() = default;
-
-		virtual void remove(const int token) = 0;
-	};
-
-	template <typename Event>
-	struct VectorImpl : public VectorInterface
-	{
-		using CallbackType = std::function<void(const Event&)>;
-		using ContainerElement = std::pair<int, CallbackType>;
-		using ContainerType = std::vector<ContainerElement>;
-		ContainerType container;
-		ContainerType toAdd;
-		std::vector<int> toRemove;
-		int inTransaction = 0;
-
-		virtual void remove(const int token) override
-		{
-			if(inTransaction > 0)
-			{
-				toRemove.push_back(token);
-				return;
-			}
-
-			//Invalidation rules: https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
-			auto removeFrom = std::remove_if(
-				container.begin(), container.end(), [token](const ContainerElement& element) {
-					return element.first == token;
-				});
-			if(removeFrom != container.end())
-			{
-				container.erase(removeFrom, container.end());
-			}
-		}
-
-		void add(const int token, const CallbackType& callback)
-		{
-			if(inTransaction > 0)
-			{
-				toAdd.emplace_back(token, callback);
-			}
-			else
-			{
-				container.emplace_back(token, callback);
-			}
-		}
-
-		void beginTransaction()
-		{
-			++inTransaction;
-		}
-
-		void commitTransaction()
-		{
-			--inTransaction;
-			if(inTransaction > 0)
-			{
-				return;
-			}
-			inTransaction = 0;
-
-			if(toAdd.empty() == false)
-			{
-				container.insert(container.end(), toAdd.begin(), toAdd.end());
-				toAdd.clear();
-			}
-			if(toRemove.empty() == false)
-			{
-				for(auto token : toRemove)
-				{
-					remove(token);
-				}
-				toRemove.clear();
-			}
-		}
-	};
-
 	int _tokener = 0;
-	std::map<type_id_t, std::unique_ptr<VectorInterface>> _callbacks;
+	std::map<Internal::type_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
 };
 
 } /* namespace Dexode */

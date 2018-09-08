@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(EventBusTest)
 
+set(CMAKE_CXX_STANDARD 14)
+
 # Dependencies
 enable_testing()
 if (NOT TARGET Dexode::EventBus)
@@ -13,12 +15,14 @@ endif ()
 
 # From 2.3.X they broke back compatibility
 find_package(Catch2 2.3 REQUIRED)
+find_package(Threads REQUIRED)
 
 # Target definition
 add_executable(EventBusTest
-		src/EventCollectorTest.cpp
-		src/NotifierTest.cpp
-		)
+	src/AsyncEventBusTest.cpp
+	src/EventCollectorTest.cpp
+	src/NotifierTest.cpp
+	)
 
 target_compile_options(EventBusTest PUBLIC
 		-Wall -pedantic
@@ -47,7 +51,7 @@ set(EVENTBUS_DEBUG_FLAGS
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
-target_link_libraries(EventBusTest PUBLIC Dexode::EventBus Catch2::Catch2)
+target_link_libraries(EventBusTest PUBLIC Catch2::Catch2 Dexode::EventBus Threads::Threads)
 
 
 add_test(NAME EventBus.UnitTests COMMAND EventBusTest)

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+set(CMAKE_CXX_STANDARD 14)
+
 # http://www.levelofindirection.com/journal/2010/12/28/unit-testing-in-c-and-objective-c-just-got-easier.html
 # Thanks for CATCH!
 

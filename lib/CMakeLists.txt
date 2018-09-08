@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # BUILD_SHARED_LIBS can controll build type!
 project(EventBus
-		VERSION 2.3.0
+		VERSION 2.4.0
 		LANGUAGES CXX
 		)
+
+set(CMAKE_CXX_STANDARD 14)
 
 # Dependencies
 # No dependencies for EventBus yay!
@@ -23,9 +25,14 @@ set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 # Library definition
 add_library(EventBus
-		src/EventCollector.cpp include/eventbus/EventCollector.h
-		include/eventbus/EventBus.h
-		)
+	include/eventbus/EventBus.h
+	include/eventbus/EventCollector.h
+	include/eventbus/internal/AsyncCallbackVector.h
+	include/eventbus/internal/CallbackVector.h
+	include/eventbus/internal/TransactionCallbackVector.h
+	include/eventbus/TokenHolder.h
+	src/eventbus/AsyncEventBus.cpp include/eventbus/AsyncEventBus.h
+	)
 add_library(Dexode::EventBus ALIAS EventBus)
 
 target_compile_features(EventBus PUBLIC cxx_std_14)
