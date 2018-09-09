@@ -1,5 +1,4 @@
 # EventBus
-
 [![Join the chat at https://gitter.im/EventBusCpp/Lobby](https://badges.gitter.im/EventBusCpp/Lobby.svg)](https://gitter.im/EventBusCpp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/gelldur/EventBus.svg?branch=master)](https://travis-ci.org/gelldur/EventBus)
 
 
@@ -22,19 +21,17 @@ EventBus main goals:
 - Free
 - tiny (~15 KB)
 - Decouples notification senders and receivers
-- on every platform you need (crossplatform)
+- on every platform you need (cross-platform)
 
 # Brief @ presentation
-
 Presentation [google docs](https://docs.google.com/presentation/d/1apAlKcVWo9FcqkPqL8108a1Fy9LGmhgLT56hSVpoI3w/edit?usp=sharing)
 
 
 # Sample
-You can checkout [sample/](sample/)  
+You can checkout [sample/](sample/)
 If you want to play with sample online checkout this link: [wandbox.org](https://wandbox.org/permlink/p3xeQaosuxv6w1rv)
 
 # Usage
-
 0. Store bus
 
 ```cpp
@@ -51,7 +48,7 @@ namespace Event // optional namespace
 	{
 		int goldReceived = 0;
 	};
-	
+
 	struct OK {}; // Simple event when user press "OK" button
 }
 ```
@@ -65,7 +62,7 @@ bus.listen<Event::Gold>
 			{
 				std::cout << "I received gold: " << event.goldReceived << "!" << std::endl;
 			});
-			
+
 HudLayer* hudLayer;
 // Hud layer will receive info about gold
 bus.listen<Event::Gold>(std::bind(&HudLayer::onGoldReceived,hudLayer,std::placeholders::_1));
@@ -111,7 +108,7 @@ bus.listen<SimpleEvent>(token, [](const auto& event) // another listener
 });
 
 bus.unlistenAll(token);//Now those two lambdas will be removed from listeners
-``` 
+```
 
 If you don't want to handle manually with `token` you can use `EventCollector` class.
 It is useful when we want to have multiple listeners in one class. So above example could look like this:
@@ -164,9 +161,8 @@ bus.notify<int>("event1", 2);
 ```
 
 # Add to your project
-
 EventBus can be added as `ADD_SUBDIRECTORY` to your cmake file.
-Then simply link it via `TARGET_LINK_LIBRARIES`  
+Then simply link it via `TARGET_LINK_LIBRARIES`
 Example:
 ```
 ADD_SUBDIRECTORY(lib/EventBus)
@@ -177,7 +173,7 @@ ADD_EXECUTABLE(MyExecutable
 TARGET_LINK_LIBRARIES(MyExecutable PUBLIC Dexode::EventBus)
 ```
 
-Also if you want you can install library and add it at any way you want.  
+Also if you want you can install library and add it at any way you want.
 Eg.
 ```commandline
 mkdir -p lib/build/
@@ -189,10 +185,10 @@ cmake --build . --target install
 make && make install
 ```
 
-Now in `Release/install` library is placed. 
+Now in `Release/install` library is placed.
 
-# Performance
-I have prepared some performance results. You can read about them [here](performance/README.md)  
+# Performance (could be outdated)
+I have prepared some performance results. You can read about them [here](performance/README.md)
 Small example:
 
 ```
@@ -203,33 +199,21 @@ checkNotifyFor10kListenersWhenNoOneListens                              18 ns   
 checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns     127378 ns       5460 sum=0
 ```
 
-# Future plans
-
-- Write more and better tests
-- Thread safe EventBus ?
-- Verbose messages for easy debugging ?
-- Generating graph flow ?
-- Add nice documentation [like in POCO](https://pocoproject.org/slides/090-NotificationsEvents.pdf)
-- ...
-
 # Issues ?
-Please report here issue / question / whatever in 99% I will answer ;)
+Please report here issue / question / whatever, there is chance 99% I will answer ;)
 
 # Thanks to
-
 - [staakk](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
 - [kuhar](https://github.com/kuhar) for his advice and suggestions for EventBus
-- [swietlana](https://github.com/swietlana) for english correction and support ;)
+- [swietlana](https://github.com/swietlana) for English correction and support ;)
 - [ruslo](https://github.com/ruslo) for this great example: https://github.com/forexample/package-example
 
 ## For modern cmake refer
-
  - https://github.com/forexample/package-example
  - https://www.youtube.com/watch?v=6sWec7b0JIc
 
 # License
-
-EventBus source code can be used according to the **Apache License, Version 2.0**.  
+EventBus source code can be used according to the **Apache License, Version 2.0**.
 For more information see [LICENSE](LICENSE) file
 
 If you don't like to read to much here is sumup about license [Apache 2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)#summary)
