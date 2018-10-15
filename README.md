@@ -1,6 +1,6 @@
-# EventBus
-[![Join the chat at https://gitter.im/EventBusCpp/Lobby](https://badges.gitter.im/EventBusCpp/Lobby.svg)](https://gitter.im/EventBusCpp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/gelldur/EventBus.svg?branch=master)](https://travis-ci.org/gelldur/EventBus)
-
+# EventBus [![GitHub version](https://badge.fury.io/gh/gelldur%2FEventBus.svg)](https://badge.fury.io/gh/gelldur%2FEventBus)
+&nbsp;&nbsp;[![Build status for Travis](https://travis-ci.org/gelldur/EventBus.svg?branch=master)](https://travis-ci.org/gelldur/EventBus)
+&nbsp;&nbsp;[![Build status for Appveyor](https://ci.appveyor.com/api/projects/status/github/gelldur/EventBus)](https://ci.appveyor.com/project/gelldur/EventBus)
 
 Simple and very fast event bus.
 The EventBus library is a convenient realization of the observer pattern.
@@ -25,7 +25,6 @@ EventBus main goals:
 
 # Brief @ presentation
 Presentation [google docs](https://docs.google.com/presentation/d/1apAlKcVWo9FcqkPqL8108a1Fy9LGmhgLT56hSVpoI3w/edit?usp=sharing)
-
 
 # Sample
 You can checkout [sample/](sample/)
@@ -199,10 +198,21 @@ checkNotifyFor10kListenersWhenNoOneListens                              18 ns   
 checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter     127388 ns     127378 ns       5460 sum=0
 ```
 
-# Issues ?
+# Issues ? [![GitHub issues](https://img.shields.io/github/issues/gelldur/EventBus.svg)](https://github.com/gelldur/EventBus/issues)
 Please report here issue / question / whatever, there is chance 99% I will answer ;)
 
-# Thanks to
+If you have any questions or want to chat use gitter.
+
+[![Join the chat at https://gitter.im/EventBusCpp/Lobby](https://badges.gitter.im/EventBusCpp/Lobby.svg)](https://gitter.im/EventBusCpp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+# Tesing and metrics
+// TODO
+
+
+[![LoC](https://tokei.rs/b1/github/gelldur/EventBus)](https://github.com/gelldur/EventBus)
+[![Coverage Status](https://coveralls.io/repos/github/gelldur/EventBus/badge.svg?branch=master)](https://coveralls.io/github/gelldur/EventBus?branch=master)
+
+# Thanks to [![GitHub contributors](https://img.shields.io/github/contributors/gelldur/EventBus.svg)](https://github.com/gelldur/EventBus/graphs/contributors) [![Open Source Helpers](https://www.codetriage.com/gelldur/eventbus/badges/users.svg)](https://www.codetriage.com/gelldur/eventbus)
 - [staakk](https://github.com/stanislawkabacinski) for fixing windows ;) [53d5026](https://github.com/gelldur/EventBus/commit/53d5026cad24810e82cd8d4a43d58cbfe329c502)
 - [kuhar](https://github.com/kuhar) for his advice and suggestions for EventBus
 - [swietlana](https://github.com/swietlana) for English correction and support ;)
