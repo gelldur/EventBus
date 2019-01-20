@@ -21,6 +21,7 @@ find_package(Threads REQUIRED)
 add_executable(EventBusTest
 	src/AsyncEventBusTest.cpp
 	src/EventCollectorTest.cpp
+	src/EventIdTest.cpp
 	src/NotifierTest.cpp
 	)
 
