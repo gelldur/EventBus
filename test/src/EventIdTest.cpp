@@ -43,9 +43,6 @@ TEST_CASE("Should return unique id for each event When using Internal::type_id<E
 	struct TestA
 	{};
 
-	::TestA a;
-	a.a = 10;
-
 	REQUIRE(unique.insert(Dexode::Internal::type_id<TestA>()).second);
 	REQUIRE(unique.insert(Dexode::Internal::type_id<::TestA>()).second);
 	REQUIRE(unique.insert(Dexode::Internal::type_id<Test::TestA>()).second);
