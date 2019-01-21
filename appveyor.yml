@@ -1,0 +1,61 @@
+version: build-{build}
+image: Visual Studio 2017
+configuration:
+  - Release
+  - Debug
+
+platform:
+  - x64
+
+cache: C:/Users/appveyor/.local
+
+install:
+- cmd: >-
+    pwd
+
+    rm -rf .cache
+
+    mkdir -p .cache
+
+    cd .cache
+
+    curl -L https://github.com/catchorg/Catch2/archive/v2.3.0.zip --output Catch2-v2.3.0.zip
+
+    7z x Catch2-v2.3.0.zip  && cd Catch2-2.3.0
+
+    mkdir -p build && cd build
+
+    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install --config %CONFIGURATION%
+
+    cd ../../..
+
+    pwd
+nuget:
+  disable_publish_on_pr: true
+  disable_publish_octopus: true
+
+build_script:
+- cmd: >-
+    cd lib
+
+    mkdir build-%CONFIGURATION% && cd build-%CONFIGURATION%
+
+    pwd
+
+    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=~/.local .. && cmake --build . --target install --config %CONFIGURATION%
+
+    cd ../..
+
+    pwd
+
+test_script:
+- cmd: >-
+    cd test
+
+    mkdir build-%CONFIGURATION% && cd build-%CONFIGURATION%
+
+    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --config %CONFIGURATION% && ctest -C %CONFIGURATION% -V .
+
+    cd ../..
+
+    pwd

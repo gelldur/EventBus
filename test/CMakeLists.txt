@@ -25,13 +25,13 @@ add_executable(EventBusTest
 	src/NotifierTest.cpp
 	)
 
-target_compile_options(EventBusTest PUBLIC
-		-Wall -pedantic
-		-Wno-unused-private-field
-		-Wnon-virtual-dtor
-		-Wno-gnu
-		-Werror
-		)
+#target_compile_options(EventBusTest PUBLIC
+#		-Wall -pedantic
+#		-Wno-unused-private-field
+#		-Wnon-virtual-dtor
+#		-Wno-gnu
+#		-Werror
+#		)
 
 # Don't do such thing:
 # if(CMAKE_BUILD_TYPE STREQUAL DEBUG)
@@ -44,11 +44,11 @@ target_compile_options(EventBusTest PUBLIC
 # target_compile_definitions(foo PRIVATE "VERBOSITY=$<IF:$<BOOL:${VERBOSE}>,30,10>")
 
 
-set(EVENTBUS_DEBUG_FLAGS
-		-O0 -fno-inline
-		-DDEBUG
-		#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
-		)
+#set(EVENTBUS_DEBUG_FLAGS
+#		-O0 -fno-inline
+#		-DDEBUG
+#		#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+#		)
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
