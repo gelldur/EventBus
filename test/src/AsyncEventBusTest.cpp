@@ -73,7 +73,7 @@ TEST_CASE("Should unlisten for event When call unlisten inside Listener", "[Asyn
 
 	const int myToken = 0x23167;
 
-	bus.listen<SimpleEvent>(myToken, [&counter, &bus](const SimpleEvent& event)
+	bus.listen<SimpleEvent>(myToken, [&counter, &bus, myToken](const SimpleEvent& event)
 	{
 		std::cout << "Event from: " << event.id << std::endl;
 		++counter;
@@ -108,7 +108,7 @@ TEST_CASE("Should listen for only 1 event When call unlisten inside Listener", "
 
 	const int myToken = 0x23167;
 
-	bus.listen<SimpleEvent>(myToken, [&counter, &bus](const SimpleEvent& event)
+	bus.listen<SimpleEvent>(myToken, [&counter, &bus, myToken](const SimpleEvent& event)
 	{
 		std::cout << "Event from: " << event.id << std::endl;
 		++counter;

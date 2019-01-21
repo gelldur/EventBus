@@ -1,6 +1,6 @@
 # EventBus [![GitHub version](https://badge.fury.io/gh/gelldur%2FEventBus.svg)](https://badge.fury.io/gh/gelldur%2FEventBus)
 &nbsp;&nbsp;[![Build status for Travis](https://travis-ci.org/gelldur/EventBus.svg?branch=master)](https://travis-ci.org/gelldur/EventBus)
-&nbsp;&nbsp;[![Build status for Appveyor](https://ci.appveyor.com/api/projects/status/github/gelldur/EventBus)](https://ci.appveyor.com/project/gelldur/EventBus)
+&nbsp;&nbsp;[![Build status for Appveyor](https://ci.appveyor.com/api/projects/status/s463l4o3rhegtx00?svg=true)](https://ci.appveyor.com/project/gelldur/EventBus)
 
 Simple and very fast event bus.
 The EventBus library is a convenient realization of the observer pattern.
