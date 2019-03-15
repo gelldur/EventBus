@@ -164,7 +164,8 @@ EventBus can be added as `ADD_SUBDIRECTORY` to your cmake file.
 Then simply link it via `TARGET_LINK_LIBRARIES`
 Example:
 ```
-ADD_SUBDIRECTORY(lib/EventBus)
+# No tests/benchmarks target won't be added. Root CMakeLists is for development.
+ADD_SUBDIRECTORY(path/to/EventBus/lib)
 ADD_EXECUTABLE(MyExecutable
 		main.cpp
 		)
