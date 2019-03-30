@@ -5,18 +5,27 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(EventBusDev)
 
+option(ENABLE_TEST "Enable test" ON)
+option(ENABLE_PERFORMANCE "Enable performance subproject" OFF)
+
 set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(lib/)
 
-enable_testing()
-add_subdirectory(test/)
+if(ENABLE_TEST)
+	enable_testing()
+	add_subdirectory(test/)
+endif()
+
 add_subdirectory(sample/)
-add_subdirectory(performance/)
+
+if(ENABLE_PERFORMANCE)
+	add_subdirectory(performance/)
+endif()
 
 target_compile_options(EventBus PUBLIC
-		-Wall -pedantic
-		-Wnon-virtual-dtor
-		-Werror
-		-Wno-error=deprecated-declarations
-		)
+	-Wall -pedantic
+	-Wnon-virtual-dtor
+	-Werror
+	-Wno-error=deprecated-declarations
+	)
