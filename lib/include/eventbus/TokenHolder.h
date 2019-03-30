@@ -9,8 +9,7 @@ namespace
 
 template <class Bus>
 void null_deleter(Bus*)
-{
-}
+{}
 
 } // namespace
 
@@ -25,20 +24,18 @@ class TokenHolder
 {
 public:
 	TokenHolder(const std::shared_ptr<Bus>& bus)
-		: _bus{bus}
+		: _bus {bus}
 	{
 		assert(_bus);
 	}
 
 	TokenHolder(Bus* bus)
 		: _bus(bus, &null_deleter<Bus>)
-	{
-	}
+	{}
 
 	TokenHolder(const TokenHolder& other)
 		: _bus(other._bus)
-	{
-	}
+	{}
 
 	TokenHolder(TokenHolder&& other)
 		: _token(other._token)

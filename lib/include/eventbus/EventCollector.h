@@ -15,4 +15,4 @@ namespace Dexode
 // [[deprecated("Deprecating EventCollector. Try move to: TokenHolder<>")]]
 using EventCollector = TokenHolder<EventBus>;
 
-}
+} // namespace Dexode

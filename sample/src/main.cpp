@@ -16,7 +16,7 @@ struct Gold // Event that will be proceed when our gold changes
 {
 	int value = 0;
 };
-}
+} // namespace Event
 
 enum class Monster
 {
@@ -29,9 +29,8 @@ class Character
 {
 public:
 	Character(const std::shared_ptr<Dexode::EventBus>& eventBus)
-	    : _bus{eventBus}
-	{
-	}
+		: _bus {eventBus}
+	{}
 
 	void kill(Monster monsterType)
 	{
@@ -47,7 +46,7 @@ public:
 		{
 			_gold += 25;
 		}
-		_bus->notify(Event::Gold{_gold});
+		_bus->notify(Event::Gold {_gold});
 	}
 
 private:
@@ -59,9 +58,8 @@ class UIWallet
 {
 public:
 	UIWallet(const std::shared_ptr<Dexode::EventBus>& eventBus)
-	    : _listener{eventBus}
-	{
-	}
+		: _listener {eventBus}
+	{}
 
 	void onDraw() // Example "draw" of UI
 	{
@@ -69,10 +67,10 @@ public:
 	}
 
 	void onEnter() // We could also do such things in ctor and dtor but a lot of UI has something
-	               // like this
+		// like this
 	{
 		_listener.listen<Event::Gold>(
-		    [this](const auto& event) { _gold = std::to_string(event.value); });
+			[this](const auto& event) { _gold = std::to_string(event.value); });
 	}
 
 	void onExit()
@@ -86,15 +84,15 @@ private:
 };
 
 class ShopButton // Shop button is only enabled when we have some gold (odd decision but for sample
-                 // good :P)
+	// good :P)
 {
 public:
 	ShopButton(const std::shared_ptr<Dexode::EventBus>& eventBus)
-	    : _listener{eventBus}
+		: _listener {eventBus}
 	{
 		// We can use lambda or bind your choice
 		_listener.listen<Event::Gold>(
-		    std::bind(&ShopButton::onGoldUpdated, this, std::placeholders::_1));
+			std::bind(&ShopButton::onGoldUpdated, this, std::placeholders::_1));
 		// Also we use RAII idiom to handle unlisten
 	}
 
@@ -118,11 +116,11 @@ int main(int argc, char* argv[])
 {
 	std::shared_ptr<Dexode::EventBus> eventBus = std::make_shared<Dexode::EventBus>();
 
-	Character characterController{eventBus};
+	Character characterController {eventBus};
 
-	UIWallet wallet{eventBus}; // UIWallet doesn't know anything about character
-	                           // or even who store gold
-	ShopButton shopButton{eventBus}; // ShopButton doesn't know anything about character
+	UIWallet wallet {eventBus}; // UIWallet doesn't know anything about character
+		// or even who store gold
+	ShopButton shopButton {eventBus}; // ShopButton doesn't know anything about character
 	{
 		wallet.onEnter();
 	}
@@ -134,9 +132,9 @@ int main(int argc, char* argv[])
 	wallet.onDraw();
 
 	// It is easy to test UI eg.
-	eventBus->notify(Event::Gold{1});
+	eventBus->notify(Event::Gold {1});
 	assert(shopButton.isEnabled() == true);
-	eventBus->notify(Event::Gold{0});
+	eventBus->notify(Event::Gold {0});
 	assert(shopButton.isEnabled() == false);
 
 	wallet.onExit();

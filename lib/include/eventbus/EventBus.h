@@ -6,8 +6,8 @@
 #include <map>
 #include <memory>
 
-#include <eventbus/internal/common.h>
 #include <eventbus/internal/TransactionCallbackVector.h>
+#include <eventbus/internal/common.h>
 
 namespace Dexode
 {
@@ -62,7 +62,7 @@ public:
 		std::unique_ptr<Internal::CallbackVector>& vector = _callbacks[Internal::type_id<Event>()];
 		if(vector == nullptr)
 		{
-			vector.reset(new Vector{});
+			vector.reset(new Vector {});
 		}
 		assert(dynamic_cast<Vector*>(vector.get()));
 		Vector* vectorImpl = static_cast<Vector*>(vector.get());

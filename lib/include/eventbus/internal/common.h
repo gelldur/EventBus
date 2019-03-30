@@ -15,8 +15,6 @@ type_id_t type_id() // Helper for getting "type id"
 	return typeid(T).hash_code();
 }
 
-
-
 template <class Event>
 constexpr bool validateEvent()
 {

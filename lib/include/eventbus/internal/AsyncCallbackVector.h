@@ -21,8 +21,7 @@ struct AsyncCallbackVector : public CallbackVector
 	virtual void remove(const int token) override
 	{
 		auto removeFrom = std::remove_if(
-			container.begin(), container.end(), [token](const ContainerElement& element)
-			{
+			container.begin(), container.end(), [token](const ContainerElement& element) {
 				return element.first == token;
 			});
 		if(removeFrom != container.end())
