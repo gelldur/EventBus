@@ -13,8 +13,7 @@ if (NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)
 endif ()
 
-# From 2.3.X they broke back compatibility
-find_package(Catch2 2.3 REQUIRED)
+find_package(Catch2 2.6 REQUIRED)
 find_package(Threads REQUIRED)
 
 # Target definition
