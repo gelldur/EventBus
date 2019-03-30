@@ -164,6 +164,18 @@ public:
 	}
 
 	/**
+	 * Schedule and consume event. Notify all listeners with event.
+	 *
+	 * @param event your event struct
+	 */
+	template <typename Event>
+	void notify(const Event& event)
+	{
+		schedule(event);
+		consume(1);
+	}
+
+	/**
 	 * Process queued events. This should be called always on same thread.
 	 * @param max maximum count of events to consume, if 0 then all available events will be consumed.
 	 * If max is higher than available events then only available events will be consumed.
