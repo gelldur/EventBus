@@ -7,10 +7,16 @@ project(EventBusDev)
 
 option(ENABLE_TEST "Enable test" ON)
 option(ENABLE_PERFORMANCE "Enable performance subproject" OFF)
+option(ENABLE_CPACK "Enable CPack packaging" ON)
 
 set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(lib/)
+
+if(ENABLE_CPACK)
+	include("lib/cmake/EventBus_CPack.cmake")
+	enable_cpack("RPM;DEB;TGZ")
+endif()
 
 if(ENABLE_TEST)
 	enable_testing()
