@@ -187,6 +187,34 @@ make && make install
 
 Now in `Release/install` library is placed.
 
+Or, you can install the library through your package manager (dpkg, rpm, etc). 
+Eg. 
+```commandline
+mkdir -p lib/build/
+cd lib/build
+
+# For most RH-based Distributions
+cmake -DCMAKE_BUILD_TYPE=Relase -DCPACK_GENERATOR="RPM" ..
+
+# For most Debian-based Distributions
+cmake -DCMAKE_BUILD_TYPE=Relase -DCPACK_GENERATOR="DEB" ..
+
+# Or for both of them
+cmake -DCMAKE_BUILD_TYPE=Relase -DCPACK_GENERATOR="RPM;DEB" ..
+
+cmake --build . --target package
+# OR
+make package
+
+# For most Debian-based systems
+sudo dpkg -i EventBus*.deb
+
+# For most RH-based systems
+sudo rpm -i EventBus*.rpm
+# OR
+sudo yum install EventBus*.rpm
+```
+
 # Performance (could be outdated)
 I have prepared some performance results. You can read about them [here](performance/README.md)
 Small example:
