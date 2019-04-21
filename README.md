@@ -188,7 +188,7 @@ make && make install
 Now in `Release/install` library is placed.
 
 Or, you can install the library through your package manager (dpkg, rpm, etc). 
-Eg. 
+E.g. 
 ```commandline
 mkdir -p lib/build/
 cd lib/build
@@ -203,7 +203,7 @@ cmake -DCMAKE_BUILD_TYPE=Relase -DCPACK_GENERATOR="DEB" ..
 cmake -DCMAKE_BUILD_TYPE=Relase -DCPACK_GENERATOR="RPM;DEB" ..
 
 cmake --build . --target package
-# OR
+# Or
 make package
 
 # For most Debian-based systems
