@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+# Use ';' to specify multiple e.g. ZIP;TGZ;DEB
+set(CPACK_GENERATOR "" CACHE STRING "Set packages CPack should build e.g. ZIP;TGZ;DEB")
+
 # BUILD_SHARED_LIBS can controll build type!
 project(EventBus
 		VERSION 2.5.0
@@ -111,7 +114,7 @@ install(EXPORT "${TARGETS_EXPORT_NAME}"
 		)
 
 # Cpack configuration
-if(ENABLE_CPACK)
+if(NOT CPACK_GENERATOR STREQUAL "")
 	include("cmake/EventBus_CPack.cmake")
-	enable_cpack()
+	enable_cpack(${CPACK_GENERATOR})
 endif()
