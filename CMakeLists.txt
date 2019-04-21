@@ -14,6 +14,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(lib/)
 
+if(ENABLE_CPACK)
+	include("lib/cmake/EventBus_CPack.cmake")
+	enable_cpack("RPM;DEB;TGZ")
+endif()
+
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test/)

@@ -1,6 +1,7 @@
 # CPack Configuration
-function(enable_cpack)
+function(enable_cpack generator)
     set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+    set(CPACK_GENERATOR ${generator})
     set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
     set(CPACK_PACKAGE_RELEASE 1)
     set(CPACK_PACKAGE_CONTACT "gelldur")
