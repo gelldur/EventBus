@@ -109,3 +109,9 @@ install(EXPORT "${TARGETS_EXPORT_NAME}"
 		DESTINATION "${config_install_dir}"
 		NAMESPACE "${namespace}"
 		)
+
+# Cpack configuration
+if(ENABLE_CPACK)
+	include("cmake/EventBus_CPack.cmake")
+	enable_cpack()
+endif()
