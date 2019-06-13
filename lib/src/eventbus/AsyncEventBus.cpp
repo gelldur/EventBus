@@ -1,7 +1,5 @@
 #include <eventbus/AsyncEventBus.h>
 
-#include <limits>
-
 namespace Dexode
 {
 
@@ -20,11 +18,6 @@ std::size_t AsyncEventBus::processCommandsAndGetQueuedEventsCount()
 
 int AsyncEventBus::consume(int max)
 {
-	if(max == 0)
-	{
-		max = std::numeric_limits<int>::max();
-	}
-
 	int consumed = 0;
 
 	std::function<void()> eventCommand;

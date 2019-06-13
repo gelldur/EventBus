@@ -4,6 +4,7 @@
 #include <cassert>
 #include <deque>
 #include <functional>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -177,11 +178,11 @@ public:
 
 	/**
 	 * Process queued events. This should be called always on same thread.
-	 * @param max maximum count of events to consume, if 0 then all available events will be consumed.
+	 * @param max maximum count of events to consume.
 	 * If max is higher than available events then only available events will be consumed.
 	 * @return number of consumed events
 	 */
-	int consume(int max = 0);
+	int consume(int max = std::numeric_limits<int>::max());
 
 	std::size_t getQueueEventCount() const
 	{
