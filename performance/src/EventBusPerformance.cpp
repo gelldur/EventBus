@@ -265,5 +265,3 @@ BENCHMARK(check10NotificationsFor1kListeners);
 // BENCHMARK(check1kNotificationsFor1kListeners); //Not available
 // BENCHMARK(check100NotificationsFor10kListeners); //Not available
 BENCHMARK(checkNotifyFor10kListenersWhenNoOneListens);
-
-BENCHMARK_MAIN()

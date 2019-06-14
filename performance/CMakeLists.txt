@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Poco COMPONENTS Foundation Util)
 
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 add_subdirectory(benchmark/)
 
 if (NOT TARGET Dexode::EventBus)
@@ -45,7 +46,7 @@ target_include_directories(EventBusPerformance PUBLIC
 
 target_link_libraries(EventBusPerformance PUBLIC
 		Dexode::EventBus
-		benchmark
+		benchmark benchmark_main
 		$<$<BOOL:${Poco_FOUND}>:Poco::Foundation>
 		$<$<BOOL:${Poco_FOUND}>:Poco::Util>
 		)
