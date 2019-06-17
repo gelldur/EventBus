@@ -28,7 +28,7 @@ matrix:
       addons:
         apt:
           sources: *all_sources
-          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
+          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake', 'libjsoncpp']
       env: COMPILER='clang++-6.0'
 
     - os: osx
