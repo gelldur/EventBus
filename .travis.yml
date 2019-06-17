@@ -1,47 +1,97 @@
 language: cpp
 sudo: false
 
-common_sources: &all_sources
-  - ubuntu-toolchain-r-test
-  - llvm-toolchain-trusty
-  - llvm-toolchain-trusty-3.9
-  - llvm-toolchain-trusty-4.0
-  - llvm-toolchain-trusty-5.0
-  - llvm-toolchain-trusty-6.0
-
 matrix:
   exclude: # On OSX g++ is a symlink to clang++ by default
     - os: osx
       compiler: gcc
 
   include:
+    # Bionic Ubuntu 18.04
     - os: linux
+      name: "Bionic - gcc"
+      dist: bionic # We can't install packages on Bionic, not sure why. Travis ignores addons...
       compiler: gcc
-      addons:
-        apt:
-          sources: *all_sources
-          packages: ['gcc-7', 'g++-7', 'cmake']
-      env: COMPILER='g++-7'
-
+    # Bionic Ubuntu 18.04
     - os: linux
+      name: "Bionic - clang"
+      dist: bionic # We can't install packages on Bionic, not sure why. Travis ignores addons...
       compiler: clang
+
+    # clang-6
+    - os: linux
+      name: "Xenial - clang 6"
+      dist: xenial
+      env: [USE_CC='/usr/bin/clang-6.0', USE_CXX='/usr/bin/clang++-6.0']
       addons:
         apt:
-          sources: *all_sources
-          packages: ['clang-6.0', 'libstdc++-6-dev', 'cmake']
-      env: COMPILER='clang++-6.0'
+          packages: ['clang-6.0', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
+    # clang-7
+    - os: linux
+      name: "Xenial - clang 7"
+      dist: xenial
+      env: [USE_CC='/usr/bin/clang-7', USE_CXX='/usr/bin/clang++-7']
+      addons:
+        apt:
+          packages: ['clang-7', 'cmake']
+          sources: ['llvm-toolchain-xenial-7']
+    # clang-8
+    - os: linux
+      name: "Xenial - clang 8"
+      dist: xenial
+      env: [USE_CC='/usr/bin/clang-8', USE_CXX='/usr/bin/clang++-8']
+      addons:
+        apt:
+          packages: ['clang-8', 'cmake']
+          sources: ['llvm-toolchain-xenial-8']
+
+    # gcc-7
+    - os: linux
+      name: "Xenial - gcc 7"
+      dist: xenial
+      env: [USE_CC='/usr/bin/gcc-7', USE_CXX='/usr/bin/g++-7']
+      addons:
+        apt:
+          packages: ['gcc-7', 'g++-7', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
+    # gcc-8
+    - os: linux
+      name: "Xenial - gcc 8"
+      dist: xenial
+      env: [USE_CC='/usr/bin/gcc-8', USE_CXX='/usr/bin/g++-8']
+      addons:
+        apt:
+          packages: ['gcc-8', 'g++-8', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
+    # gcc-9
+    - os: linux
+      name: "Xenial - gcc 9"
+      dist: xenial
+      env: [USE_CC='/usr/bin/gcc-9', USE_CXX='/usr/bin/g++-9']
+      addons:
+        apt:
+          packages: ['gcc-9', 'g++-9', 'cmake']
+          sources: ['ubuntu-toolchain-r-test']
 
     - os: osx
       osx_image: xcode9.4
       compiler: clang
-      env: COMPILER='clang++'
+    - os: osx
+      osx_image: xcode10.2
+      compiler: clang
 
 
 before_install:
+  # Override compilers set by Travis
+  - if [ ! -z "${USE_CC}" ]; then echo "Override CC=${USE_CC}"; eval "CC=${USE_CC}"; fi
+  - if [ ! -z "${USE_CXX}" ]; then echo "Override CXX=${USE_CXX}"; eval "CXX=${USE_CXX}"; fi
+  - echo ${CC} && ${CC} --version
+  - echo ${CXX} && ${CXX} --version
   # Install catch 2 dependency
   - wget https://github.com/catchorg/Catch2/archive/v2.6.0.zip
   - unzip v2.6.0.zip && cd Catch2-2.6.0 && mkdir -p build/ && cd build/
-  - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
+  - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_STANDARD=14 -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
   - cd ../..
 
 script:
