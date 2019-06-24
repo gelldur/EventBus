@@ -36,4 +36,20 @@ int AsyncEventBus::consume(int max)
 	return consumed;
 }
 
+bool AsyncEventBus::wait()
+{
+	using namespace std::chrono_literals;
+	std::unique_lock<std::mutex> lock(_waitMutex);
+	_eventWaiting.wait(lock);
+	return not _eventQueue.empty();
+}
+bool AsyncEventBus::waitFor(std::chrono::milliseconds timeout)
+{
+	using namespace std::chrono_literals;
+	std::unique_lock<std::mutex> lock(_waitMutex);
+	_eventWaiting.wait_for(lock, timeout);
+
+	return not _eventQueue.empty();
+}
+
 } // namespace Dexode
