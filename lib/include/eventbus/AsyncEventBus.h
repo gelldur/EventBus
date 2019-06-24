@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <condition_variable>
 #include <deque>
 #include <functional>
 #include <limits>
@@ -99,7 +100,7 @@ public:
 	void unlistenAll(const int token)
 	{
 		std::lock_guard<std::mutex> guard {_eventMutex};
-		_commandsQueue.push_back([this, token]() {
+		_commandsQueue.emplace_back([this, token]() {
 			std::lock_guard<std::mutex> guard {_callbacksMutex};
 			for(auto& element : _callbacks)
 			{
@@ -141,6 +142,7 @@ public:
 	void schedule(Event event)
 	{
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
+		_eventWaiting.notify_one();
 
 		std::lock_guard<std::mutex> guard {_eventMutex};
 		_eventQueue.push_back([this, event = std::move(event)]() {
@@ -183,6 +185,8 @@ public:
 	 * @return number of consumed events
 	 */
 	int consume(int max = std::numeric_limits<int>::max());
+	bool wait();
+	bool waitFor(std::chrono::milliseconds timeout);
 
 	std::size_t getQueueEventCount() const
 	{
@@ -204,6 +208,10 @@ private:
 	std::map<Internal::type_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
 	mutable std::mutex _callbacksMutex;
 	mutable std::mutex _eventMutex;
+
+	std::mutex _waitMutex;
+	std::condition_variable _eventWaiting;
+
 	std::deque<std::function<void()>> _eventQueue;
 	std::deque<std::function<void()>> _commandsQueue;
 };
