@@ -89,8 +89,8 @@ before_install:
   - echo ${CC} && ${CC} --version
   - echo ${CXX} && ${CXX} --version
   # Install catch 2 dependency
-  - wget https://github.com/catchorg/Catch2/archive/v2.6.0.zip
-  - unzip v2.6.0.zip && cd Catch2-2.6.0 && mkdir -p build/ && cd build/
+  - wget https://github.com/catchorg/Catch2/archive/v2.9.1.zip
+  - unzip v2.9.1.zip && cd Catch2-2.9.1 && mkdir -p build/ && cd build/
   - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_STANDARD=14 -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
   - cd ../..
 
