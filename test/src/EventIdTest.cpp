@@ -1,7 +1,6 @@
-#include <catch2/catch.hpp>
-
 #include <set>
 
+#include <catch2/catch.hpp>
 #include <eventbus/internal/common.h>
 
 namespace
@@ -39,7 +38,7 @@ TEST_CASE("Should return unique id for each event When using Internal::event_id<
 	std::set<Dexode::Internal::event_id_t> unique;
 
 	REQUIRE(unique.insert(Dexode::Internal::event_id<Anonymous>()).second);
-	REQUIRE_FALSE(unique.insert(Dexode::Internal::event_id<Anonymous>()).second); //already there
+	REQUIRE_FALSE(unique.insert(Dexode::Internal::event_id<Anonymous>()).second); // already there
 
 	struct TestA
 	{};

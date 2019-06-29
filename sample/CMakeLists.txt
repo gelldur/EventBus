@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(Sample LANGUAGES CXX)
 
 add_executable(Sample
-		src/main.cpp
-		)
+	src/main.cpp
+	)
 
 if(NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)

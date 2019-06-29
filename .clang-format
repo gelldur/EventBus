@@ -3,14 +3,15 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 # https://github.com/01org/parameter-framework/blob/master/.clang-format
 
-# Tested on: clang-format version 6.0.1
+# Tested on: clang-format version 8.0.0
+# Version 1.1
 
 
 # Common settings
 BasedOnStyle:  WebKit
 TabWidth:        4
 IndentWidth:     4
-UseTab:          Always
+UseTab:          ForContinuationAndIndentation
 ColumnLimit: 100
 
 # Other languages JavaScript, Proto
@@ -52,20 +53,20 @@ BinPackParameters: false
 BreakBeforeBraces: Custom
 # Control of individual brace wrapping cases
 BraceWrapping: {
-    AfterClass: 'true'
+  AfterClass: 'true'
     AfterControlStatement: 'true'
-    AfterEnum : 'true'
-    AfterFunction : 'true'
-    AfterNamespace : 'true'
-    AfterStruct : 'true'
-    AfterUnion : 'true'
-    BeforeCatch : 'true'
-    BeforeElse : 'true'
-    IndentBraces : 'false'
-    AfterExternBlock : 'true'
-    SplitEmptyFunction : 'false'
-    SplitEmptyRecord : 'false'
-    SplitEmptyNamespace : 'true'
+    AfterEnum: 'true'
+    AfterFunction: 'true'
+    AfterNamespace: 'true'
+    AfterStruct: 'true'
+    AfterUnion: 'true'
+    BeforeCatch: 'true'
+    BeforeElse: 'true'
+    IndentBraces: 'false'
+    AfterExternBlock: 'true'
+    SplitEmptyFunction: 'false'
+    SplitEmptyRecord: 'false'
+    SplitEmptyNamespace: 'true'
 }
 
 BreakAfterJavaFieldAnnotations: true
@@ -81,9 +82,17 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
+SpaceBeforeCpp11BracedList: false
 DerivePointerAlignment: false
 ExperimentalAutoDetectBinPacking: false
 ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
+IncludeCategories:
+  - Regex:           '^<.*\..+'
+    Priority:        2
+  - Regex:           '^<.*'
+    Priority:        1
+  - Regex:           '.*'
+    Priority:        3
 IndentCaseLabels: false
 FixNamespaceComments: true
 IndentWrappedFunctionNames: false
@@ -115,13 +124,15 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 SpaceAfterTemplateKeyword: true
+SpaceBeforeInheritanceColon: true
 
 SortUsingDeclarations: true
 SortIncludes: true
 
-# Comments are for developers, they should arrange them
-ReflowComments: false
+# Comments are for developers, they should arrange them but now we allow for ReflowComments
+# It should add at least 1 space after //
+ReflowComments: true
 
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
 IndentPPDirectives: AfterHash
 ---

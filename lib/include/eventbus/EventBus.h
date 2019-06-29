@@ -47,7 +47,8 @@ public:
 
 	/**
 	 * @tparam Event - type you want to listen for
-	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
+	 * @param token - unique token for identification receiver. Simply pass token from @see
+	 * EventBus::listen
 	 * @param callback - your callback to handle event
 	 */
 	template <typename Event>
@@ -57,15 +58,15 @@ public:
 
 		using Vector = Internal::TransactionCallbackVector<Event>;
 
-		assert(callback && "callback should be valid"); //Check for valid object
+		assert(callback && "callback should be valid"); // Check for valid object
 
 		std::unique_ptr<Internal::CallbackVector>& vector = _callbacks[Internal::event_id<Event>()];
 		if(vector == nullptr)
 		{
-			vector.reset(new Vector {});
+			vector.reset(new Vector{});
 		}
 		assert(dynamic_cast<Vector*>(vector.get()));
-		Vector* vectorImpl = static_cast<Vector*>(vector.get());
+		auto* vectorImpl = static_cast<Vector*>(vector.get());
 		vectorImpl->add(token, callback);
 	}
 

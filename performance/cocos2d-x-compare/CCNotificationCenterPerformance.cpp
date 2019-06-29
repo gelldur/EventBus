@@ -1,13 +1,13 @@
 //
 // Created by Dawid Drozd aka Gelldur on 05.08.17.
 //
-#include <random>
 #include <functional>
+#include <random>
 
 #include <benchmark/benchmark.h>
-#include <support/CCNotificationCenter.h>
 #include <cocoa/CCInteger.h>
 #include <cocos2d-x/cocos2dx/cocoa/CCAutoreleasePool.h>
+#include <support/CCNotificationCenter.h>
 
 namespace cocos2dx
 {
@@ -27,18 +27,15 @@ void checkNListeners(benchmark::State& state, const int listenersCount)
 	using namespace cocos2d;
 	cocos2d::CCNotificationCenter bus;
 	int sum = 0;
-	for (int i = 0; i < listenersCount; ++i)
+	for(int i = 0; i < listenersCount; ++i)
 	{
 		auto observer = new SampleObserver{};
 		observer->autorelease();
-		observer->callback = [&](int value)
-		{
-			benchmark::DoNotOptimize(sum += value * 2);
-		};
+		observer->callback = [&](int value) { benchmark::DoNotOptimize(sum += value * 2); };
 		bus.addObserver(observer, callfuncO_selector(SampleObserver::onCall), "sample", nullptr);
 	}
 	auto number = CCInteger::create(2);
-	while (state.KeepRunning())//Performance area!
+	while(state.KeepRunning()) // Performance area!
 	{
 		bus.postNotification("sample", number);
 	}
@@ -66,43 +63,41 @@ void check1kListeners_CCNotificationCenter(benchmark::State& state)
 	checkNListeners(state, 1000);
 }
 
-void checkNNotificationsForNListeners(benchmark::State& state
-									  , const int notificationsCount
-									  , const int listenersCount)
+void checkNNotificationsForNListeners(benchmark::State& state,
+									  const int notificationsCount,
+									  const int listenersCount)
 {
 	std::mt19937 generator(311281);
 	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
 
-
 	using namespace cocos2d;
 	cocos2d::CCNotificationCenter bus;
 
-	//We generate here N different notifications
+	// We generate here N different notifications
 	std::vector<std::string> notifications;
 	notifications.reserve(notificationsCount);
-	for (int i = 0; i < notificationsCount; ++i)
+	for(int i = 0; i < notificationsCount; ++i)
 	{
 		notifications.emplace_back(std::string{"notify_"} + std::to_string(i));
 	}
 
 	int sum = 0;
-	for (int i = 0; i < listenersCount; ++i)//We register M listeners for N notifications using uniform distribution
+	for(int i = 0; i < listenersCount;
+		++i) // We register M listeners for N notifications using uniform distribution
 	{
 		auto observer = new SampleObserver{};
 		observer->autorelease();
-		observer->callback = [&](int value)
-		{
-			benchmark::DoNotOptimize(sum += value * 2);
-		};
+		observer->callback = [&](int value) { benchmark::DoNotOptimize(sum += value * 2); };
 
 		const auto& notification = notifications.at(uniformDistribution(generator));
-		bus.addObserver(observer, callfuncO_selector(SampleObserver::onCall), notification.c_str(), nullptr);
+		bus.addObserver(
+			observer, callfuncO_selector(SampleObserver::onCall), notification.c_str(), nullptr);
 	}
 	auto number = CCInteger::create(2);
 
-	while (state.KeepRunning())//Performance area!
+	while(state.KeepRunning()) // Performance area!
 	{
-		//Pick random notification
+		// Pick random notification
 		const auto& notification = notifications.at(uniformDistribution(generator));
 
 		number->m_nValue = uniformDistribution(generator);
@@ -137,18 +132,15 @@ void checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter(benchmark::
 	using namespace cocos2d;
 	cocos2d::CCNotificationCenter bus;
 	int sum = 0;
-	for (int i = 0; i < 10000; ++i)
+	for(int i = 0; i < 10000; ++i)
 	{
 		auto observer = new SampleObserver{};
 		observer->autorelease();
-		observer->callback = [&](int value)
-		{
-			benchmark::DoNotOptimize(sum += value * 2);
-		};
+		observer->callback = [&](int value) { benchmark::DoNotOptimize(sum += value * 2); };
 		bus.addObserver(observer, callfuncO_selector(SampleObserver::onCall), "sample", nullptr);
 	}
 	auto number = CCInteger::create(2);
-	while (state.KeepRunning())//Performance area!
+	while(state.KeepRunning()) // Performance area!
 	{
 		bus.postNotification("unknown", number);
 	}
@@ -165,4 +157,4 @@ BENCHMARK(check100NotificationsFor1kListeners_CCNotificationCenter);
 BENCHMARK(check1kNotificationsFor1kListeners_CCNotificationCenter);
 BENCHMARK(check100NotificationsFor10kListeners_CCNotificationCenter);
 BENCHMARK(checkNotifyFor10kListenersWhenNoOneListens_CCNotificationCenter);
-}
+} // namespace cocos2dx

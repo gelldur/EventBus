@@ -30,7 +30,8 @@ struct TransactionCallbackVector : public CallbackVector
 			return;
 		}
 
-		//Invalidation rules: https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
+		// Invalidation rules:
+		// https://stackoverflow.com/questions/6438086/iterator-invalidation-rules
 		auto removeFrom = std::remove_if(
 			container.begin(), container.end(), [token](const ContainerElement& element) {
 				return element.first == token;

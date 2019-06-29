@@ -22,7 +22,7 @@ void checkNListeners(benchmark::State& state, const int listenersCount)
 	for(int i = 0; i < listenersCount; ++i)
 	{
 		bus.listen<SimpleEvent>(
-		    [&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
+			[&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
 	}
 
 	while(state.KeepRunning()) // Performance area!
@@ -81,8 +81,8 @@ struct SimpleEvent
 };
 
 void checkNNotificationsForNListeners(benchmark::State& state,
-                                      const int notificationsCount,
-                                      const int listenersCount)
+									  const int notificationsCount,
+									  const int listenersCount)
 {
 	std::mt19937 generator(311281);
 	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
@@ -90,7 +90,7 @@ void checkNNotificationsForNListeners(benchmark::State& state,
 	Dexode::EventBus bus;
 	int sum = 0;
 	for(int i = 0; i < listenersCount;
-	    ++i) // We register M listeners for N notifications using uniform distribution
+		++i) // We register M listeners for N notifications using uniform distribution
 	{
 		const auto which = uniformDistribution(generator);
 		// We generate here N different notifications
@@ -99,61 +99,61 @@ void checkNNotificationsForNListeners(benchmark::State& state,
 		case 0:
 			bus.listen<SimpleEvent<0>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 1:
 			bus.listen<SimpleEvent<1>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 2:
 			bus.listen<SimpleEvent<2>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 3:
 			bus.listen<SimpleEvent<3>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 4:
 			bus.listen<SimpleEvent<4>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 5:
 			bus.listen<SimpleEvent<5>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 6:
 			bus.listen<SimpleEvent<6>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 7:
 			bus.listen<SimpleEvent<7>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 8:
 			bus.listen<SimpleEvent<8>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		case 9:
 			bus.listen<SimpleEvent<9>>([&](const auto& event) {
 				benchmark::DoNotOptimize(sum += event.value *
-				                                2); // we use it to prevent some? optimizations
+												2); // we use it to prevent some? optimizations
 			});
 			break;
 		default:
@@ -242,7 +242,7 @@ void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 	for(int i = 0; i < 10000; ++i)
 	{
 		bus.listen<SimpleEvent>(
-		    [&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
+			[&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
 	}
 
 	const auto unknownEvent = UnknownEvent{2};
@@ -252,7 +252,7 @@ void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 	}
 	state.counters["sum"] = sum;
 }
-}
+} // namespace
 
 BENCHMARK(call1kLambdas_compare);
 

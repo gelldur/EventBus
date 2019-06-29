@@ -4,7 +4,6 @@
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
-
 #include <eventbus/EventBus.h>
 
 TEST_CASE("eventbus/Simple test", "Simple test")
@@ -18,12 +17,12 @@ TEST_CASE("eventbus/Simple test", "Simple test")
 	const auto token =
 		bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 3); });
 
-	bus.notify(SimpleEvent {3});
+	bus.notify(SimpleEvent{3});
 	bus.unlistenAll(token);
-	bus.notify(SimpleEvent {2});
+	bus.notify(SimpleEvent{2});
 
 	bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
-	bus.notify(SimpleEvent {1});
+	bus.notify(SimpleEvent{1});
 }
 
 TEST_CASE("eventbus/Simple test2", "Simple test")
@@ -39,10 +38,10 @@ TEST_CASE("eventbus/Simple test2", "Simple test")
 
 	bus.notify<SimpleEvent>({3});
 	bus.unlistenAll(token);
-	bus.notify(SimpleEvent {2});
+	bus.notify(SimpleEvent{2});
 
 	bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
-	bus.notify(SimpleEvent {1});
+	bus.notify(SimpleEvent{1});
 }
 
 TEST_CASE("eventbus/EventBus listen & notify",
@@ -60,17 +59,17 @@ TEST_CASE("eventbus/EventBus listen & notify",
 		REQUIRE(event.value == 3);
 	});
 	REQUIRE(isCalled == 0);
-	bus.notify(SimpleEvent {3});
+	bus.notify(SimpleEvent{3});
 	REQUIRE(isCalled == 1);
 	bus.unlistenAll(token);
-	bus.notify(SimpleEvent {2});
+	bus.notify(SimpleEvent{2});
 	REQUIRE(isCalled == 1);
 
 	bus.listen<SimpleEvent>([&](const SimpleEvent& event) {
 		++isCalled;
 		REQUIRE(event.value == 1);
 	});
-	bus.notify(SimpleEvent {1});
+	bus.notify(SimpleEvent{1});
 	REQUIRE(isCalled == 2);
 }
 
@@ -101,13 +100,13 @@ TEST_CASE("eventbus/Different notification", "Valid check notification")
 
 	REQUIRE(called1 == false);
 
-	bus.notify(SimpleEvent1 {1});
+	bus.notify(SimpleEvent1{1});
 
 	REQUIRE(called1 == true);
 	REQUIRE(called2 == false);
 	called1 = false;
 
-	bus.notify(SimpleEvent2 {2});
+	bus.notify(SimpleEvent2{2});
 
 	REQUIRE(called1 == false);
 	REQUIRE(called2 == true);
@@ -144,10 +143,10 @@ TEST_CASE("eventbus/EventBus different events",
 	});
 	REQUIRE(isCalled == 0);
 
-	bus.notify(Scope1::SimpleEvent {1});
+	bus.notify(Scope1::SimpleEvent{1});
 	REQUIRE(isCalled == 1);
 
-	bus.notify(Scope2::SimpleEvent {2});
+	bus.notify(Scope2::SimpleEvent{2});
 	REQUIRE(isCalled == 2);
 }
 
@@ -174,10 +173,10 @@ TEST_CASE("eventbus/EventBus modification during notify",
 		bus.unlistenAll(token2);
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
 }
 
@@ -213,10 +212,10 @@ TEST_CASE("eventbus/EventBus modification during notify2",
 		bus.unlistenAll(token3);
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 3);
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 3);
 }
 
@@ -250,7 +249,7 @@ TEST_CASE("eventbus/EventBus modification during notify3",
 		bus.unlistenAll(token3);
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 3);
 }
 
@@ -285,9 +284,9 @@ TEST_CASE("eventbus/EventBus modification during notify4",
 		bus.unlistenAll(token3);
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
 }
 
@@ -321,10 +320,10 @@ TEST_CASE("eventbus/EventBus modification during notify5",
 		});
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 3);
 }
 
@@ -344,7 +343,7 @@ TEST_CASE("eventbus/EventBus modification during nested notify",
 	int calls = 0;
 
 	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		bus.notify(TestEvent2 {});
+		bus.notify(TestEvent2{});
 
 		++calls;
 		bus.unlistenAll(token1);
@@ -363,8 +362,8 @@ TEST_CASE("eventbus/EventBus modification during nested notify",
 		bus.unlistenAll(token3);
 	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
-	REQUIRE_NOTHROW(bus.notify(TestEvent {}));
+	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
 	REQUIRE(calls == 2);
 }

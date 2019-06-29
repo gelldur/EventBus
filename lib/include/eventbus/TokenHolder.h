@@ -15,16 +15,13 @@ void null_deleter(Bus*)
 
 namespace Dexode
 {
-//
-//template<class Bus>
-//class EventBusWrapper : Bus
 
 template <class Bus>
 class TokenHolder
 {
 public:
 	TokenHolder(const std::shared_ptr<Bus>& bus)
-		: _bus {bus}
+		: _bus{bus}
 	{
 		assert(_bus);
 	}
@@ -93,7 +90,7 @@ public:
 		{
 			assert(callback);
 			assert(_bus);
-			return; //Skip such things
+			return; // Skip such things
 		}
 		if(_token == 0)
 		{

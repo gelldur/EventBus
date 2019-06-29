@@ -25,12 +25,12 @@ add_executable(EventBusTest
 	)
 
 target_compile_options(EventBusTest PUBLIC
-		-Wall -pedantic
-		-Wno-unused-private-field
-		-Wnon-virtual-dtor
-		-Wno-gnu
-		-Werror
-		)
+	-Wall -pedantic
+	-Wno-unused-private-field
+	-Wnon-virtual-dtor
+	-Wno-gnu
+	-Werror
+	)
 
 # Don't do such thing:
 # if(CMAKE_BUILD_TYPE STREQUAL DEBUG)
@@ -44,10 +44,10 @@ target_compile_options(EventBusTest PUBLIC
 
 
 set(EVENTBUS_DEBUG_FLAGS
-		-O0 -fno-inline
-		-DDEBUG
-		#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
-		)
+	-O0 -fno-inline
+	-DDEBUG
+	#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+	)
 
 target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 

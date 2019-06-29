@@ -4,11 +4,10 @@
 #include <functional>
 #include <random>
 
-#include <benchmark/benchmark.h>
-
 #include <Poco/NObserver.h>
 #include <Poco/Notification.h>
 #include <Poco/NotificationCenter.h>
+#include <benchmark/benchmark.h>
 
 namespace
 {
@@ -19,9 +18,8 @@ struct Wrapper : public Poco::Notification
 	T data;
 
 	Wrapper(T data)
-	    : data(std::move(data))
-	{
-	}
+		: data(std::move(data))
+	{}
 };
 
 template <class Egg>
@@ -29,9 +27,8 @@ class Target
 {
 public:
 	Target(std::function<void(const Egg&)> callback)
-	    : _callback(std::move(callback))
-	{
-	}
+		: _callback(std::move(callback))
+	{}
 
 	void handle(const Poco::AutoPtr<Wrapper<Egg>>& event)
 	{
@@ -61,7 +58,7 @@ void checkNListeners(benchmark::State& state, const int listenersCount)
 	for(int i = 0; i < listenersCount; ++i)
 	{
 		targets.emplace_back(
-		    [&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
+			[&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
 
 		bus.addObserver(Poco::NObserver<Listener, MyEvent>(targets.back(), &Listener::handle));
 	}

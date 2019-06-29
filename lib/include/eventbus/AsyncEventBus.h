@@ -17,8 +17,8 @@ namespace Dexode
 {
 
 /**
- * Async version of EventBus. Events are scheduled to queue and processed when called consume method.
- * Methods like listen/unlisten also now will be processed when consume being called.
+ * Async version of EventBus. Events are scheduled to queue and processed when called consume
+ * method. Methods like listen/unlisten also now will be processed when consume being called.
  *
  */
 class AsyncEventBus
@@ -28,7 +28,7 @@ public:
 
 	~AsyncEventBus()
 	{
-		std::lock_guard<std::mutex> guard {_callbacksMutex};
+		std::lock_guard<std::mutex> guard{_callbacksMutex};
 		_callbacks.clear();
 	}
 
@@ -63,30 +63,30 @@ public:
 	 * It isn't ASAP event
 	 *
 	 * @tparam Event - type you want to listen for
-	 * @param token - unique token for identification receiver. Simply pass token from @see EventBus::listen
+	 * @param token - unique token for identification receiver. Simply pass token from @see
+	 * EventBus::listen
 	 * @param callback - your callback to handle event
 	 */
 	template <typename Event>
 	void listen(const int token, std::function<void(const Event&)> callback)
 	{
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
+		assert(callback && "callback should be valid"); // Check for valid object
 
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		_commandsQueue.push_back([this, token, callback = std::move(callback)]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::mutex> guard{_callbacksMutex};
 
 			using Vector = Internal::AsyncCallbackVector<Event>;
-
-			assert(callback && "callback should be valid"); //Check for valid object
 
 			std::unique_ptr<Internal::CallbackVector>& vector =
 				_callbacks[Internal::event_id<Event>()];
 			if(vector == nullptr)
 			{
-				vector.reset(new Vector {});
+				vector.reset(new Vector{});
 			}
 			assert(dynamic_cast<Vector*>(vector.get()));
-			Vector* callbacks = static_cast<Vector*>(vector.get());
+			auto* callbacks = static_cast<Vector*>(vector.get());
 			callbacks->add(token, callback);
 		});
 	}
@@ -99,9 +99,9 @@ public:
 	 */
 	void unlistenAll(const int token)
 	{
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		_commandsQueue.emplace_back([this, token]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::mutex> guard{_callbacksMutex};
 			for(auto& element : _callbacks)
 			{
 				element.second->remove(token);
@@ -121,9 +121,9 @@ public:
 	{
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		_commandsQueue.push_back([this, token]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::mutex> guard{_callbacksMutex};
 
 			auto found = _callbacks.find(Internal::event_id<Event>);
 			if(found != _callbacks.end())
@@ -144,9 +144,9 @@ public:
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 		_eventWaiting.notify_one();
 
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		_eventQueue.push_back([this, event = std::move(event)]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::mutex> guard{_callbacksMutex};
 
 			using Vector = Internal::AsyncCallbackVector<Event>;
 			auto found = _callbacks.find(Internal::event_id<Event>());
@@ -157,7 +157,7 @@ public:
 
 			std::unique_ptr<Internal::CallbackVector>& vector = found->second;
 			assert(dynamic_cast<Vector*>(vector.get()));
-			Vector* callbacks = static_cast<Vector*>(vector.get());
+			auto* callbacks = static_cast<Vector*>(vector.get());
 
 			for(const auto& element : callbacks->container)
 			{
@@ -190,14 +190,14 @@ public:
 
 	std::size_t getQueueEventCount() const
 	{
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		return _eventQueue.size();
 	}
 
 private:
 	int newToken()
 	{
-		std::lock_guard<std::mutex> guard {_eventMutex};
+		std::lock_guard<std::mutex> guard{_eventMutex};
 		int token = ++_tokener;
 		return token;
 	}
