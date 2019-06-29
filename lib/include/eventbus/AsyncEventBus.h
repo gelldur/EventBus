@@ -80,7 +80,7 @@ public:
 			assert(callback && "callback should be valid"); //Check for valid object
 
 			std::unique_ptr<Internal::CallbackVector>& vector =
-				_callbacks[Internal::type_id<Event>()];
+				_callbacks[Internal::event_id<Event>()];
 			if(vector == nullptr)
 			{
 				vector.reset(new Vector {});
@@ -125,7 +125,7 @@ public:
 		_commandsQueue.push_back([this, token]() {
 			std::lock_guard<std::mutex> guard {_callbacksMutex};
 
-			auto found = _callbacks.find(Internal::type_id<Event>);
+			auto found = _callbacks.find(Internal::event_id<Event>);
 			if(found != _callbacks.end())
 			{
 				found->second->remove(token);
@@ -149,7 +149,7 @@ public:
 			std::lock_guard<std::mutex> guard {_callbacksMutex};
 
 			using Vector = Internal::AsyncCallbackVector<Event>;
-			auto found = _callbacks.find(Internal::type_id<Event>());
+			auto found = _callbacks.find(Internal::event_id<Event>());
 			if(found == _callbacks.end())
 			{
 				return; // no such notifications
@@ -205,7 +205,7 @@ private:
 	std::size_t processCommandsAndGetQueuedEventsCount();
 
 	int _tokener = 0;
-	std::map<Internal::type_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
+	std::map<Internal::event_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
 	mutable std::mutex _callbacksMutex;
 	mutable std::mutex _eventMutex;
 

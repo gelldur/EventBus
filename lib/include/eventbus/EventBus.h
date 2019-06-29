@@ -59,7 +59,7 @@ public:
 
 		assert(callback && "callback should be valid"); //Check for valid object
 
-		std::unique_ptr<Internal::CallbackVector>& vector = _callbacks[Internal::type_id<Event>()];
+		std::unique_ptr<Internal::CallbackVector>& vector = _callbacks[Internal::event_id<Event>()];
 		if(vector == nullptr)
 		{
 			vector.reset(new Vector {});
@@ -89,7 +89,7 @@ public:
 	{
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
-		auto found = _callbacks.find(Internal::type_id<Event>());
+		auto found = _callbacks.find(Internal::event_id<Event>());
 		if(found != _callbacks.end())
 		{
 			found->second->remove(token);
@@ -108,7 +108,7 @@ public:
 		static_assert(Internal::validateEvent<Event>(), "Invalid event");
 
 		using Vector = Internal::TransactionCallbackVector<CleanEventType>;
-		auto found = _callbacks.find(Internal::type_id<CleanEventType>());
+		auto found = _callbacks.find(Internal::event_id<CleanEventType>());
 		if(found == _callbacks.end())
 		{
 			return; // no such notifications
@@ -128,7 +128,7 @@ public:
 
 private:
 	int _tokener = 0;
-	std::map<Internal::type_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
+	std::map<Internal::event_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
 };
 
 } /* namespace Dexode */
