@@ -35,7 +35,15 @@ add_library(EventBus
 	include/eventbus/internal/TransactionCallbackVector.h
 	include/eventbus/TokenHolder.h
 	src/eventbus/AsyncEventBus.cpp include/eventbus/AsyncEventBus.h
+
+	# New version of EventBus 3.0
+	include/dexode/EventBus.hpp
+	include/dexode/eventbus/Listener.hpp
+	include/dexode/eventbus/Subscriber.hpp
+	src/dexode/eventbus/strategy/Protected.cpp include/dexode/eventbus/strategy/Protected.hpp
+	src/dexode/eventbus/strategy/Transaction.cpp include/dexode/eventbus/strategy/Transaction.hpp
 	)
+
 add_library(Dexode::EventBus ALIAS EventBus)
 
 target_compile_features(EventBus PUBLIC cxx_std_14)
