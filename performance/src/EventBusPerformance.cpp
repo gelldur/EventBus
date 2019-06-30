@@ -4,160 +4,159 @@
 #include <random>
 
 #include <benchmark/benchmark.h>
-#include <eventbus/EventBus.h>
+
+#include "dexode/EventBus.hpp"
+#include "dexode/eventbus/strategy/Protected.hpp"
+#include "dexode/eventbus/strategy/Transaction.hpp"
 
 namespace
 {
 
+template <class Bus>
 void checkNListeners(benchmark::State& state, const int listenersCount)
 {
-	Dexode::EventBus bus;
-	int sum = 0;
+	Bus bus;
 
 	struct SimpleEvent
 	{
 		int value;
 	};
 
+	std::vector<typename Bus::Listener> listeners;
+	listeners.reserve(listenersCount);
+
+	std::uint64_t sum = 0;
 	for(int i = 0; i < listenersCount; ++i)
 	{
-		bus.listen<SimpleEvent>(
-			[&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
+		listeners.emplace_back(bus.createListener());
+		listeners.back().template listen<SimpleEvent>(
+			[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 	}
 
 	while(state.KeepRunning()) // Performance area!
 	{
-		const auto event = SimpleEvent{2};
-		bus.notify(event);
+		const auto event = SimpleEvent{1};
+		bus.post(event);
 	}
 	state.counters["sum"] = sum;
 }
 
+template <class Strategy>
 void checkSimpleNotification(benchmark::State& state)
 {
-	checkNListeners(state, 1);
+	checkNListeners<dexode::EventBus<Strategy>>(state, 1);
 }
 
+template <class Strategy>
 void check10Listeners(benchmark::State& state)
 {
-	checkNListeners(state, 10);
+	checkNListeners<dexode::EventBus<Strategy>>(state, 10);
 }
 
+template <class Strategy>
 void check100Listeners(benchmark::State& state)
 {
-	checkNListeners(state, 100);
+	checkNListeners<dexode::EventBus<Strategy>>(state, 100);
 }
 
+template <class Strategy>
 void check1kListeners(benchmark::State& state)
 {
-	checkNListeners(state, 1000);
+	checkNListeners<dexode::EventBus<Strategy>>(state, 1000);
 }
 
 void call1kLambdas_compare(benchmark::State& state)
 {
-	int sum = 0;
 	std::vector<std::function<void(int)>> callbacks;
-	callbacks.reserve(1000);
-	for(int i = 0; i < 1000; ++i)
+	constexpr int listenersCount = 1000;
+	callbacks.reserve(listenersCount);
+	std::uint64_t sum = 0;
+	for(int i = 0; i < listenersCount; ++i)
 	{
-		callbacks.emplace_back([&](int value) { benchmark::DoNotOptimize(sum += value * 2); });
+		callbacks.emplace_back([&sum](int value) { benchmark::DoNotOptimize(sum += value); });
 	}
 
 	while(state.KeepRunning()) // Performance area!
 	{
-		for(int i = 0; i < 1000; ++i)
-		//		for (auto& callback :callbacks)
+		for(int i = 0; i < listenersCount; ++i)
 		{
-			callbacks[i](2);
+			callbacks[i](1);
 		}
 	}
 	state.counters["sum"] = sum;
 }
 
 template <int N>
-struct SimpleEvent
+struct UniqEvent
 {
-	int value = N;
+	int value;
 };
 
+template <class Bus>
 void checkNNotificationsForNListeners(benchmark::State& state,
 									  const int notificationsCount,
 									  const int listenersCount)
 {
 	std::mt19937 generator(311281);
-	std::uniform_int_distribution<int> uniformDistribution(0, notificationsCount - 1);
+	std::uniform_int_distribution<int> uniformDistribution(0, 9);
 
-	Dexode::EventBus bus;
-	int sum = 0;
-	for(int i = 0; i < listenersCount;
-		++i) // We register M listeners for N notifications using uniform distribution
+	Bus bus;
+	std::uint64_t sum = 0;
+
+	std::vector<typename Bus::Listener> listeners;
+	listeners.reserve(listenersCount);
+
+	// We register M listeners for N notifications using uniform distribution
+	for(int i = 0; i < listenersCount; ++i)
 	{
+		listeners.emplace_back(bus.createListener());
 		const auto which = uniformDistribution(generator);
+
 		// We generate here N different notifications
 		switch(which)
 		{
 		case 0:
-			bus.listen<SimpleEvent<0>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<0>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 1:
-			bus.listen<SimpleEvent<1>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<1>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 2:
-			bus.listen<SimpleEvent<2>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<2>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 3:
-			bus.listen<SimpleEvent<3>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<3>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 4:
-			bus.listen<SimpleEvent<4>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<4>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 5:
-			bus.listen<SimpleEvent<5>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<5>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 6:
-			bus.listen<SimpleEvent<6>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<6>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 7:
-			bus.listen<SimpleEvent<7>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<7>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 8:
-			bus.listen<SimpleEvent<8>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<8>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		case 9:
-			bus.listen<SimpleEvent<9>>([&](const auto& event) {
-				benchmark::DoNotOptimize(sum += event.value *
-												2); // we use it to prevent some? optimizations
-			});
+			listeners.back().template listen<UniqEvent<9>>(
+				[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 			break;
 		default:
-			assert(false);
+			throw std::runtime_error{"Nope"};
 		}
 	}
 
@@ -165,72 +164,79 @@ void checkNNotificationsForNListeners(benchmark::State& state,
 	{
 		// Pick random notification
 		const auto which = uniformDistribution(generator);
-		const auto number = uniformDistribution(generator);
 		// We generate here N different notifications
 		switch(which)
 		{
 		case 0:
-			bus.notify(SimpleEvent<0>{number});
+			bus.post(UniqEvent<0>{1});
 			break;
 		case 1:
-			bus.notify(SimpleEvent<1>{number});
+			bus.post(UniqEvent<1>{2});
 			break;
 		case 2:
-			bus.notify(SimpleEvent<2>{number});
+			bus.post(UniqEvent<2>{3});
 			break;
 		case 3:
-			bus.notify(SimpleEvent<3>{number});
+			bus.post(UniqEvent<3>{4});
 			break;
 		case 4:
-			bus.notify(SimpleEvent<4>{number});
+			bus.post(UniqEvent<4>{5});
 			break;
 		case 5:
-			bus.notify(SimpleEvent<5>{number});
+			bus.post(UniqEvent<5>{6});
 			break;
 		case 6:
-			bus.notify(SimpleEvent<6>{number});
+			bus.post(UniqEvent<6>{7});
 			break;
 		case 7:
-			bus.notify(SimpleEvent<7>{number});
+			bus.post(UniqEvent<7>{8});
 			break;
 		case 8:
-			bus.notify(SimpleEvent<8>{number});
+			bus.post(UniqEvent<8>{9});
 			break;
 		case 9:
-			bus.notify(SimpleEvent<9>{number});
+			bus.post(UniqEvent<9>{10});
 			break;
 		default:
-			assert(false);
+			throw std::runtime_error{"Nope"};
 		}
 	}
 	state.counters["sum"] = sum;
 }
 
+template <class Strategy>
 void check10NotificationsFor1kListeners(benchmark::State& state)
 {
-	checkNNotificationsForNListeners(state, 10, 1000);
+	checkNNotificationsForNListeners<dexode::EventBus<Strategy>>(state, 10, 1000);
 }
 
-// Sorry not available
-// void check100NotificationsFor1kListeners(benchmark::State& state)
-//{
-//	checkNNotificationsForNListeners(state, 100, 1000);
-//}
-//
-// void check1kNotificationsFor1kListeners(benchmark::State& state)
-//{
-//	checkNNotificationsForNListeners(state, 1000, 1000);
-//}
-//
-// void check100NotificationsFor10kListeners(benchmark::State& state)
-//{
-//	checkNNotificationsForNListeners(state, 100, 10000);
-//}
+template <class Strategy>
+void check100NotificationsFor1kListeners(benchmark::State& state)
+{
+	checkNNotificationsForNListeners<dexode::EventBus<Strategy>>(state, 100, 1000);
+}
 
+template <class Strategy>
+void check1kNotificationsFor1kListeners(benchmark::State& state)
+{
+	checkNNotificationsForNListeners<dexode::EventBus<Strategy>>(state, 1000, 1000);
+}
+
+template <class Strategy>
+void check100NotificationsFor10kListeners(benchmark::State& state)
+{
+	checkNNotificationsForNListeners<dexode::EventBus<Strategy>>(state, 100, 10000);
+}
+
+template <class Strategy>
 void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 {
-	Dexode::EventBus bus;
-	int sum = 0;
+	using Listener = typename dexode::EventBus<Strategy>::Listener;
+	dexode::EventBus<Strategy> bus;
+
+	constexpr int listenersCount = 10000;
+
+	std::uint64_t sum = 0;
 	struct SimpleEvent
 	{
 		int value;
@@ -239,16 +245,20 @@ void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 	{
 		int value;
 	};
-	for(int i = 0; i < 10000; ++i)
+
+	std::vector<Listener> listeners;
+	listeners.reserve(listenersCount);
+	for(int i = 0; i < listenersCount; ++i)
 	{
-		bus.listen<SimpleEvent>(
-			[&](const SimpleEvent& event) { benchmark::DoNotOptimize(sum += event.value * 2); });
+		listeners.emplace_back(bus.createListener());
+		listeners.back().template listen<SimpleEvent>(
+			[&sum](const auto& event) { benchmark::DoNotOptimize(sum += event.value); });
 	}
 
-	const auto unknownEvent = UnknownEvent{2};
 	while(state.KeepRunning()) // Performance area!
 	{
-		bus.notify(unknownEvent);
+		const auto unknownEvent = UnknownEvent{2};
+		bus.post(unknownEvent); // this event doesn't have any listener
 	}
 	state.counters["sum"] = sum;
 }
@@ -256,12 +266,40 @@ void checkNotifyFor10kListenersWhenNoOneListens(benchmark::State& state)
 
 BENCHMARK(call1kLambdas_compare);
 
-BENCHMARK(checkSimpleNotification);
-BENCHMARK(check10Listeners);
-BENCHMARK(check100Listeners);
-BENCHMARK(check1kListeners);
-BENCHMARK(check10NotificationsFor1kListeners);
-// BENCHMARK(check100NotificationsFor1kListeners); //Not available
-// BENCHMARK(check1kNotificationsFor1kListeners); //Not available
-// BENCHMARK(check100NotificationsFor10kListeners); //Not available
-BENCHMARK(checkNotifyFor10kListenersWhenNoOneListens);
+namespace strategy::Transaction
+{
+
+using Transaction = dexode::eventbus::strategy::Transaction;
+
+BENCHMARK_TEMPLATE(checkSimpleNotification, Transaction);
+BENCHMARK_TEMPLATE(check10Listeners, Transaction);
+BENCHMARK_TEMPLATE(check100Listeners, Transaction);
+BENCHMARK_TEMPLATE(check1kListeners, Transaction);
+
+BENCHMARK_TEMPLATE(check10NotificationsFor1kListeners, Transaction);
+BENCHMARK_TEMPLATE(check100NotificationsFor1kListeners, Transaction);
+BENCHMARK_TEMPLATE(check1kNotificationsFor1kListeners, Transaction);
+BENCHMARK_TEMPLATE(check100NotificationsFor10kListeners, Transaction);
+
+BENCHMARK_TEMPLATE(checkNotifyFor10kListenersWhenNoOneListens, Transaction);
+
+} // namespace strategy::Transaction
+
+namespace strategy::Protected
+{
+
+using Protected = dexode::eventbus::strategy::Protected;
+
+BENCHMARK_TEMPLATE(checkSimpleNotification, Protected);
+BENCHMARK_TEMPLATE(check10Listeners, Protected);
+BENCHMARK_TEMPLATE(check100Listeners, Protected);
+BENCHMARK_TEMPLATE(check1kListeners, Protected);
+
+BENCHMARK_TEMPLATE(check10NotificationsFor1kListeners, Protected);
+BENCHMARK_TEMPLATE(check100NotificationsFor1kListeners, Protected);
+BENCHMARK_TEMPLATE(check1kNotificationsFor1kListeners, Protected);
+BENCHMARK_TEMPLATE(check100NotificationsFor10kListeners, Protected);
+
+BENCHMARK_TEMPLATE(checkNotifyFor10kListenersWhenNoOneListens, Protected);
+
+} // namespace strategy::Protected
