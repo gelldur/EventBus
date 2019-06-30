@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 # Layout of project is inspired by: https://youtu.be/6sWec7b0JIc?t=20m50s
 # This top level CMakeLists should be used for development
@@ -8,7 +8,7 @@ project(EventBusDev)
 option(ENABLE_TEST "Enable test" ON)
 option(ENABLE_PERFORMANCE "Enable performance subproject" OFF)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(lib/)
 

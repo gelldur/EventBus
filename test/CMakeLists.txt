@@ -1,17 +1,15 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 # http://www.levelofindirection.com/journal/2010/12/28/unit-testing-in-c-and-objective-c-just-got-easier.html
 # Thanks for CATCH!
 
 project(EventBusTest)
 
-set(CMAKE_CXX_STANDARD 14)
-
 # Dependencies
 enable_testing()
-if (NOT TARGET Dexode::EventBus)
+if(NOT TARGET Dexode::EventBus)
 	find_package(EventBus CONFIG REQUIRED)
-endif ()
+endif()
 
 find_package(Catch2 2.6 REQUIRED)
 find_package(Threads REQUIRED)

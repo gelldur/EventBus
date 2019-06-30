@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 
 # Use ';' to specify multiple e.g. ZIP;TGZ;DEB
 set(CPACK_GENERATOR "" CACHE STRING "Set packages CPack should build e.g. ZIP;TGZ;DEB")
@@ -9,7 +9,7 @@ project(EventBus
 	LANGUAGES CXX
 	)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Dependencies
 # No dependencies for EventBus yay!
