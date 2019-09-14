@@ -46,9 +46,9 @@ public:
 	}
 
 	template <typename Event>
-	void postpone(const Event& event)
+	void postpone(Event&& event)
 	{
-		_eventQueue.push_back([this, event]() { post<Event>(event); });
+		_eventQueue.push_back([this, event = std::forward<Event>(event)]() { post<Event>(event); });
 	}
 
 	std::size_t processLimit(const std::size_t maxCountOfEvents)
@@ -65,7 +65,7 @@ public:
 		return processed;
 	}
 
-	std::size_t getQueueEventCount() const noexcept
+	[[nodiscard]] std::size_t getQueueEventCount() const noexcept
 	{
 		return _eventQueue.size();
 	}
@@ -83,7 +83,7 @@ public:
 		}
 		assert(dynamic_cast<Vector*>(vector.get()));
 		auto* vectorImpl = static_cast<Vector*>(vector.get());
-		vectorImpl->add(listenerID, callback);
+		vectorImpl->add(listenerID, std::forward<std::function<void(const Event&)>>(callback));
 	}
 
 	void unlistenAll(const std::uint32_t listenerID)

@@ -32,17 +32,17 @@ public:
 	EventBus& operator=(const EventBus&) = delete;
 
 	template <typename Event>
-	constexpr void post(const Event& event)
+	constexpr void post(Event&& event)
 	{
 		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
-		_base.template post<Event>(event);
+		_base.template post<Event>(std::forward<Event>(event));
 	}
 
 	template <typename Event>
-	constexpr void postpone(const Event& event)
+	constexpr void postpone(Event&& event)
 	{
 		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
-		_base.template postpone<Event>(event);
+		_base.template postpone<Event>(std::forward<Event>(event));
 	}
 
 	constexpr std::size_t processAll()
@@ -50,12 +50,12 @@ public:
 		return processLimit(std::numeric_limits<std::size_t>::max());
 	}
 
-	constexpr std::size_t processLimit(std::size_t maxCountOfEvents)
+	constexpr std::size_t processLimit(const std::size_t maxCountOfEvents)
 	{
 		return _base.processLimit(maxCountOfEvents);
 	}
 
-	constexpr std::size_t getPostponeEventCount() const
+	[[nodiscard]] constexpr std::size_t getPostponeEventCount() const
 	{
 		return _base.getQueueEventCount();
 	}

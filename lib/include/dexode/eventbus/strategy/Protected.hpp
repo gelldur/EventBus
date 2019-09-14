@@ -49,16 +49,17 @@ public:
 	}
 
 	template <typename Event>
-	void postpone(const Event& event)
+	void postpone(Event&& event)
 	{
 		{
 			std::unique_lock writeLock{_mutex};
-			_eventQueue.push_back([this, event]() { post<Event>(event); });
+			_eventQueue.push_back(
+				[this, event = std::forward<Event>(event)]() { post<Event>(event); });
 		}
 		_eventWaiting.notify_one();
 	}
 
-	std::size_t processLimit(const std::size_t maxCountOfEvents);
+	std::size_t processLimit(std::size_t maxCountOfEvents);
 
 	std::size_t getPostponeEventCount() const
 	{
@@ -83,10 +84,10 @@ public:
 		}
 		assert(dynamic_cast<Vector*>(eventListeners->second.get()));
 		auto* vectorImpl = static_cast<Vector*>(eventListeners->second.get());
-		vectorImpl->add(listenerID, callback);
+		vectorImpl->add(listenerID, std::forward<std::function<void(const Event&)>>(callback));
 	}
 
-	void unlistenAll(const std::uint32_t listenerID);
+	void unlistenAll(std::uint32_t listenerID);
 
 	template <typename Event>
 	void unlisten(const std::uint32_t listenerID)
