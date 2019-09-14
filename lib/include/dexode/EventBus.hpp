@@ -60,6 +60,11 @@ public:
 		return _base.getQueueEventCount();
 	}
 
+	Strategy& getStrategy()
+	{
+		return _base;
+	}
+
 private:
 	std::atomic<std::uint32_t> _lastID{0};
 	Strategy _base;
