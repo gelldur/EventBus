@@ -46,9 +46,8 @@ add_library(EventBus
 	# New version of EventBus 3.0
 	include/dexode/EventBus.hpp
 	include/dexode/eventbus/Listener.hpp
-	include/dexode/eventbus/Subscriber.hpp
 	src/dexode/eventbus/strategy/Protected.cpp include/dexode/eventbus/strategy/Protected.hpp
-	src/dexode/eventbus/strategy/Transaction.cpp include/dexode/eventbus/strategy/Transaction.hpp
+	include/dexode/eventbus/strategy/Transaction.hpp
 	)
 add_library(Dexode::EventBus ALIAS EventBus)
 
@@ -63,7 +62,6 @@ target_include_directories(EventBus PUBLIC
 set(EventBus_PUBLIC_HEADERS
 	include/dexode/EventBus.hpp
 	include/dexode/eventbus/Listener.hpp
-	include/dexode/eventbus/Subscriber.hpp
 	include/dexode/eventbus/strategy/Protected.hpp
 	include/dexode/eventbus/strategy/Transaction.hpp
 	)

@@ -13,20 +13,17 @@ class Listener
 public:
 	explicit Listener() = default; // Dummy listener
 
-	explicit Listener(Bus& bus)
-		: _id{bus.newListenerID()}
-		, _bus{&bus}
+	explicit Listener(std::shared_ptr<Bus> bus)
+		: _id{bus->newListenerID()}
+		, _bus{std::move(bus)}
 	{}
 
 	Listener(const Listener& other) = delete;
 
 	Listener(Listener&& other)
 		: _id(other._id)
-		, _bus(other._bus)
-	{
-		other._id = 0;
-		other._bus = nullptr;
-	}
+		, _bus(std::move(other._bus))
+	{}
 
 	~Listener()
 	{
@@ -38,7 +35,7 @@ public:
 
 	Listener& operator=(const Listener& other) = delete;
 
-	Listener& operator=(Listener&& other)
+	Listener& operator=(Listener&& other) noexcept
 	{
 		if(this == &other)
 		{
@@ -47,12 +44,10 @@ public:
 
 		if(_bus != nullptr)
 		{
-			unlistenAll();
+			unlistenAll(); // remove previous
 		}
 		_id = other._id;
-		other._id = 0;
-		_bus = other._bus;
-		other._bus = nullptr;
+		_bus = std::move(other._bus);
 
 		return *this;
 	}
@@ -66,16 +61,6 @@ public:
 		}
 		_bus->template listen<Event>(_id,
 									 std::forward<std::function<void(const Event&)>>(callback));
-	}
-
-	template <class Event>
-	void listen(const std::function<void(const Event&)>& callback)
-	{
-		if(_bus == nullptr)
-		{
-			throw std::runtime_error{"bus is null"};
-		}
-		_bus->template listen<Event>(_id, callback);
 	}
 
 	void unlistenAll()
@@ -99,7 +84,7 @@ public:
 
 private:
 	std::uint32_t _id = 0;
-	Bus* _bus = nullptr;
+	std::shared_ptr<Bus> _bus = nullptr;
 };
 
 } // namespace dexode::eventbus

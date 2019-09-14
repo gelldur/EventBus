@@ -9,7 +9,6 @@
 #include <eventbus/EventBus.h>
 
 #include "eventbus/Listener.hpp"
-#include "eventbus/Subscriber.hpp"
 #include "eventbus/internal/common.h"
 
 namespace dexode
@@ -22,7 +21,6 @@ class EventBus
 
 public:
 	using Listener = eventbus::Listener<EventBus<Strategy>>;
-	using Subscriber = eventbus::Subscriber<EventBus<Strategy>>;
 
 	constexpr EventBus() = default;
 	~EventBus() = default;
@@ -32,11 +30,6 @@ public:
 
 	EventBus& operator=(EventBus&&) = delete;
 	EventBus& operator=(const EventBus&) = delete;
-
-	Listener createListener()
-	{
-		return Listener{*this};
-	}
 
 	template <typename Event>
 	constexpr void post(const Event& event)
