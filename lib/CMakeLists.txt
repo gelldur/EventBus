@@ -9,7 +9,12 @@ project(EventBus
 	LANGUAGES CXX
 	)
 
+# Why C++ 17 needed:
+# - std::shared_mutex used
+# - nested namespaces e.g. my::name::space
+
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Dependencies
 # No dependencies for EventBus yay!
@@ -47,7 +52,7 @@ add_library(EventBus
 	)
 add_library(Dexode::EventBus ALIAS EventBus)
 
-target_compile_features(EventBus PUBLIC cxx_std_14)
+target_compile_features(EventBus PUBLIC cxx_std_17)
 
 target_include_directories(EventBus PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
