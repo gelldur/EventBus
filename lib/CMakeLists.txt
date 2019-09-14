@@ -19,6 +19,8 @@ set(CMAKE_CXX_STANDARD 17)
 # * CMAKE_INSTALL_BINDIR
 # * CMAKE_INSTALL_INCLUDEDIR
 include(GNUInstallDirs)
+include(cmake/InstallHelp.cmake)
+
 
 # Layout. This works for all platforms:
 #   * <prefix>/lib*/cmake/<PROJECT-NAME>
@@ -43,7 +45,6 @@ add_library(EventBus
 	src/dexode/eventbus/strategy/Protected.cpp include/dexode/eventbus/strategy/Protected.hpp
 	src/dexode/eventbus/strategy/Transaction.cpp include/dexode/eventbus/strategy/Transaction.hpp
 	)
-
 add_library(Dexode::EventBus ALIAS EventBus)
 
 target_compile_features(EventBus PUBLIC cxx_std_14)
@@ -54,6 +55,13 @@ target_include_directories(EventBus PUBLIC
 	PRIVATE lib/src/
 	)
 
+set(EventBus_PUBLIC_HEADERS
+	include/dexode/EventBus.hpp
+	include/dexode/eventbus/Listener.hpp
+	include/dexode/eventbus/Subscriber.hpp
+	include/dexode/eventbus/strategy/Protected.hpp
+	include/dexode/eventbus/strategy/Transaction.hpp
+	)
 # Add definitions for targets
 # Values:
 #   * Debug:   -DEVENTBUS_DEBUG=1
@@ -121,8 +129,10 @@ install(EXPORT "${TARGETS_EXPORT_NAME}"
 	NAMESPACE "${namespace}"
 	)
 
+install_public_headers_with_directory(EventBus_PUBLIC_HEADERS "include/")
+
 # Cpack configuration
 if(NOT CPACK_GENERATOR STREQUAL "")
-	include("cmake/EventBus_CPack.cmake")
+	include(cmake/EventBus_CPack.cmake)
 	enable_cpack(${CPACK_GENERATOR})
 endif()
