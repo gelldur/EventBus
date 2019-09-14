@@ -5,10 +5,8 @@
 #include <functional>
 #include <limits>
 
-#include <eventbus/EventBus.h>
-
 #include <dexode/EventBus.hpp>
-
+#include <eventbus/EventBus.h>
 
 #include "eventbus/Listener.hpp"
 #include "eventbus/Subscriber.hpp"

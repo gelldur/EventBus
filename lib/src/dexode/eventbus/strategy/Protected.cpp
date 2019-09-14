@@ -43,6 +43,7 @@ bool Protected::wait()
 	std::shared_lock readLock{_mutex};
 	return not _eventQueue.empty();
 }
+
 bool Protected::waitFor(std::chrono::milliseconds timeout)
 {
 	using namespace std::chrono_literals;
