@@ -11,7 +11,9 @@ template <class Bus>
 class Listener
 {
 public:
-	Listener(Bus& bus)
+	explicit Listener() = default; // Dummy listener
+
+	explicit Listener(Bus& bus)
 		: _id{bus.newListenerID()}
 		, _bus{&bus}
 	{}
@@ -43,8 +45,10 @@ public:
 			return *this;
 		}
 
-		unlistenAll();
-
+		if(_bus != nullptr)
+		{
+			unlistenAll();
+		}
 		_id = other._id;
 		other._id = 0;
 		_bus = other._bus;
@@ -56,6 +60,10 @@ public:
 	template <class Event>
 	void listen(std::function<void(const Event&)>&& callback)
 	{
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
 		_bus->template listen<Event>(_id,
 									 std::forward<std::function<void(const Event&)>>(callback));
 	}
@@ -63,24 +71,35 @@ public:
 	template <class Event>
 	void listen(const std::function<void(const Event&)>& callback)
 	{
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
 		_bus->template listen<Event>(_id, callback);
 	}
 
 	void unlistenAll()
 	{
-
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
 		_bus->unlistenAll(_id);
 	}
 
 	template <typename Event>
 	void unlisten()
 	{
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
 		_bus->template unlisten<Event>(_id);
 	}
 
 private:
 	std::uint32_t _id = 0;
-	Bus* _bus;
+	Bus* _bus = nullptr;
 };
 
 } // namespace dexode::eventbus
