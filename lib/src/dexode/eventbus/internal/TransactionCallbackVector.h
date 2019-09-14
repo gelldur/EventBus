@@ -6,9 +6,7 @@
 
 #include "CallbackVector.h"
 
-namespace Dexode
-{
-namespace Internal
+namespace dexode::eventbus::internal
 {
 
 template <typename Event>
@@ -84,5 +82,4 @@ struct TransactionCallbackVector : public CallbackVector
 	}
 };
 
-} // namespace Internal
-} // namespace Dexode
+} // namespace dexode::eventbus::internal

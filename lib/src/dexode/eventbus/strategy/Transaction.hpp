@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "dexode/EventBus.hpp"
-#include "eventbus/internal/TransactionCallbackVector.h"
+#include "dexode/eventbus/internal/TransactionCallbackVector.h"
 
 namespace dexode::eventbus::strategy
 {
@@ -26,14 +26,14 @@ public:
 	template <typename Event>
 	void post(const Event& event)
 	{
-		using Vector = Dexode::Internal::TransactionCallbackVector<Event>;
-		auto found = _callbacks.find(Dexode::Internal::event_id<Event>());
+		using Vector = eventbus::internal::TransactionCallbackVector<Event>;
+		auto found = _callbacks.find(eventbus::internal::event_id<Event>());
 		if(found == _callbacks.end())
 		{
 			return; // no such notifications
 		}
 
-		std::unique_ptr<Dexode::Internal::CallbackVector>& vector = found->second;
+		std::unique_ptr<eventbus::internal::CallbackVector>& vector = found->second;
 		assert(dynamic_cast<Vector*>(vector.get()));
 		auto* vectorImpl = static_cast<Vector*>(vector.get());
 
@@ -73,10 +73,10 @@ public:
 	template <class Event>
 	void listen(const std::uint32_t listenerID, std::function<void(const Event&)>&& callback)
 	{
-		using Vector = Dexode::Internal::TransactionCallbackVector<Event>;
+		using Vector = eventbus::internal::TransactionCallbackVector<Event>;
 
-		std::unique_ptr<Dexode::Internal::CallbackVector>& vector =
-			_callbacks[Dexode::Internal::event_id<Event>()];
+		std::unique_ptr<eventbus::internal::CallbackVector>& vector =
+			_callbacks[eventbus::internal::event_id<Event>()];
 		if(vector == nullptr)
 		{
 			vector = std::make_unique<Vector>();
@@ -97,9 +97,9 @@ public:
 	template <typename Event>
 	void unlisten(const std::uint32_t listenerID)
 	{
-		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
+		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
 
-		auto found = _callbacks.find(Dexode::Internal::event_id<Event>());
+		auto found = _callbacks.find(eventbus::internal::event_id<Event>());
 		if(found != _callbacks.end())
 		{
 			found->second->remove(listenerID);
@@ -107,7 +107,7 @@ public:
 	}
 
 private:
-	std::map<Dexode::Internal::event_id_t, std::unique_ptr<Dexode::Internal::CallbackVector>>
+	std::map<eventbus::internal::event_id_t, std::unique_ptr<eventbus::internal::CallbackVector>>
 		_callbacks;
 	std::deque<std::function<void()>> _eventQueue;
 };

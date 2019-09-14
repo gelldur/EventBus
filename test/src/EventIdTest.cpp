@@ -1,7 +1,9 @@
 #include <set>
 
 #include <catch2/catch.hpp>
-#include <eventbus/internal/common.h>
+#include <dexode/eventbus/internal/common.h>
+
+using namespace dexode;
 
 namespace
 {
@@ -35,16 +37,16 @@ struct TestA
 TEST_CASE("Should return unique id for each event When using Internal::event_id<Event>",
 		  "[EventId]")
 {
-	std::set<Dexode::Internal::event_id_t> unique;
+	std::set<eventbus::internal::event_id_t> unique;
 
-	REQUIRE(unique.insert(Dexode::Internal::event_id<Anonymous>()).second);
-	REQUIRE_FALSE(unique.insert(Dexode::Internal::event_id<Anonymous>()).second); // already there
+	REQUIRE(unique.insert(eventbus::internal::event_id<Anonymous>()).second);
+	REQUIRE_FALSE(unique.insert(eventbus::internal::event_id<Anonymous>()).second); // already there
 
 	struct TestA
 	{};
 
-	REQUIRE(unique.insert(Dexode::Internal::event_id<TestA>()).second);
-	REQUIRE(unique.insert(Dexode::Internal::event_id<::TestA>()).second);
-	REQUIRE(unique.insert(Dexode::Internal::event_id<Test::TestA>()).second);
-	REQUIRE(unique.insert(Dexode::Internal::event_id<Test::TestN::TestA>()).second);
+	REQUIRE(unique.insert(eventbus::internal::event_id<TestA>()).second);
+	REQUIRE(unique.insert(eventbus::internal::event_id<::TestA>()).second);
+	REQUIRE(unique.insert(eventbus::internal::event_id<Test::TestA>()).second);
+	REQUIRE(unique.insert(eventbus::internal::event_id<Test::TestN::TestA>()).second);
 }

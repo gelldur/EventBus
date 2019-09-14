@@ -1,8 +1,6 @@
 #pragma once
 
-namespace Dexode
-{
-namespace Internal
+namespace dexode::eventbus::internal
 {
 
 struct CallbackVector
@@ -12,5 +10,4 @@ struct CallbackVector
 	virtual void remove(const int token) = 0;
 };
 
-} // namespace Internal
-} // namespace Dexode
+} // namespace dexode::eventbus::internal

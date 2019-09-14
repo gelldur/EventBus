@@ -5,11 +5,8 @@
 #include <functional>
 #include <limits>
 
-#include <dexode/EventBus.hpp>
-#include <eventbus/EventBus.h>
-
-#include "eventbus/Listener.hpp"
-#include "eventbus/internal/common.h"
+#include "dexode/eventbus/Listener.hpp"
+#include "dexode/eventbus/internal/common.h"
 
 namespace dexode
 {
@@ -34,14 +31,14 @@ public:
 	template <typename Event>
 	constexpr void post(Event&& event)
 	{
-		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
+		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
 		_base.template post<Event>(std::forward<Event>(event));
 	}
 
 	template <typename Event>
 	constexpr void postpone(Event&& event)
 	{
-		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
+		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
 		_base.template postpone<Event>(std::forward<Event>(event));
 	}
 
@@ -78,7 +75,7 @@ private:
 	constexpr void listen(const std::uint32_t listenerID,
 						  std::function<void(const Event&)>&& callback)
 	{
-		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
+		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
 		assert(callback && "callback should be valid"); // Check for valid object
 
 		_base.template listen<Event>(listenerID,
@@ -93,8 +90,8 @@ private:
 	template <typename Event>
 	constexpr void unlisten(const std::uint32_t listenerID)
 	{
-		static_assert(Dexode::Internal::validateEvent<Event>(), "Invalid event");
-		const auto eventID = Dexode::Internal::event_id<Event>;
+		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
+		const auto eventID = eventbus::internal::event_id<Event>;
 		_base.template unlisten(listenerID, eventID);
 	}
 };

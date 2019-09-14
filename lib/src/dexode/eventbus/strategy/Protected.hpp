@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "dexode/EventBus.hpp"
-#include "eventbus/internal/AsyncCallbackVector.h"
+#include "dexode/eventbus/internal/AsyncCallbackVector.h"
 
 namespace dexode::eventbus::strategy
 {
@@ -31,14 +31,14 @@ public:
 	{
 		std::shared_lock readLock{_mutex};
 
-		using Vector = Dexode::Internal::AsyncCallbackVector<Event>;
-		auto found = _callbacks.find(Dexode::Internal::event_id<Event>());
+		using Vector = eventbus::internal::AsyncCallbackVector<Event>;
+		auto found = _callbacks.find(eventbus::internal::event_id<Event>());
 		if(found == _callbacks.end())
 		{
 			return; // no such notifications
 		}
 
-		std::unique_ptr<Dexode::Internal::CallbackVector>& vector = found->second;
+		std::unique_ptr<eventbus::internal::CallbackVector>& vector = found->second;
 		assert(dynamic_cast<Vector*>(vector.get()));
 		auto* callbacks = static_cast<Vector*>(vector.get());
 
@@ -73,14 +73,14 @@ public:
 	template <class Event>
 	void listen(const std::uint32_t listenerID, std::function<void(const Event&)>&& callback)
 	{
-		using Vector = Dexode::Internal::AsyncCallbackVector<Event>;
+		using Vector = eventbus::internal::AsyncCallbackVector<Event>;
 
 		std::unique_lock writeLock{_mutex};
-		auto eventListeners = _callbacks.find(Dexode::Internal::event_id<Event>());
+		auto eventListeners = _callbacks.find(eventbus::internal::event_id<Event>());
 		if(eventListeners == _callbacks.cend())
 		{
 			eventListeners = _callbacks.emplace_hint(
-				eventListeners, Dexode::Internal::event_id<Event>(), std::make_unique<Vector>());
+				eventListeners, eventbus::internal::event_id<Event>(), std::make_unique<Vector>());
 		}
 		assert(dynamic_cast<Vector*>(eventListeners->second.get()));
 		auto* vectorImpl = static_cast<Vector*>(eventListeners->second.get());
@@ -93,7 +93,7 @@ public:
 	void unlisten(const std::uint32_t listenerID)
 	{
 		std::unique_lock writeLock{_mutex}; // TODO locking already locked mutex
-		auto found = _callbacks.find(Dexode::Internal::event_id<Event>());
+		auto found = _callbacks.find(eventbus::internal::event_id<Event>());
 		if(found != _callbacks.end())
 		{
 			found->second->remove(listenerID);
@@ -101,7 +101,7 @@ public:
 	}
 
 private:
-	std::map<Dexode::Internal::event_id_t, std::unique_ptr<Dexode::Internal::CallbackVector>>
+	std::map<eventbus::internal::event_id_t, std::unique_ptr<eventbus::internal::CallbackVector>>
 		_callbacks;
 	mutable std::shared_mutex _mutex;
 

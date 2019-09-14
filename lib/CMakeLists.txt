@@ -35,16 +35,11 @@ set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 # Library definition
 add_library(EventBus
-	include/eventbus/EventBus.h
-	include/eventbus/EventCollector.h
-	include/eventbus/internal/AsyncCallbackVector.h
-	include/eventbus/internal/CallbackVector.h
-	include/eventbus/internal/TransactionCallbackVector.h
-	include/eventbus/TokenHolder.h
-	src/eventbus/AsyncEventBus.cpp include/eventbus/AsyncEventBus.h
-
-	# New version of EventBus 3.0
 	src/dexode/EventBus.hpp
+	src/dexode/eventbus/internal/AsyncCallbackVector.h
+	src/dexode/eventbus/internal/CallbackVector.h
+	src/dexode/eventbus/internal/common.h
+	src/dexode/eventbus/internal/TransactionCallbackVector.h
 	src/dexode/eventbus/Listener.hpp
 	src/dexode/eventbus/strategy/Protected.cpp src/dexode/eventbus/strategy/Protected.hpp
 	src/dexode/eventbus/strategy/Transaction.hpp
@@ -60,6 +55,10 @@ target_include_directories(EventBus PUBLIC
 
 set(EventBus_PUBLIC_HEADERS
 	src/dexode/EventBus.hpp
+	src/dexode/eventbus/internal/AsyncCallbackVector.h
+	src/dexode/eventbus/internal/CallbackVector.h
+	src/dexode/eventbus/internal/common.h
+	src/dexode/eventbus/internal/TransactionCallbackVector.h
 	src/dexode/eventbus/Listener.hpp
 	src/dexode/eventbus/strategy/Protected.hpp
 	src/dexode/eventbus/strategy/Transaction.hpp
@@ -89,11 +88,6 @@ install(TARGETS EventBus
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 	INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-	)
-
-# Export headers
-install(DIRECTORY include/eventbus
-	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 	)
 
 # Include module with fuction 'write_basic_package_version_file'
@@ -131,7 +125,8 @@ install(EXPORT "${TARGETS_EXPORT_NAME}"
 	NAMESPACE "${namespace}"
 	)
 
-install_public_headers_with_directory(EventBus_PUBLIC_HEADERS "include/")
+# Export headers (Install public headers)
+install_public_headers_with_directory(EventBus_PUBLIC_HEADERS "src/")
 
 # Cpack configuration
 if(NOT CPACK_GENERATOR STREQUAL "")

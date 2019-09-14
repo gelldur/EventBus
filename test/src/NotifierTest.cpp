@@ -4,78 +4,89 @@
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
-#include <eventbus/EventBus.h>
+#include <dexode/EventBus.hpp>
+#include <dexode/eventbus/strategy/Transaction.hpp>
+
+using namespace dexode;
+using TransactionEventBus = EventBus<eventbus::strategy::Transaction>;
+using Listener = TransactionEventBus::Listener;
 
 TEST_CASE("eventbus/Simple test", "Simple test")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
 	struct SimpleEvent
 	{
 		int value;
 	};
 
-	const auto token =
-		bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 3); });
+	auto listener = Listener::createNotOwning(bus);
+	listener.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 3); });
 
-	bus.notify(SimpleEvent{3});
-	bus.unlistenAll(token);
-	bus.notify(SimpleEvent{2});
+	bus.post(SimpleEvent{3});
+	listener.unlistenAll();
+	bus.post(SimpleEvent{2});
 
-	bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
-	bus.notify(SimpleEvent{1});
+	listener.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
+	bus.post(SimpleEvent{1});
 }
 
 TEST_CASE("eventbus/Simple test2", "Simple test")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct SimpleEvent
 	{
 		int value;
 	};
 
-	const auto token =
-		bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 3); });
+	listener.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 3); });
 
-	bus.notify<SimpleEvent>({3});
-	bus.unlistenAll(token);
-	bus.notify(SimpleEvent{2});
+	bus.post<SimpleEvent>({3});
+	listener.unlistenAll();
+	bus.post(SimpleEvent{2});
 
-	bus.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
-	bus.notify(SimpleEvent{1});
+	listener.listen<SimpleEvent>([](const SimpleEvent& event) { REQUIRE(event.value == 1); });
+	bus.post(SimpleEvent{1});
 }
 
-TEST_CASE("eventbus/EventBus listen & notify",
-		  "Listen & notify without notification object. Using only string")
+TEST_CASE("eventbus/EventBus listen & post",
+		  "Listen & post without notification object. Using only string")
 {
 	int isCalled = 0;
-	Dexode::EventBus bus;
+
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct SimpleEvent
 	{
 		int value;
 	};
 
-	const auto token = bus.listen<SimpleEvent>([&](const SimpleEvent& event) {
+	listener.listen<SimpleEvent>([&](const SimpleEvent& event) {
 		++isCalled;
 		REQUIRE(event.value == 3);
 	});
 	REQUIRE(isCalled == 0);
-	bus.notify(SimpleEvent{3});
+	bus.post(SimpleEvent{3});
 	REQUIRE(isCalled == 1);
-	bus.unlistenAll(token);
-	bus.notify(SimpleEvent{2});
+	listener.unlistenAll();
+	bus.post(SimpleEvent{2});
 	REQUIRE(isCalled == 1);
 
-	bus.listen<SimpleEvent>([&](const SimpleEvent& event) {
+	listener.listen<SimpleEvent>([&](const SimpleEvent& event) {
 		++isCalled;
 		REQUIRE(event.value == 1);
 	});
-	bus.notify(SimpleEvent{1});
+	bus.post(SimpleEvent{1});
 	REQUIRE(isCalled == 2);
 }
 
 TEST_CASE("eventbus/Different notification", "Valid check notification")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct SimpleEvent1
 	{
 		int value;
@@ -88,25 +99,25 @@ TEST_CASE("eventbus/Different notification", "Valid check notification")
 	bool called1 = false;
 	bool called2 = false;
 
-	bus.listen<SimpleEvent1>([&called1](const SimpleEvent1& event) {
+	listener.listen<SimpleEvent1>([&called1](const SimpleEvent1& event) {
 		called1 = true;
 		REQUIRE(event.value == 1);
 	});
 
-	bus.listen<SimpleEvent2>([&called2](const SimpleEvent2& event) {
+	listener.listen<SimpleEvent2>([&called2](const SimpleEvent2& event) {
 		called2 = true;
 		REQUIRE(event.value == 2);
 	});
 
 	REQUIRE(called1 == false);
 
-	bus.notify(SimpleEvent1{1});
+	bus.post(SimpleEvent1{1});
 
 	REQUIRE(called1 == true);
 	REQUIRE(called2 == false);
 	called1 = false;
 
-	bus.notify(SimpleEvent2{2});
+	bus.post(SimpleEvent2{2});
 
 	REQUIRE(called1 == false);
 	REQUIRE(called2 == true);
@@ -131,239 +142,252 @@ TEST_CASE("eventbus/EventBus different events",
 		  "Events with the same name but different scope should be different")
 {
 	int isCalled = 0;
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
 
-	bus.listen<Scope1::SimpleEvent>([&](const Scope1::SimpleEvent& event) {
+	listener.listen<Scope1::SimpleEvent>([&](const Scope1::SimpleEvent& event) {
 		++isCalled;
 		REQUIRE(event.value == 1);
 	});
-	bus.listen<Scope2::SimpleEvent>([&](const Scope2::SimpleEvent& event) {
+	listener.listen<Scope2::SimpleEvent>([&](const Scope2::SimpleEvent& event) {
 		++isCalled;
 		REQUIRE(event.value == 2);
 	});
 	REQUIRE(isCalled == 0);
 
-	bus.notify(Scope1::SimpleEvent{1});
+	bus.post(Scope1::SimpleEvent{1});
 	REQUIRE(isCalled == 1);
 
-	bus.notify(Scope2::SimpleEvent{2});
+	bus.post(Scope2::SimpleEvent{2});
 	REQUIRE(isCalled == 2);
 }
 
-TEST_CASE("eventbus/EventBus modification during notify",
+TEST_CASE("eventbus/EventBus modification during post",
 		  "Remove listener during notification should not malform EventBus")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct TestEvent
 	{};
 
-	int token1 = 1;
-	int token2 = 2;
+	//	int token1 = 1;
+	//	int token2 = 2;
 
 	int calls = 0;
 
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-	});
-	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-	});
+	//	listener.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//	});
+	//	listener.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 2);
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 2);
 }
 
-TEST_CASE("eventbus/EventBus modification during notify2",
+TEST_CASE("eventbus/EventBus modification during post2",
 		  "Remove listener during notification should not malform EventBus")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct TestEvent
 	{};
 
-	int token1 = 1;
-	int token2 = 2;
-	int token3 = 3;
+	//	int token1 = 1;
+	//	int token2 = 2;
+	//	int token3 = 3;
 
 	int calls = 0;
 
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
-	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
-	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
+	//	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
+	//	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
+	//	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 3);
 
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
-	REQUIRE(calls == 3);
-}
-
-TEST_CASE("eventbus/EventBus modification during notify3",
-		  "Remove listener during notification should not malform EventBus")
-{
-	Dexode::EventBus bus;
-	struct TestEvent
-	{};
-
-	int token1 = 1;
-	int token2 = 2;
-	int token3 = 3;
-
-	int calls = 0;
-
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-	});
-	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token3);
-		bus.unlistenAll(token2);
-	});
-	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
-
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 3);
 }
 
-TEST_CASE("eventbus/EventBus modification during notify4",
+TEST_CASE("eventbus/EventBus modification during post3",
 		  "Remove listener during notification should not malform EventBus")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct TestEvent
 	{};
 
-	int token1 = 1;
-	int token2 = 2;
-	int token3 = 3;
+	//	int token1 = 1;
+	//	int token2 = 2;
+	//	int token3 = 3;
 
 	int calls = 0;
 
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
+	//	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//	});
+	//	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token3);
+	//		bus.unlistenAll(token2);
+	//	});
+	//	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
 
-		bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-			++calls;
-			bus.unlistenAll(token1);
-			bus.unlistenAll(token3);
-			bus.unlistenAll(token2);
-		});
-	});
-	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
-
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
-	REQUIRE(calls == 2);
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
-	REQUIRE(calls == 2);
-}
-
-TEST_CASE("eventbus/EventBus modification during notify5",
-		  "Remove listener during notification should not malform EventBus")
-{
-	Dexode::EventBus bus;
-	struct TestEvent
-	{};
-
-	int token1 = 1;
-	int token2 = 2;
-	int token3 = 3;
-
-	int calls = 0;
-
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-	});
-	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-
-		bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
-			++calls;
-			bus.unlistenAll(token1);
-			bus.unlistenAll(token2);
-			bus.unlistenAll(token3);
-		});
-	});
-
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
-	REQUIRE(calls == 2);
-
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 3);
 }
 
-TEST_CASE("eventbus/EventBus modification during nested notify",
+TEST_CASE("eventbus/EventBus modification during post4",
 		  "Remove listener during notification should not malform EventBus")
 {
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
+	struct TestEvent
+	{};
+
+	//	int token1 = 1;
+	//	int token2 = 2;
+	//	int token3 = 3;
+
+	int calls = 0;
+
+	//	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//
+	//		bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//			++calls;
+	//			bus.unlistenAll(token1);
+	//			bus.unlistenAll(token3);
+	//			bus.unlistenAll(token2);
+	//		});
+	//	});
+	//	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
+
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
+	REQUIRE(calls == 2);
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
+	REQUIRE(calls == 2);
+}
+
+TEST_CASE("eventbus/EventBus modification during post5",
+		  "Remove listener during notification should not malform EventBus")
+{
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
+	struct TestEvent
+	{};
+
+	//	int token1 = 1;
+	//	int token2 = 2;
+	//	int token3 = 3;
+
+	int calls = 0;
+
+	//	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//	});
+	//	bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//
+	//		bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
+	//			++calls;
+	//			bus.unlistenAll(token1);
+	//			bus.unlistenAll(token2);
+	//			bus.unlistenAll(token3);
+	//		});
+	//	});
+
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
+	REQUIRE(calls == 2);
+
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
+	REQUIRE(calls == 3);
+}
+
+TEST_CASE("eventbus/EventBus modification during nested post",
+		  "Remove listener during notification should not malform EventBus")
+{
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
+
 	struct TestEvent
 	{};
 	struct TestEvent2
 	{};
 
-	int token1 = 1;
-	int token2 = 2;
-	int token3 = 3;
+	//	int token1 = 1;
+	//	int token2 = 2;
+	//	int token3 = 3;
 
 	int calls = 0;
 
-	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
-		bus.notify(TestEvent2{});
+	//	bus.listen<TestEvent>(token1, [&](const TestEvent& event) {
+	//		bus.post(TestEvent2{});
+	//
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//
+	//		bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
+	//			++calls;
+	//			bus.unlistenAll(token1);
+	//			bus.unlistenAll(token3);
+	//			bus.unlistenAll(token2);
+	//		});
+	//	});
+	//	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
+	//		++calls;
+	//		bus.unlistenAll(token1);
+	//		bus.unlistenAll(token2);
+	//		bus.unlistenAll(token3);
+	//	});
 
-		++calls;
-		bus.unlistenAll(token1);
-
-		bus.listen<TestEvent>(token2, [&](const TestEvent& event) {
-			++calls;
-			bus.unlistenAll(token1);
-			bus.unlistenAll(token3);
-			bus.unlistenAll(token2);
-		});
-	});
-	bus.listen<TestEvent>(token3, [&](const TestEvent& event) {
-		++calls;
-		bus.unlistenAll(token1);
-		bus.unlistenAll(token2);
-		bus.unlistenAll(token3);
-	});
-
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 2);
-	REQUIRE_NOTHROW(bus.notify(TestEvent{}));
+	REQUIRE_NOTHROW(bus.post(TestEvent{}));
 	REQUIRE(calls == 2);
 }

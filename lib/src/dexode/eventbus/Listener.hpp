@@ -18,6 +18,12 @@ public:
 		, _bus{std::move(bus)}
 	{}
 
+	static Listener createNotOwning(Bus& bus)
+	{
+		// This isn't safe but nice for playing around
+		return Listener{std::shared_ptr<Bus>{&bus, [](Bus*) {}}};
+	}
+
 	Listener(const Listener& other) = delete;
 
 	Listener(Listener&& other)

@@ -2,9 +2,7 @@
 
 #include <type_traits>
 
-namespace Dexode
-{
-namespace Internal
+namespace dexode::eventbus::internal
 {
 
 using event_id_t = std::size_t;
@@ -25,5 +23,4 @@ constexpr bool validateEvent()
 	return true;
 }
 
-} // namespace Internal
-} // namespace Dexode
+} // namespace dexode::eventbus::internal

@@ -3,7 +3,12 @@
 //
 
 #include <catch2/catch.hpp>
-#include <eventbus/EventCollector.h>
+#include <dexode/EventBus.hpp>
+#include <dexode/eventbus/strategy/Transaction.hpp>
+
+using namespace dexode;
+using TransactionEventBus = EventBus<eventbus::strategy::Transaction>;
+using Listener = TransactionEventBus::Listener;
 
 TEST_CASE("eventbus/EventCollector sample", "Simple test for EventCollector")
 {
@@ -12,18 +17,19 @@ TEST_CASE("eventbus/EventCollector sample", "Simple test for EventCollector")
 		int value;
 	};
 
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
+
 	int callCount = 0;
 	{
-		Dexode::EventCollector listener{&bus};
+		auto listener = Listener::createNotOwning(bus);
 		listener.listen<SimpleEvent>([&](const SimpleEvent& event) {
 			REQUIRE(event.value == 3);
 			++callCount;
 		});
-		bus.notify(SimpleEvent{3});
+		bus.post(SimpleEvent{3});
 		REQUIRE(callCount == 1);
 	}
-	bus.notify(SimpleEvent{2});
+	bus.post(SimpleEvent{2});
 	REQUIRE(callCount == 1);
 }
 
@@ -33,18 +39,18 @@ TEST_CASE("eventbus/EventCollector unlistenAll", "EventCollector::unlistenAll")
 	{
 		int value;
 	};
-	Dexode::EventBus bus;
-	Dexode::EventCollector listener{&bus};
+	TransactionEventBus bus;
+	auto listener = Listener::createNotOwning(bus);
 
 	int callCount = 0;
 	listener.listen<SimpleEvent>([&](const SimpleEvent& event) {
 		REQUIRE(event.value == 3);
 		++callCount;
 	});
-	bus.notify(SimpleEvent{3});
+	bus.post(SimpleEvent{3});
 	listener.unlistenAll();
 
-	bus.notify(SimpleEvent{2});
+	bus.post(SimpleEvent{2});
 	REQUIRE(callCount == 1);
 }
 
@@ -55,17 +61,17 @@ TEST_CASE("eventbus/EventCollector reset", "EventCollector reset when we reasign
 		int value;
 	};
 
-	Dexode::EventBus bus;
+	TransactionEventBus bus;
 	int callCount = 0;
-	Dexode::EventCollector listener{&bus};
+	auto listener = Listener::createNotOwning(bus);
 	listener.listen<SimpleEvent>([&](const SimpleEvent& event) {
 		REQUIRE(event.value == 3);
 		++callCount;
 	});
-	bus.notify(SimpleEvent{3});
+	bus.post(SimpleEvent{3});
 	REQUIRE(callCount == 1);
-	listener = {nullptr};
+	listener = Listener{};
 
-	bus.notify(SimpleEvent{2});
+	bus.post(SimpleEvent{2});
 	REQUIRE(callCount == 1);
 }
