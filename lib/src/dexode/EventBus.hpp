@@ -29,17 +29,17 @@ public:
 	EventBus& operator=(const EventBus&) = delete;
 
 	template <typename Event>
-	constexpr void post(Event&& event)
+	constexpr void post(const Event& event)
 	{
 		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		_base.template post<Event>(std::forward<Event>(event));
+		_base.template post<Event>(event);
 	}
 
 	template <typename Event>
-	constexpr void postpone(Event&& event)
+	constexpr void postpone(Event event)
 	{
 		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		_base.template postpone<Event>(std::forward<Event>(event));
+		_base.template postpone<Event>(std::move(event));
 	}
 
 	constexpr std::size_t processAll()
