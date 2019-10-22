@@ -36,20 +36,34 @@ void Protected::unlistenAll(const std::uint32_t listenerID)
 
 bool Protected::wait()
 {
+	// Extra check before wait because maybe we already have something in queue
+	if(hasEvents())
+	{
+		return true;
+	}
 	using namespace std::chrono_literals;
 	std::unique_lock<std::mutex> lock(_waitMutex);
 	_eventWaiting.wait(lock);
 
-	std::shared_lock readLock{_mutex};
-	return not _eventQueue.empty();
+	return hasEvents();
 }
 
 bool Protected::waitFor(std::chrono::milliseconds timeout)
 {
+	// Extra check before wait because maybe we already have something in queue
+	if(hasEvents())
+	{
+		return true;
+	}
 	using namespace std::chrono_literals;
 	std::unique_lock<std::mutex> lock(_waitMutex);
 	_eventWaiting.wait_for(lock, timeout);
 
+	return hasEvents();
+}
+
+bool Protected::hasEvents() const
+{
 	std::shared_lock readLock{_mutex};
 	return not _eventQueue.empty();
 }

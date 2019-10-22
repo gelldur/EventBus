@@ -108,6 +108,8 @@ private:
 	std::mutex _waitMutex;
 	std::condition_variable _eventWaiting;
 	std::deque<std::function<void()>> _eventQueue;
+
+	bool hasEvents() const;
 };
 
 } // namespace dexode::eventbus::strategy
