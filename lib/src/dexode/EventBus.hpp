@@ -14,7 +14,8 @@ namespace dexode
 template <class Strategy>
 class EventBus
 {
-	friend class eventbus::Listener<EventBus<Strategy>>;
+	template <typename>
+	friend class dexode::eventbus::internal::ListenerAttorney;
 
 public:
 	using Listener = eventbus::Listener<EventBus<Strategy>>;

@@ -4,6 +4,8 @@
 #include <functional>
 #include <memory>
 
+#include "dexode/eventbus/internal/ListenerAttorney.hpp"
+
 namespace dexode::eventbus
 {
 
@@ -14,7 +16,7 @@ public:
 	explicit Listener() = default; // Dummy listener
 
 	explicit Listener(std::shared_ptr<Bus> bus)
-		: _id{bus->newListenerID()}
+		: _id{internal::ListenerAttorney<Bus>::newListenerID(*bus)}
 		, _bus{std::move(bus)}
 	{}
 
@@ -65,8 +67,9 @@ public:
 		{
 			throw std::runtime_error{"bus is null"};
 		}
-		_bus->template listen<Event>(_id,
-									 std::forward<std::function<void(const Event&)>>(callback));
+
+		internal::ListenerAttorney<Bus>::template listen<Event>(
+			*_bus, _id, std::forward<std::function<void(const Event&)>>(callback));
 	}
 
 	void unlistenAll()
@@ -75,7 +78,7 @@ public:
 		{
 			throw std::runtime_error{"bus is null"};
 		}
-		_bus->unlistenAll(_id);
+		internal::ListenerAttorney<Bus>::unlistenAll(*_bus, _id);
 	}
 
 	template <typename Event>
@@ -85,7 +88,7 @@ public:
 		{
 			throw std::runtime_error{"bus is null"};
 		}
-		_bus->template unlisten<Event>(_id);
+		internal::ListenerAttorney<Bus>::template unlisten<Event>(*_bus, _id);
 	}
 
 private:

@@ -39,6 +39,7 @@ add_library(EventBus
 	src/dexode/eventbus/internal/AsyncCallbackVector.h
 	src/dexode/eventbus/internal/CallbackVector.h
 	src/dexode/eventbus/internal/common.h
+	src/dexode/eventbus/internal/ListenerAttorney.hpp
 	src/dexode/eventbus/internal/TransactionCallbackVector.h
 	src/dexode/eventbus/Listener.hpp
 	src/dexode/eventbus/strategy/Protected.cpp src/dexode/eventbus/strategy/Protected.hpp
