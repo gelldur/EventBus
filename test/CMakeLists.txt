@@ -20,6 +20,7 @@ add_executable(EventBusTest
 	src/EventCollectorTest.cpp
 	src/EventIdTest.cpp
 	src/NotifierTest.cpp
+	src/TestTagEventBus.cpp
 	)
 
 target_compile_options(EventBusTest PUBLIC

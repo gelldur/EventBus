@@ -9,6 +9,9 @@ namespace dexode::eventbus
 {
 template <typename>
 class Listener;
+
+template <typename>
+class TagEventBus;
 } // namespace dexode::eventbus
 
 namespace dexode::eventbus::internal
@@ -19,6 +22,9 @@ class ListenerAttorney
 {
 	template <typename>
 	friend class dexode::eventbus::Listener;
+
+	template <typename>
+	friend class eventbus::TagEventBus;
 
 private:
 	static constexpr std::uint32_t newListenerID(EventBus_t& bus)

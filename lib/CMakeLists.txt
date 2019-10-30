@@ -44,6 +44,7 @@ add_library(EventBus
 	src/dexode/eventbus/Listener.hpp
 	src/dexode/eventbus/strategy/Protected.cpp src/dexode/eventbus/strategy/Protected.hpp
 	src/dexode/eventbus/strategy/Transaction.hpp
+	src/dexode/eventbus/TagEventBus.hpp
 	)
 add_library(Dexode::EventBus ALIAS EventBus)
 
