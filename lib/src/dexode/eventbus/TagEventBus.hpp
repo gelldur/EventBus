@@ -84,7 +84,7 @@ public:
 		return _allBus.processLimit(maxCountOfEvents);
 	}
 
-	std::shared_ptr<EventBus<Strategy>>& get(const std::string& tag)
+	const std::shared_ptr<EventBus<Strategy>>& get(const std::string& tag)
 	{
 		return _tagToBus.at(tag);
 	}
