@@ -28,7 +28,7 @@ public:
 
 	~AsyncEventBus()
 	{
-		std::lock_guard<std::mutex> guard {_callbacksMutex};
+		std::lock_guard<std::recursive_mutex> guard {_callbacksMutex};
 		_callbacks.clear();
 	}
 
@@ -73,7 +73,7 @@ public:
 
 		std::lock_guard<std::mutex> guard {_eventMutex};
 		_commandsQueue.push_back([this, token, callback = std::move(callback)]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::recursive_mutex> guard {_callbacksMutex};
 
 			using Vector = Internal::AsyncCallbackVector<Event>;
 
@@ -101,7 +101,7 @@ public:
 	{
 		std::lock_guard<std::mutex> guard {_eventMutex};
 		_commandsQueue.emplace_back([this, token]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::recursive_mutex> guard {_callbacksMutex};
 			for(auto& element : _callbacks)
 			{
 				element.second->remove(token);
@@ -123,7 +123,7 @@ public:
 
 		std::lock_guard<std::mutex> guard {_eventMutex};
 		_commandsQueue.push_back([this, token]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::recursive_mutex> guard {_callbacksMutex};
 
 			auto found = _callbacks.find(Internal::type_id<Event>);
 			if(found != _callbacks.end())
@@ -146,7 +146,7 @@ public:
 
 		std::lock_guard<std::mutex> guard {_eventMutex};
 		_eventQueue.push_back([this, event = std::move(event)]() {
-			std::lock_guard<std::mutex> guard {_callbacksMutex};
+			std::lock_guard<std::recursive_mutex> guard {_callbacksMutex};
 
 			using Vector = Internal::AsyncCallbackVector<Event>;
 			auto found = _callbacks.find(Internal::type_id<Event>());
@@ -206,7 +206,7 @@ private:
 
 	int _tokener = 0;
 	std::map<Internal::type_id_t, std::unique_ptr<Internal::CallbackVector>> _callbacks;
-	mutable std::mutex _callbacksMutex;
+	mutable std::recursive_mutex _callbacksMutex;
 	mutable std::mutex _eventMutex;
 
 	std::mutex _waitMutex;
