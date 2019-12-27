@@ -33,18 +33,32 @@ include(cmake/InstallHelp.cmake)
 #   * <prefix>/include/
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
+set(EventBus_PUBLIC_HEADERS
+	src/dexode/EventBus.hpp
+	src/dexode/eventbus/Bus.hpp
+	src/dexode/eventbus/internal/event_id.hpp
+	src/dexode/eventbus/internal/listener_traits.hpp
+	src/dexode/eventbus/internal/ListenerAttorney.hpp
+	src/dexode/eventbus/Listener.hpp
+	src/dexode/eventbus/perk/PassPerk.hpp
+	src/dexode/eventbus/perk/Perk.hpp
+	src/dexode/eventbus/perk/PerkEventBus.hpp
+	src/dexode/eventbus/perk/TagPerk.hpp
+	src/dexode/eventbus/perk/WaitPerk.hpp
+	src/dexode/eventbus/permission/PostponeBus.hpp
+	src/dexode/eventbus/stream/EventStream.hpp
+	src/dexode/eventbus/stream/ProtectedEventStream.hpp
+	)
+
 # Library definition
 add_library(EventBus
-	src/dexode/EventBus.hpp
-	src/dexode/eventbus/internal/AsyncCallbackVector.h
-	src/dexode/eventbus/internal/CallbackVector.h
-	src/dexode/eventbus/internal/common.h
-	src/dexode/eventbus/internal/ListenerAttorney.hpp
-	src/dexode/eventbus/internal/TransactionCallbackVector.h
-	src/dexode/eventbus/Listener.hpp
-	src/dexode/eventbus/strategy/Protected.cpp src/dexode/eventbus/strategy/Protected.hpp
-	src/dexode/eventbus/strategy/Transaction.hpp
-	src/dexode/eventbus/TagEventBus.hpp
+	${EventBus_PUBLIC_HEADERS}
+	src/dexode/EventBus.cpp
+	src/dexode/eventbus/perk/PassPerk.cpp
+	src/dexode/eventbus/perk/Perk.cpp
+	src/dexode/eventbus/perk/PerkEventBus.cpp
+	src/dexode/eventbus/perk/TagPerk.cpp
+	src/dexode/eventbus/perk/WaitPerk.cpp
 	)
 add_library(Dexode::EventBus ALIAS EventBus)
 
@@ -55,16 +69,6 @@ target_include_directories(EventBus PUBLIC
 	$<INSTALL_INTERFACE:include/>
 	)
 
-set(EventBus_PUBLIC_HEADERS
-	src/dexode/EventBus.hpp
-	src/dexode/eventbus/internal/AsyncCallbackVector.h
-	src/dexode/eventbus/internal/CallbackVector.h
-	src/dexode/eventbus/internal/common.h
-	src/dexode/eventbus/internal/TransactionCallbackVector.h
-	src/dexode/eventbus/Listener.hpp
-	src/dexode/eventbus/strategy/Protected.hpp
-	src/dexode/eventbus/strategy/Transaction.hpp
-	)
 # Add definitions for targets
 # Values:
 #   * Debug:   -DEVENTBUS_DEBUG=1

@@ -5,6 +5,8 @@
 #include <memory>
 
 #include "dexode/eventbus/internal/ListenerAttorney.hpp"
+#include "dexode/eventbus/internal/event_id.hpp"
+#include "dexode/eventbus/internal/listener_traits.hpp"
 
 namespace dexode::eventbus
 {
@@ -28,8 +30,9 @@ public:
 
 	Listener(const Listener& other) = delete;
 
-	Listener(Listener&& other)
-		: _id(other._id)
+	Listener(Listener&& other) noexcept
+		: _id(other._id) // we don't have to reset listener ID as _bus is moved and we won't call
+						 // unlistenAll
 		, _bus(std::move(other._bus))
 	{}
 
@@ -54,15 +57,35 @@ public:
 		{
 			unlistenAll(); // remove previous
 		}
+		// we don't have reset listener ID as bus is moved and we won't call unlistenAll
 		_id = other._id;
 		_bus = std::move(other._bus);
 
 		return *this;
 	}
 
-	template <class Event>
-	void listen(std::function<void(const Event&)>&& callback)
+	template <class Event, typename _ = void>
+	constexpr void listen(std::function<void(const Event&)>&& callback)
 	{
+		static_assert(internal::validateEvent<Event>(), "Invalid event");
+		listenToCallback<Event>(std::forward<std::function<void(const Event&)>>(callback));
+	}
+
+	template <class EventCallback, typename Event = internal::first_argument<EventCallback>>
+	constexpr void listen(EventCallback&& callback)
+	{
+		static_assert(std::is_const_v<std::remove_reference_t<Event>>, "Event should be const");
+		static_assert(std::is_reference_v<Event>, "Event should be const & (reference)");
+		using PureEvent = std::remove_const_t<std::remove_reference_t<Event>>;
+		static_assert(internal::validateEvent<PureEvent>(), "Invalid event");
+
+		listenToCallback<PureEvent>(std::forward<EventCallback>(callback));
+	}
+
+	template <class Event>
+	void listenToCallback(std::function<void(const Event&)>&& callback)
+	{
+		static_assert(internal::validateEvent<Event>(), "Invalid event");
 		if(_bus == nullptr)
 		{
 			throw std::runtime_error{"bus is null"};
@@ -70,6 +93,18 @@ public:
 
 		internal::ListenerAttorney<Bus>::template listen<Event>(
 			*_bus, _id, std::forward<std::function<void(const Event&)>>(callback));
+	}
+
+	template <class Event>
+	void listenToCallback(const std::function<void(const Event&)>& callback)
+	{
+		static_assert(internal::validateEvent<Event>(), "Invalid event");
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
+		internal::ListenerAttorney<Bus>::template listen<Event>(
+			*_bus, _id, std::function<void(const Event&)>{callback});
 	}
 
 	void unlistenAll()
@@ -84,11 +119,12 @@ public:
 	template <typename Event>
 	void unlisten()
 	{
+		static_assert(internal::validateEvent<Event>(), "Invalid event");
 		if(_bus == nullptr)
 		{
 			throw std::runtime_error{"bus is null"};
 		}
-		internal::ListenerAttorney<Bus>::template unlisten<Event>(*_bus, _id);
+		internal::ListenerAttorney<Bus>::unlisten(*_bus, _id, internal::event_id<Event>());
 	}
 
 private:

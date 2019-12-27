@@ -1,100 +1,54 @@
+//
+// Created by gelldur on 26.11.2019.
+//
 #pragma once
 
-#include <atomic>
-#include <cassert>
-#include <functional>
+#include <any>
 #include <limits>
+#include <map>
+#include <memory>
+#include <shared_mutex>
 
-#include "dexode/eventbus/Listener.hpp"
-#include "dexode/eventbus/internal/common.h"
+#include "dexode/eventbus/Bus.hpp"
 
 namespace dexode
 {
 
-template <class Strategy>
-class EventBus
+class EventBus : public dexode::eventbus::Bus
 {
 	template <typename>
 	friend class dexode::eventbus::internal::ListenerAttorney;
 
 public:
-	using Listener = eventbus::Listener<EventBus<Strategy>>;
-
-	constexpr EventBus() = default;
-	~EventBus() = default;
-
-	EventBus(const EventBus&) = delete;
-	EventBus(EventBus&&) = delete;
-
-	EventBus& operator=(EventBus&&) = delete;
-	EventBus& operator=(const EventBus&) = delete;
-
-	template <typename Event>
-	constexpr void post(const Event& event)
-	{
-		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		_base.template post<Event>(event);
-	}
-
-	template <typename Event>
-	constexpr void postpone(Event event)
-	{
-		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		_base.template postpone<Event>(std::move(event));
-	}
-
-	constexpr std::size_t processAll()
+	std::size_t process() override
 	{
 		return processLimit(std::numeric_limits<std::size_t>::max());
 	}
 
-	constexpr std::size_t processLimit(const std::size_t maxCountOfEvents)
-	{
-		return _base.processLimit(maxCountOfEvents);
-	}
+	std::size_t processLimit(std::size_t limit);
 
-	[[nodiscard]] constexpr std::size_t getPostponeEventCount() const
-	{
-		return _base.getQueueEventCount();
-	}
+protected:
+	eventbus::stream::EventStream* obtainStream(
+		eventbus::internal::event_id_t eventID,
+		eventbus::CreateStreamCallback createStreamCallback);
 
-	Strategy& getStrategy()
-	{
-		return _base;
-	}
+	bool postponeEvent(eventbus::PostponeHelper& postponeCall) override;
+	eventbus::stream::EventStream* findStream(eventbus::internal::event_id_t eventID) const;
+
+	void unlistenAll(std::uint32_t listenerID) override;
+	eventbus::stream::EventStream* listen(
+		std::uint32_t listenerID,
+		eventbus::internal::event_id_t eventID,
+		eventbus::CreateStreamCallback createStreamCallback) override;
+	void unlisten(std::uint32_t listenerID, eventbus::internal::event_id_t eventID) override;
 
 private:
-	std::atomic<std::uint32_t> _lastID{0};
-	Strategy _base;
+	mutable std::shared_mutex _mutexStreams;
+	std::shared_mutex _mutexProcess;
+	std::vector<std::unique_ptr<eventbus::stream::EventStream>> _eventStreams;
+	std::map<eventbus::internal::event_id_t, eventbus::stream::EventStream*> _eventToStream;
 
-	std::uint32_t newListenerID()
-	{
-		return ++_lastID;
-	}
-
-	template <class Event>
-	constexpr void listen(const std::uint32_t listenerID,
-						  std::function<void(const Event&)>&& callback)
-	{
-		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		assert(callback && "callback should be valid"); // Check for valid object
-
-		_base.template listen<Event>(listenerID,
-									 std::forward<std::function<void(const Event&)>>(callback));
-	}
-
-	constexpr void unlistenAll(const std::uint32_t listenerID)
-	{
-		_base.unlistenAll(listenerID);
-	}
-
-	template <typename Event>
-	constexpr void unlisten(const std::uint32_t listenerID)
-	{
-		static_assert(eventbus::internal::validateEvent<Event>(), "Invalid event");
-		const auto eventID = eventbus::internal::event_id<Event>;
-		_base.template unlisten(listenerID, eventID);
-	}
+	eventbus::stream::EventStream* findStreamUnsafe(eventbus::internal::event_id_t eventID) const;
 };
 
 } // namespace dexode

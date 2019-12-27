@@ -11,13 +11,12 @@ option(ENABLE_PERFORMANCE "Enable performance subproject" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(lib/)
+add_subdirectory(use_case/)
 
 if(ENABLE_TEST)
 	enable_testing()
 	add_subdirectory(test/)
 endif()
-
-add_subdirectory(sample/)
 
 if(ENABLE_PERFORMANCE)
 	add_subdirectory(performance/)

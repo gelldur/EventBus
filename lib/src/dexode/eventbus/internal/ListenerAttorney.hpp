@@ -3,15 +3,15 @@
 //
 #pragma once
 
-//#include "dexode/EventBus.hpp"
+#include <functional>
+
+#include "dexode/eventbus/internal/event_id.hpp"
 
 namespace dexode::eventbus
 {
 template <typename>
 class Listener;
 
-template <typename>
-class TagEventBus;
 } // namespace dexode::eventbus
 
 namespace dexode::eventbus::internal
@@ -22,9 +22,6 @@ class ListenerAttorney
 {
 	template <typename>
 	friend class dexode::eventbus::Listener;
-
-	template <typename>
-	friend class eventbus::TagEventBus;
 
 private:
 	static constexpr std::uint32_t newListenerID(EventBus_t& bus)
@@ -46,10 +43,11 @@ private:
 		bus.unlistenAll(listenerID);
 	}
 
-	template <typename Event>
-	static constexpr void unlisten(EventBus_t& bus, const std::uint32_t listenerID)
+	static constexpr void unlisten(EventBus_t& bus,
+								   const std::uint32_t listenerID,
+								   const event_id_t eventID)
 	{
-		bus.template unlisten<Event>(listenerID);
+		bus.unlisten(listenerID, eventID);
 	}
 };
 

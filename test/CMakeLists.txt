@@ -16,12 +16,14 @@ find_package(Threads REQUIRED)
 
 # Target definition
 add_executable(EventBusTest
-	src/AsyncEventBusTest.cpp
-	src/EventCollectorTest.cpp
-	src/EventIdTest.cpp
-	src/NotifierTest.cpp
-	src/TestTagEventBus.cpp
+	src/dexode/eventbus/test/event.hpp
+	src/dexode/eventbus/test/SuiteConcurrentEventBus.cpp
+	src/dexode/eventbus/test/SuiteEventBus.cpp
+	src/dexode/eventbus/test/SuiteEventID.cpp
+	src/dexode/eventbus/test/SuiteListener.cpp
+	src/main.cpp
 	)
+target_include_directories(EventBusTest PRIVATE src/)
 
 target_compile_options(EventBusTest PUBLIC
 	-Wall -pedantic
