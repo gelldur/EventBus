@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <vector>
 #include <shared_mutex>
 
 #include "dexode/eventbus/stream/EventStream.hpp"
