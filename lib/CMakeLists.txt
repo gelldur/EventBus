@@ -122,6 +122,8 @@ configure_package_config_file(
 install(
 	FILES "${project_config}" "${version_config}"
 	DESTINATION "${config_install_dir}"
+	# We don't want someone by accident modify his installed files
+	PERMISSIONS OWNER_EXECUTE OWNER_READ
 )
 
 # Config
@@ -129,6 +131,8 @@ install(
 install(EXPORT "${TARGETS_EXPORT_NAME}"
 	DESTINATION "${config_install_dir}"
 	NAMESPACE "${namespace}"
+	# We don't want someone by accident modify his installed files
+	PERMISSIONS OWNER_EXECUTE OWNER_READ
 	)
 
 # Export headers (Install public headers)
