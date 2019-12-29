@@ -9,13 +9,6 @@ project(EventBus
 	LANGUAGES CXX
 	)
 
-# Why C++ 17 needed:
-# - std::shared_mutex used
-# - nested namespaces e.g. my::name::space
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Dependencies
 # No dependencies for EventBus yay!
 
@@ -61,6 +54,16 @@ add_library(EventBus
 	src/dexode/eventbus/perk/WaitPerk.cpp
 	)
 add_library(Dexode::EventBus ALIAS EventBus)
+
+# Why C++ 17 needed:
+# - std::shared_mutex used
+# - nested namespaces e.g. my::name::space
+
+set_target_properties(EventBus PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED YES
+	CXX_EXTENSIONS NO # -std=c++17 rather than -std=gnu++17
+	)
 
 target_compile_features(EventBus PUBLIC cxx_std_17)
 
