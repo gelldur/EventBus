@@ -7,7 +7,7 @@ project(EventBusDev LANGUAGES CXX)
 
 option(ENABLE_TEST "Enable test" ON)
 option(ENABLE_PERFORMANCE "Enable performance subproject" OFF)
-option(ENABLE_LIBCXX "Enable performance clang libc++" OFF)
+option(ENABLE_LIBCXX "Enable build with libc++" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(ENABLE_LIBCXX)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -DLLVM_USE_SANITIZER=Memory")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 	else()
 		message(FATAL_ERROR "C++ compiler should be set to clang")

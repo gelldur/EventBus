@@ -9,12 +9,12 @@ matrix:
   include:
     # Bionic Ubuntu 18.04
     - os: linux
-      name: "Bionic - gcc"
+      name: "Bionic - gcc 7.4.0"
       dist: bionic # We can't install packages on Bionic, not sure why. Travis ignores addons...
       compiler: gcc
     # Bionic Ubuntu 18.04
     - os: linux
-      name: "Bionic - clang"
+      name: "Bionic - clang 7"
       dist: bionic # We can't install packages on Bionic, not sure why. Travis ignores addons...
       compiler: clang
 
@@ -25,17 +25,8 @@ matrix:
       env: [USE_CC='/usr/bin/clang-6.0', USE_CXX='/usr/bin/clang++-6.0']
       addons:
         apt:
-          packages: ['clang-6.0', 'cmake']
-          sources: ['ubuntu-toolchain-r-test']
-    # clang-7
-    - os: linux
-      name: "Xenial - clang 7"
-      dist: xenial
-      env: [USE_CC='/usr/bin/clang-7', USE_CXX='/usr/bin/clang++-7']
-      addons:
-        apt:
-          packages: ['clang-7', 'cmake']
-          sources: ['llvm-toolchain-xenial-7']
+          packages: ['clang-6.0', 'cmake', 'libstdc++-9-dev', 'libstdc++6']
+          sources: ['ubuntu-toolchain-r-test', 'ubuntu-toolchain-r-test']
     # clang-8
     - os: linux
       name: "Xenial - clang 8"
@@ -43,18 +34,21 @@ matrix:
       env: [USE_CC='/usr/bin/clang-8', USE_CXX='/usr/bin/clang++-8']
       addons:
         apt:
-          packages: ['clang-8', 'cmake']
-          sources: ['llvm-toolchain-xenial-8']
-
-    # gcc-7
+          packages: ['clang-8', 'cmake', 'libstdc++-9-dev', 'libstdc++6']
+          sources: ['llvm-toolchain-xenial-8', 'ubuntu-toolchain-r-test']
+    # clang-9
     - os: linux
-      name: "Xenial - gcc 7"
+      name: "Xenial - clang 9"
       dist: xenial
-      env: [USE_CC='/usr/bin/gcc-7', USE_CXX='/usr/bin/g++-7']
+      env: [USE_CC='/usr/bin/clang-9', USE_CXX='/usr/bin/clang++-9']
       addons:
         apt:
-          packages: ['gcc-7', 'g++-7', 'cmake']
-          sources: ['ubuntu-toolchain-r-test']
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages: ['clang-9', 'cmake', 'libstdc++-9-dev', 'libstdc++6']
+
     # gcc-8
     - os: linux
       name: "Xenial - gcc 8"
@@ -75,10 +69,10 @@ matrix:
           sources: ['ubuntu-toolchain-r-test']
 
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode10.3
       compiler: clang
     - os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11.3
       compiler: clang
 
 
@@ -89,8 +83,8 @@ before_install:
   - echo ${CC} && ${CC} --version
   - echo ${CXX} && ${CXX} --version
   # Install catch 2 dependency
-  - wget https://github.com/catchorg/Catch2/archive/v2.9.1.zip
-  - unzip v2.9.1.zip && cd Catch2-2.9.1 && mkdir -p build/ && cd build/
+  - wget https://github.com/catchorg/Catch2/archive/v2.11.1.zip
+  - unzip v2.11.1.zip && cd Catch2-2.11.1 && mkdir -p build/ && cd build/
   - cmake -DCMAKE_BUILD_TYPE=Release .. -DCMAKE_CXX_STANDARD=14 -DCMAKE_INSTALL_PREFIX=~/.local/ && cmake --build . --target install
   - cd ../..
 
@@ -99,6 +93,6 @@ script:
   - (mkdir -p lib/build-debug/ &&  cd lib/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
   - (mkdir -p lib/build-release/ &&  cd lib/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . --target install)
   # Run tests
-  - (mkdir -p test/build-debug/ &&  cd test/build-debug && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
-  - (mkdir -p test/build-release/ &&  cd test/build-release && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+  - (mkdir -p test/build-debug/ &&  cd test/build-debug && cmake ${EXTRA_CMAKE_FLAGS} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
+  - (mkdir -p test/build-release/ &&  cd test/build-release && cmake ${EXTRA_CMAKE_FLAGS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ .. && cmake --build . && ctest -V .)
 
