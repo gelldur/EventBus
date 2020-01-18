@@ -3,6 +3,7 @@
 //
 #pragma once
 
+#include <cassert>
 #include <memory>
 
 #include "dexode/eventbus/Bus.hpp"
@@ -25,6 +26,7 @@ public:
 	template <typename Event>
 	constexpr bool postpone(Event event)
 	{
+		assert(_hideBus != nullptr);
 		return _hideBus->postpone(event);
 	}
 
