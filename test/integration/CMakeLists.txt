@@ -1,8 +1,10 @@
 #
 # Target definition
 add_executable(EventBus-IntegrationTest
+	src/dexode/eventbus/test/SuiteWait.cpp
 	src/main.cpp
 	)
+
 target_include_directories(EventBus-IntegrationTest PRIVATE src/)
 
 target_compile_options(EventBus-IntegrationTest PUBLIC
