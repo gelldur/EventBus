@@ -1,21 +1,6 @@
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
-
-# http://www.levelofindirection.com/journal/2010/12/28/unit-testing-in-c-and-objective-c-just-got-easier.html
-# Thanks for CATCH!
-
-project(EventBusTest)
-
-# Dependencies
-enable_testing()
-if(NOT TARGET Dexode::EventBus)
-	find_package(EventBus CONFIG REQUIRED)
-endif()
-
-find_package(Catch2 2.10 REQUIRED)
-find_package(Threads REQUIRED)
-
+#
 # Target definition
-add_executable(EventBusTest
+add_executable(EventBus-UnitTest
 	src/dexode/eventbus/test/event.hpp
 	src/dexode/eventbus/test/SuiteConcurrentEventBus.cpp
 	src/dexode/eventbus/test/SuiteEventBus.cpp
@@ -23,9 +8,9 @@ add_executable(EventBusTest
 	src/dexode/eventbus/test/SuiteListener.cpp
 	src/main.cpp
 	)
-target_include_directories(EventBusTest PRIVATE src/)
+target_include_directories(EventBus-UnitTest PRIVATE src/)
 
-target_compile_options(EventBusTest PUBLIC
+target_compile_options(EventBus-UnitTest PUBLIC
 	-Wall -pedantic
 	-Wno-unused-private-field
 	-Wnon-virtual-dtor
@@ -50,9 +35,9 @@ set(EVENTBUS_DEBUG_FLAGS
 	#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 	)
 
-target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
+target_compile_options(EventBus-UnitTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
 
-target_link_libraries(EventBusTest PUBLIC Catch2::Catch2 Dexode::EventBus Threads::Threads)
+target_link_libraries(EventBus-UnitTest PUBLIC Catch2::Catch2 Dexode::EventBus Threads::Threads)
 
 
-add_test(NAME EventBus.UnitTests COMMAND EventBusTest)
+add_test(NAME EventBus.UnitTests COMMAND EventBus-UnitTest)
