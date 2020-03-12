@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+
+# http://www.levelofindirection.com/journal/2010/12/28/unit-testing-in-c-and-objective-c-just-got-easier.html
+# Thanks for CATCH!
+
+project(EventBusTest)
+
+# Dependencies
+enable_testing()
+if(NOT TARGET Dexode::EventBus)
+	find_package(EventBus CONFIG REQUIRED)
+endif()
+
+find_package(Catch2 2.10 REQUIRED)
+find_package(Threads REQUIRED)
+
+# Target definition
+add_executable(EventBusTest
+	src/dexode/eventbus/test/event.hpp
+	src/dexode/eventbus/test/SuiteConcurrentEventBus.cpp
+	src/dexode/eventbus/test/SuiteEventBus.cpp
+	src/dexode/eventbus/test/SuiteEventID.cpp
+	src/dexode/eventbus/test/SuiteListener.cpp
+	src/main.cpp
+	)
+target_include_directories(EventBusTest PRIVATE src/)
+
+target_compile_options(EventBusTest PUBLIC
+	-Wall -pedantic
+	-Wno-unused-private-field
+	-Wnon-virtual-dtor
+	-Wno-gnu
+	-Werror
+	)
+
+# Don't do such thing:
+# if(CMAKE_BUILD_TYPE STREQUAL DEBUG)
+#		....
+# else()
+#		...
+# endif()
+#
+# Instead do this way: (It will work for Visual Studio)
+# target_compile_definitions(foo PRIVATE "VERBOSITY=$<IF:$<BOOL:${VERBOSE}>,30,10>")
+
+
+set(EVENTBUS_DEBUG_FLAGS
+	-O0 -fno-inline
+	-DDEBUG
+	#-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+	)
+
+target_compile_options(EventBusTest PUBLIC "$<$<CONFIG:DEBUG>:${EVENTBUS_DEBUG_FLAGS}>")
+
+target_link_libraries(EventBusTest PUBLIC Catch2::Catch2 Dexode::EventBus Threads::Threads)
+
+
+add_test(NAME EventBus.UnitTests COMMAND EventBusTest)
