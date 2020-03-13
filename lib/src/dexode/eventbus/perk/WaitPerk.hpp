@@ -3,7 +3,6 @@
 //
 #pragma once
 
-#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -29,7 +28,7 @@ public:
 private:
 	std::condition_variable _eventWaiting;
 	std::mutex _waitMutex;
-	std::atomic<bool> _hasEvents = false;
+	bool _hasEvents = false;
 };
 
 } // namespace dexode::eventbus::perk

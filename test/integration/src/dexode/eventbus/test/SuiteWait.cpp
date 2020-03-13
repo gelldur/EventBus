@@ -39,8 +39,9 @@ TEST_CASE("Should not be proccessed with unnecessary delay", "[concurrent][Event
 			std::chrono::steady_clock::now() - event.created);
 		CHECK(eventAge < 5ms);
 		std::cout << "Event:" << event.data << " old: " << eventAge.count() << "ms" << std::endl;
-
+		std::this_thread::sleep_for(2ms);
 		bus->postpone(EventTest{"other"});
+		std::this_thread::sleep_for(3ms);
 	});
 
 	// Worker which will send event every 10 ms
@@ -51,21 +52,79 @@ TEST_CASE("Should not be proccessed with unnecessary delay", "[concurrent][Event
 		while(isWorking)
 		{
 			bus->postpone(EventTest{"producer1"});
-			std::this_thread::sleep_for(30ms);
+			std::this_thread::sleep_for(500ms);
 		}
 	});
 
-	for(int i = 0; i < 20; ++i)
+	for(int i = 0; i < 20;)
 	{
 		auto start = std::chrono::steady_clock::now();
-		if(waitPerk->waitFor(20ms))
+		if(waitPerk->waitFor(2000ms))
 		{
 			const auto sleepTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::steady_clock::now() - start);
 
-			std::cout << "[SUCCESS] I was sleeping for: " << sleepTime.count() << " ms"
+			std::cout << "[SUCCESS] I was sleeping for: " << sleepTime.count() << " ms i:" << i
 					  << std::endl;
-			bus->process();
+			i += bus->process();
+		}
+		else
+		{
+			const auto sleepTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::steady_clock::now() - start);
+			CHECK(sleepTime < 5ms);
+			// No events waiting for us
+			std::cout << "I was sleeping for: " << sleepTime.count() << " ms" << std::endl;
+		}
+	}
+
+	isWorking = false;
+	for(auto& producer : producers)
+	{
+		producer.join();
+	}
+}
+
+TEST_CASE("Should wait for event being scheduled", "[concurrent][EventBus]")
+{
+	auto bus = std::make_shared<dexode::eventbus::perk::PerkEventBus>();
+	bus->addPerk(std::make_unique<dexode::eventbus::perk::WaitPerk>())
+		.registerPostPostpone(&dexode::eventbus::perk::WaitPerk::onPostponeEvent);
+
+	auto* waitPerk = bus->getPerk<dexode::eventbus::perk::WaitPerk>();
+	REQUIRE(waitPerk != nullptr);
+
+	dexode::eventbus::perk::PerkEventBus::Listener listener{bus};
+	listener.listen([bus](const EventTest& event) {
+		const auto eventAge = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now() - event.created);
+		CHECK(eventAge < 5ms);
+		std::cout << "Event:" << event.data << " old: " << eventAge.count() << "ms" << std::endl;
+	});
+
+	std::atomic<bool> isWorking = true;
+
+	std::vector<std::thread> producers;
+	producers.emplace_back([&bus, &isWorking]() {
+		while(isWorking)
+		{
+			std::this_thread::sleep_for(10ms);
+			bus->postpone(EventTest{"producer1"});
+		}
+	});
+
+	for(int i = 0; i < 20;)
+	{
+		auto start = std::chrono::steady_clock::now();
+		if(waitPerk->waitFor(40ms))
+		{
+			const auto sleepTime = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::steady_clock::now() - start);
+			CHECK(sleepTime >= 9ms);
+
+			std::cout << "[SUCCESS] I was sleeping for: " << sleepTime.count() << " ms i:" << i
+					  << std::endl;
+			i += bus->process();
 		}
 		else
 		{
