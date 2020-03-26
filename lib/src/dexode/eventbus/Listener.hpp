@@ -29,12 +29,9 @@ public:
 	}
 
 	Listener(const Listener& other) = delete;
-
-	Listener(Listener&& other) noexcept
-		: _id(other._id) // we don't have to reset listener ID as _bus is moved and we won't call
-						 // unlistenAll
-		, _bus(std::move(other._bus))
-	{}
+	// To see why move is disabled search for tag: FORBID_MOVE_LISTENER in tests
+	// Long story short, what if we capture 'this' in lambda during registering listener in ctor
+	Listener(Listener&& other) = delete;
 
 	~Listener()
 	{
@@ -45,24 +42,8 @@ public:
 	}
 
 	Listener& operator=(const Listener& other) = delete;
-
-	Listener& operator=(Listener&& other) noexcept
-	{
-		if(this == &other)
-		{
-			return *this;
-		}
-
-		if(_bus != nullptr)
-		{
-			unlistenAll(); // remove previous
-		}
-		// we don't have reset listener ID as bus is moved and we won't call unlistenAll
-		_id = other._id;
-		_bus = std::move(other._bus);
-
-		return *this;
-	}
+	// To see why move is disabled search for tag: FORBID_MOVE_LISTENER in tests
+	Listener& operator=(Listener&& other) = delete;
 
 	template <class Event, typename _ = void>
 	constexpr void listen(std::function<void(const Event&)>&& callback)
@@ -125,6 +106,28 @@ public:
 			throw std::runtime_error{"bus is null"};
 		}
 		internal::ListenerAttorney<Bus>::unlisten(*_bus, _id, internal::event_id<Event>());
+	}
+
+	// We want more explicit move so user knows what is going on
+	void transfer(Listener&& from)
+	{
+		if(this == &from)
+		{
+			throw std::runtime_error("Self transfer not allowed");
+		}
+
+		if(_bus != nullptr)
+		{
+			unlistenAll(); // remove previous
+		}
+		// we don't have to reset listener ID as bus is moved and we won't call unlistenAll
+		_id = from._id;
+		_bus = std::move(from._bus);
+	}
+
+	const std::shared_ptr<Bus>& getBus() const
+	{
+		return _bus;
 	}
 
 private:

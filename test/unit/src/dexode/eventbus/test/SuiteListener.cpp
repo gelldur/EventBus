@@ -1,3 +1,5 @@
+#include <vector>
+
 #include <catch2/catch.hpp>
 
 #include "dexode/EventBus.hpp"
@@ -46,7 +48,7 @@ TEST_CASE("Should unlisten all events When listener instance is overriden", "[Ev
 	REQUIRE(bus.process() == 1);
 	REQUIRE(callCount == 1);
 
-	listener = Listener{};
+	listener.transfer(Listener{});
 
 	bus.postpone(event::Value{2});
 	REQUIRE(bus.process() == 1);
@@ -90,7 +92,7 @@ TEST_CASE("Should keep listeners When listener is moved", "[EventBus][Listener]"
 		REQUIRE(bus->process() == 1);
 		REQUIRE(callCount == 1);
 
-		transferOne = std::move(listener);
+		transferOne.transfer(std::move(listener));
 	}
 
 	bus->postpone(event::Value{3});
@@ -229,6 +231,70 @@ TEST_CASE("Should compile", "[EventBus][Listener]")
 		auto listener = Listener::createNotOwning(bus);
 		listener.listen([](const event::Value& event) {});
 	}
+}
+
+class TestClazz
+{
+public:
+	static int counter;
+
+	TestClazz(int id, const std::shared_ptr<EventBus>& bus)
+		: _id{id}
+		, _listener{bus}
+	{
+		registerListener();
+	}
+
+	TestClazz(TestClazz&& other)
+		: _id{other._id}
+		, _listener{other._listener.getBus()}
+	{
+		// We need to register again
+		registerListener();
+	}
+
+	~TestClazz()
+	{
+		_id = 0;
+	}
+
+private:
+	int _id = 0;
+	EventBus::Listener _listener;
+
+	void registerListener()
+	{
+		_listener.listen([this](const event::Value& event) {
+			if(_id == 1)
+			{
+				++counter;
+			}
+		});
+	}
+};
+
+int TestClazz::counter = 0;
+
+TEST_CASE("Should not allow for mistake with move ctor", "[EventBus][Listener]")
+{
+	/**
+	 * Test case TAG: FORBID_MOVE_LISTENER
+	 *
+	 * This case is little bit complicated.
+	 * We can't move EventBus::Listener as it capture 'this' in ctor so whenever we would use it it
+	 * would lead to UB.
+	 */
+	std::shared_ptr<EventBus> bus = std::make_shared<EventBus>();
+
+	std::vector<TestClazz> vector;
+	vector.emplace_back(1, bus);
+	vector.emplace_back(2, bus);
+	vector.emplace_back(3, bus);
+
+	bus->postpone(event::Value{100});
+	bus->process();
+
+	REQUIRE(TestClazz::counter == 1);
 }
 
 } // namespace dexode::eventbus::test
