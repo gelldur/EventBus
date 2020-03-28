@@ -6,7 +6,7 @@
 namespace dexode::eventbus::perk
 {
 
-PerkEventBus::RegisterHelper PerkEventBus::addPerk(std::unique_ptr<Perk> perk)
+PerkEventBus::RegisterHelper PerkEventBus::addPerk(std::shared_ptr<Perk> perk)
 {
 	auto* local = perk.get();
 	_perks.push_back(std::move(perk));

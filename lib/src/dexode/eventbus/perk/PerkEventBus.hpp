@@ -46,13 +46,13 @@ public:
 		{}
 	};
 
-	RegisterHelper addPerk(std::unique_ptr<Perk> perk);
+	RegisterHelper addPerk(std::shared_ptr<Perk> perk);
 
 	template <typename T>
 	T* getPerk()
 	{
 		auto found =
-			std::find_if(_perks.begin(), _perks.end(), [](const std::unique_ptr<Perk>& perk) {
+			std::find_if(_perks.begin(), _perks.end(), [](const std::shared_ptr<Perk>& perk) {
 				return dynamic_cast<T*>(perk.get()) != nullptr;
 			});
 		if(found != _perks.end())
@@ -66,7 +66,7 @@ protected:
 	bool postponeEvent(PostponeHelper& postponeCall) override;
 
 private:
-	std::vector<std::unique_ptr<Perk>> _perks;
+	std::vector<std::shared_ptr<Perk>> _perks;
 	std::vector<std::function<perk::Flag(PostponeHelper&)>> _onPrePostpone;
 	std::vector<std::function<perk::Flag(PostponeHelper&)>> _onPostPostpone;
 };
