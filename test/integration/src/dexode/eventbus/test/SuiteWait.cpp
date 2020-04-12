@@ -24,7 +24,7 @@ struct EventTest
 };
 } // namespace
 
-TEST_CASE("Should not be proccessed with unnecessary delay", "[concurrent][EventBus]")
+TEST_CASE("Should not be processed with unnecessary delay", "[concurrent][EventBus]")
 {
 	auto bus = std::make_shared<dexode::eventbus::perk::PerkEventBus>();
 	bus->addPerk(std::make_unique<dexode::eventbus::perk::WaitPerk>())
@@ -44,10 +44,10 @@ TEST_CASE("Should not be proccessed with unnecessary delay", "[concurrent][Event
 		std::this_thread::sleep_for(3ms);
 	});
 
-	// Worker which will send event every 10 ms
 	std::atomic<bool> isWorking = true;
 
 	std::vector<std::thread> producers;
+	// Worker which will send event every 500 ms
 	producers.emplace_back([&bus, &isWorking]() {
 		while(isWorking)
 		{
