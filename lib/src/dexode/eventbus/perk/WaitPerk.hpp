@@ -20,7 +20,15 @@ namespace dexode::eventbus::perk
 class WaitPerk : public Perk
 {
 public:
+	/**
+	 * @return true when events are waiting in bus
+	 */
 	bool wait();
+
+	/**
+	 * @param timeout
+	 * @return true when events are waiting in bus
+	 */
 	bool waitFor(std::chrono::milliseconds timeout);
 
 	Flag onPostponeEvent(PostponeHelper& postponeCall);
