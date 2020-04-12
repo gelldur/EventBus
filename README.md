@@ -6,12 +6,12 @@ Simple and very fast event bus.
 The EventBus library is a convenient realization of the observer pattern.
 It works perfectly to supplement the implementation of MVC logic (model-view-controller) in event-driven UIs
 
-
-![EventBus Diagram](EventBusDiagram.png)
+General concept
+![EventBus Diagram](docs/res/EventBus-concept.png)
 
 
 EventBus was created because I want something easy to use and faster than [CCNotificationCenter](https://github.com/cocos2d/cocos2d-x/blob/v2/cocos2dx/support/CCNotificationCenter.h)
-from [cocos2d-x](https://github.com/cocos2d/cocos2d-x) library. Of course C++11 support was mandatory.
+from [cocos2d-x](https://github.com/cocos2d/cocos2d-x) library. Of course C++11 support was mandatory at that moment.
 
 
 EventBus main goals:
@@ -19,29 +19,29 @@ EventBus main goals:
 - Easy to use
 - Strongly typed
 - Free
-- tiny (~15 KB)
+- tiny (~37 KB)
 - Decouples notification senders and receivers
 - on every platform you need (cross-platform)
 
 # Brief @ presentation
 Presentation [google docs](https://docs.google.com/presentation/d/1apAlKcVWo9FcqkPqL8108a1Fy9LGmhgLT56hSVpoI3w/edit?usp=sharing)
 
-# Sample
-You can checkout [sample/](sample/)
-If you want to play with sample online checkout this link: [wandbox.org](https://wandbox.org/permlink/p3xeQaosuxv6w1rv)
+# Sample / use cases
+You can checkout [use_case/](use_case/)  
+If you want to play with sample online checkout this link: [wandbox.org](https://wandbox.org/permlink/VWo2acOX6hxUfV1Q)
 
 # Usage
 0. Store bus
 
 ```cpp
 // store it in controller / singleton / std::sharted_ptr whatever you want
-Dexode::EventBus bus;
+auto bus = std::make_shared<EventBus>();
 ```
 
 1. Define events
 
 ```cpp
-namespace Event // optional namespace
+namespace event // optional namespace
 {
 	struct Gold
 	{
@@ -56,108 +56,29 @@ namespace Event // optional namespace
 
 ```cpp
 // ...
-bus.listen<Event::Gold>
-			([](const auto& event) // listen with lambda
-			{
-				std::cout << "I received gold: " << event.goldReceived << "!" << std::endl;
-			});
+dexode::EventBus::Listener listener{bus};
+listener.listen([](const event::Gold& event) // listen with lambda
+                {
+                     std::cout << "I received gold: " << event.goldReceived << " 💰" << std::endl;
+                });
 
 HudLayer* hudLayer;
 // Hud layer will receive info about gold
-bus.listen<Event::Gold>(std::bind(&HudLayer::onGoldReceived,hudLayer,std::placeholders::_1));
+hudLayer->listener.listen<event::Gold>(std::bind(&HudLayer::onGoldReceived, hudLayer, std::placeholders::_1));
 ```
 
-3. Notify
+3. Spread the news
 
 ```cpp
 //Inform listeners about event
-bus.notify(Event::Gold{12}); // 1 way
+bus->postpone(event::Gold{12}); // 1 way
+bus->postpone<event::Gold>({12}); // 2 way
 
-bus.notify<Event::Gold>({12}); // 2 way
-
-Event::Gold myGold{12};
-bus.notify(myGold); // 3 way
+event::Gold myGold{12};
+bus->postpone(myGold); // 3 way
 ```
 
-Lambda listener:
-```cpp
-struct SampleEvent {};
-Dexode::EventBus bus;
-//...
-int token = bus.listen<SampleEvent>([](const SampleEvent& event) // register listener
-{
-});
-
-//If we want unlisten exact listener we can use token for it
-bus.unlistenAll(token);
-```
-
-Listener is identified by `token`. Token is returned from EventBus::listen methods.
-We can register multiple listeners on one token:
-```cpp
-Dexode::EventBus bus;
-struct SampleEvent {};
-//...
-int token = bus.listen<SimpleEvent>([](const auto& event) // register listener
-{
-});
-
-bus.listen<SimpleEvent>(token, [](const auto& event) // another listener
-{
-});
-
-bus.unlistenAll(token);//Now those two lambdas will be removed from listeners
-```
-
-If you don't want to handle manually with `token` you can use `EventCollector` class.
-It is useful when we want to have multiple listeners in one class. So above example could look like this:
-
-```cpp
-Dexode::EventBus bus;
-struct SampleEvent {};
-Dexode::EventCollector collector{&bus};
-//...
-collector.listen<SampleEvent>([](const SampleEvent& event) // register listener
-{
-});
-
-collector.listen<SampleEvent>([](const SampleEvent& event) // another listener
-{
-});
-
-collector.unlistenAll();//Now those two lambdas will be removed from listeners
-```
-
-Or as component of class:
-```cpp
-class Example
-{
-public:
-	Example(const std::shared_ptr<Dexode::EventBus>& bus)
-			: _collector{bus}
-	{
-		_collector.listen<SimpleEvent>(std::bind(&Example::onEvent1, this, std::placeholders::_1));
-		_collector.listen<OtherEvent>(std::bind(&Example::onEvent2, this, std::placeholders::_1));
-	}
-
-	void onEvent1(const SimpleEvent& event)
-	{
-	}
-
-	void onEvent2(const OtherEvent& event)
-	{
-	}
-
-private:
-	Dexode::EventCollector _collector;// use RAII
-};
-
-//EventCollector sample
-std::shared_ptr<Dexode::EventBus> bus;
-Example ex{bus};
-//...
-bus.notify<int>("event1", 2);
-```
+Checkout [tests](test/) or [use cases](use_case/) for more examples. Or create issue what isn't clear :)
 
 # Add to your project
 EventBus can be added as `ADD_SUBDIRECTORY` to your cmake file.
