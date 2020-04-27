@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 
 #include "dexode/eventbus/internal/ListenerAttorney.hpp"
 #include "dexode/eventbus/internal/event_id.hpp"
