@@ -91,7 +91,7 @@ if(ENABLE_PERFORMANCE)
 	add_subdirectory(performance/)
 endif()
 
-target_compile_options(EventBus PUBLIC
+target_compile_options(EventBus PRIVATE
 	-Wall -pedantic
 	-Wnon-virtual-dtor
 	-Werror
