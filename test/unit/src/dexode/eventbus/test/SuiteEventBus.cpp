@@ -351,6 +351,51 @@ TEST_CASE("Should not process events When no more events", "[EventBus]")
 	REQUIRE(bus.process() == 0);
 }
 
+TEST_CASE("Should process event When listener transit", "[EventBus]")
+{
+	/**
+	 * This case may be usefull when we use EventBus for some kind of state machine and we are
+	 * during transit from one state to other.
+	 */
+	EventBus bus;
+	auto listenerA = EventBus::Listener::createNotOwning(bus);
+	auto listenerB = EventBus::Listener::createNotOwning(bus);
+
+	int listenerAReceiveEvent = 0;
+	int listenerBReceiveEvent = 0;
+
+	listenerA.listen([&](const event::Value& event) { ++listenerAReceiveEvent; });
+
+	REQUIRE(bus.process() == 0);
+
+	// All cases should be same because of deterministic way of processing
+
+	SECTION("Post event before transit")
+	{
+		bus.postpone(event::Value{3}); // <-- before
+
+		listenerA.unlistenAll();
+		listenerB.listen([&](const event::Value& event) { ++listenerBReceiveEvent; });
+	}
+	SECTION("Post event in transit")
+	{
+		listenerA.unlistenAll();
+		bus.postpone(event::Value{3}); // <-- in
+		listenerB.listen([&](const event::Value& event) { ++listenerBReceiveEvent; });
+	}
+	SECTION("Post event after transit")
+	{
+		listenerA.unlistenAll();
+		listenerB.listen([&](const event::Value& event) { ++listenerBReceiveEvent; });
+
+		bus.postpone(event::Value{3}); // <-- after
+	}
+
+	REQUIRE(bus.process() == 1);
+	CHECK(listenerAReceiveEvent == 0);
+	CHECK(listenerBReceiveEvent == 1);
+}
+
 TEST_CASE("Should distinguish event producer When", "[EventBus]")
 {
 	//	EventBus bus;
