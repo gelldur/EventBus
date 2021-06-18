@@ -369,7 +369,6 @@ TEST_CASE("Should process event When listener transit", "[EventBus]")
 	REQUIRE(bus.process() == 0);
 
 	// All cases should be same because of deterministic way of processing
-
 	SECTION("Post event before transit")
 	{
 		bus.postpone(event::Value{3}); // <-- before
@@ -394,6 +393,36 @@ TEST_CASE("Should process event When listener transit", "[EventBus]")
 	REQUIRE(bus.process() == 1);
 	CHECK(listenerAReceiveEvent == 0);
 	CHECK(listenerBReceiveEvent == 1);
+}
+
+TEST_CASE("Should NOT process event When listener unlisten before process", "[EventBus]")
+{
+	EventBus bus;
+	auto listener = EventBus::Listener::createNotOwning(bus);
+
+	int listenerReceiveEvent = 0;
+
+	listener.listen([&](const event::Value& event) { ++listenerReceiveEvent; });
+
+	REQUIRE(bus.process() == 0);
+	bus.postpone(event::Value{3});
+	REQUIRE(bus.process() == 1);
+	CHECK(listenerReceiveEvent == 1);
+
+	// All cases should be same because of deterministic way of processing
+	SECTION("Post event before unlisten")
+	{
+		bus.postpone(event::Value{3}); // <-- before
+		listener.unlistenAll();
+	}
+	SECTION("Post event after transit")
+	{
+		listener.unlistenAll();
+		bus.postpone(event::Value{3}); // <-- after
+	}
+
+	REQUIRE(bus.process() == 1);
+	CHECK(listenerReceiveEvent == 1);
 }
 
 TEST_CASE("Should distinguish event producer When", "[EventBus]")
