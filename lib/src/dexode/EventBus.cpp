@@ -30,7 +30,7 @@ std::size_t EventBus::processLimit(const std::size_t limit)
 
 	{
 		std::lock_guard writeGuard{_mutexStreams};
-		if(not _eventStreams.empty())
+		if(!_eventStreams.empty())
 		{
 			// If anything was added then we need to add those elements
 			std::move(_eventStreams.begin(), _eventStreams.end(), std::back_inserter(eventStreams));
