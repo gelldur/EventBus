@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <shared_mutex>
+#include <iterator>
 
 #include "dexode/eventbus/Bus.hpp"
 
