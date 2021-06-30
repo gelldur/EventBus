@@ -37,11 +37,11 @@ TEST_CASE("Should not be processed with unnecessary delay", "[concurrent][EventB
 	listener.listen([bus](const EventTest& event) {
 		const auto eventAge = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::steady_clock::now() - event.created);
-		CHECK(eventAge < 5ms);
+		CHECK(eventAge.count() < (5ms).count());
 		std::cout << "Event:" << event.data << " old: " << eventAge.count() << "ms" << std::endl;
-		std::this_thread::sleep_for(2ms);
+		std::this_thread::sleep_for(2ms); // Some heavy work when processing event
 		bus->postpone(EventTest{"other"});
-		std::this_thread::sleep_for(3ms);
+		std::this_thread::sleep_for(3ms); // Some heavy work when processing event
 	});
 
 	std::atomic<bool> isWorking = true;
@@ -72,7 +72,7 @@ TEST_CASE("Should not be processed with unnecessary delay", "[concurrent][EventB
 		{
 			const auto sleepTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::steady_clock::now() - start);
-			CHECK(sleepTime < 5ms);
+			CHECK(sleepTime.count() < (5ms).count());
 			// No events waiting for us
 			std::cout << "I was sleeping for: " << sleepTime.count() << " ms" << std::endl;
 		}
@@ -98,7 +98,7 @@ TEST_CASE("Should wait for event being scheduled", "[concurrent][EventBus]")
 	listener.listen([bus](const EventTest& event) {
 		const auto eventAge = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::steady_clock::now() - event.created);
-		CHECK(eventAge < 5ms);
+		CHECK(eventAge.count() < (5ms).count());
 		std::cout << "Event:" << event.data << " old: " << eventAge.count() << "ms" << std::endl;
 	});
 
@@ -120,7 +120,7 @@ TEST_CASE("Should wait for event being scheduled", "[concurrent][EventBus]")
 		{
 			const auto sleepTime = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::steady_clock::now() - start);
-			CHECK(sleepTime >= 9ms);
+			CHECK(sleepTime.count() >= (9ms).count());
 
 			std::cout << "[SUCCESS] I was sleeping for: " << sleepTime.count() << " ms i:" << i
 					  << std::endl;
