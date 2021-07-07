@@ -10,7 +10,7 @@ project(EventBus
 	)
 
 # Dependencies
-# No dependencies for EventBus yay!
+find_package(Threads)
 
 # Introduce variables:
 # * CMAKE_INSTALL_LIBDIR
@@ -18,7 +18,6 @@ project(EventBus
 # * CMAKE_INSTALL_INCLUDEDIR
 include(GNUInstallDirs)
 include(cmake/InstallHelp.cmake)
-
 
 # Layout. This works for all platforms:
 #   * <prefix>/lib*/cmake/<PROJECT-NAME>
@@ -71,6 +70,7 @@ target_include_directories(EventBus PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/>
 	$<INSTALL_INTERFACE:include/>
 	)
+target_link_libraries(EventBus ${CMAKE_THREAD_LIBS_INIT})
 
 # Add definitions for targets
 # Values:
