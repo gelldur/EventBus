@@ -3,6 +3,8 @@
 //
 #include "EventBus.hpp"
 
+#include <iterator>
+
 namespace dexode
 {
 
@@ -30,7 +32,7 @@ std::size_t EventBus::processLimit(const std::size_t limit)
 
 	{
 		std::lock_guard writeGuard{_mutexStreams};
-		if(not _eventStreams.empty())
+		if(!_eventStreams.empty())
 		{
 			// If anything was added then we need to add those elements
 			std::move(_eventStreams.begin(), _eventStreams.end(), std::back_inserter(eventStreams));
@@ -70,7 +72,7 @@ eventbus::stream::EventStream* EventBus::findStream(
 void EventBus::unlistenAll(const std::uint32_t listenerID)
 {
 	std::shared_lock readGuard{_mutexStreams};
-	for(auto& eventStream : _eventToStream)
+	for(const auto& eventStream : _eventToStream)
 	{
 		eventStream.second->removeListener(listenerID);
 	}
@@ -120,7 +122,7 @@ eventbus::stream::EventStream* EventBus::listen(const std::uint32_t,
 void EventBus::unlisten(const std::uint32_t listenerID,
 						const eventbus::internal::event_id_t eventID)
 {
-	auto* eventStream = findStream(eventID);
+	eventbus::stream::EventStream* eventStream = findStream(eventID);
 	if(eventStream != nullptr)
 	{
 		eventStream->removeListener(listenerID);

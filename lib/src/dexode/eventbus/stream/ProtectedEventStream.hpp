@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <vector>
+#include <iterator>
 #include <shared_mutex>
+#include <vector>
 
 #include "dexode/eventbus/stream/EventStream.hpp"
 
