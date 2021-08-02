@@ -79,8 +79,8 @@ set(CMAKE_CXX_FLAGS_UBSAN
 	CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
 	FORCE)
 
-add_subdirectory(lib/)
-add_subdirectory(use_case/)
+add_subdirectory(lib)
+add_subdirectory(use_case)
 
 if(ENABLE_TEST)
 	enable_testing()
@@ -91,9 +91,11 @@ if(ENABLE_PERFORMANCE)
 	add_subdirectory(performance/)
 endif()
 
-target_compile_options(EventBus PRIVATE
+if(NOT MSVC)
+	target_compile_options(EventBus PRIVATE
 	-Wall -pedantic
 	-Wnon-virtual-dtor
 	-Werror
 	-Wno-error=deprecated-declarations
 	)
+endif()
