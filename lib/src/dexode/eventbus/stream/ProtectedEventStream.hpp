@@ -39,10 +39,14 @@ public:
 			{
 				const auto countElements = std::min(limit, _queue.size());
 				processEvents.reserve(countElements);
-				std::move(_queue.begin(),
-						  std::next(_queue.begin(), countElements),
-						  std::back_inserter(processEvents));
-				_queue.erase(_queue, std::next(_queue.begin(), countElements));
+				auto begin = _queue.begin();
+				auto end = std::next(begin, countElements);
+
+				// moved-from range will still contain valid values of the appropriate type, but not
+				// necessarily the same values as before the move. Iterators should be still valid.
+				// see: https://en.cppreference.com/w/cpp/algorithm/move
+				std::move(begin, end, std::back_inserter(processEvents));
+				_queue.erase(begin, end);
 			}
 		}
 
