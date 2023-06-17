@@ -104,6 +104,18 @@ eventbus::stream::EventStream* EventBus::obtainStream(
 	}
 }
 
+eventbus::stream::EventStream* EventBus::streamForEvent(
+	eventbus::internal::event_id_t eventID) const
+{
+	std::lock_guard writeGuard{_mutexStreams};
+	auto* found = findStreamUnsafe(eventID);
+	if(found != nullptr)
+	{
+		return found;
+	}
+	return nullptr;
+}
+
 bool EventBus::postponeEvent(eventbus::PostponeHelper& postponeCall)
 {
 	auto* eventStream = obtainStream(postponeCall.eventID, postponeCall.createStreamCallback);

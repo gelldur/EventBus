@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "dexode/eventbus/internal/event_id.hpp"
+#include "dexode/eventbus/stream/EventStream.hpp"
 
 namespace dexode::eventbus
 {
@@ -48,6 +49,18 @@ private:
 								   const event_id_t eventID)
 	{
 		bus.unlisten(listenerID, eventID);
+	}
+
+	static constexpr bool isListening(EventBus_t& bus,
+									  const std::uint32_t listenerID,
+									  const event_id_t eventID)
+	{
+		const eventbus::stream::EventStream* stream = bus.streamForEvent(eventID);
+		if(stream != nullptr)
+		{
+			return stream->hasListener(listenerID);
+		}
+		return false;
 	}
 };
 

@@ -16,6 +16,8 @@ public:
 
 	virtual bool addListener(std::uint32_t listenerID, std::any callback) = 0;
 	virtual bool removeListener(std::uint32_t listenerID) = 0;
+
+	[[nodiscard]] virtual bool hasListener(std::uint32_t listenerID) const = 0;
 };
 
 class NoopEventStream : public EventStream
@@ -34,6 +36,10 @@ public:
 		throw std::runtime_error{"Noop"};
 	}
 	bool removeListener(std::uint32_t listenerID) override
+	{
+		throw std::runtime_error{"Noop"};
+	}
+	[[nodiscard]] bool hasListener(std::uint32_t listenerID) const override
 	{
 		throw std::runtime_error{"Noop"};
 	}

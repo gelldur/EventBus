@@ -98,6 +98,13 @@ public:
 		return not _queue.empty();
 	}
 
+	[[nodiscard]] bool hasListener(std::uint32_t listenerID) const override
+	{
+		std::shared_lock readGuard{_mutexCallbacks};
+		auto found = std::find(_listenerIDs.begin(), _listenerIDs.end(), listenerID);
+		return found != _listenerIDs.end();
+	}
+
 private:
 	std::vector<std::uint32_t> _listenerIDs;
 	std::vector<Event> _queue;
@@ -106,8 +113,8 @@ private:
 	std::atomic<bool> _isProcessing{false};
 	std::vector<std::pair<std::uint32_t, Callback>> _waiting;
 
-	std::shared_mutex _mutexEvent;
-	std::shared_mutex _mutexCallbacks;
+	mutable std::shared_mutex _mutexEvent;
+	mutable std::shared_mutex _mutexCallbacks;
 
 	void flushWaitingOnes()
 	{

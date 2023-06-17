@@ -297,4 +297,38 @@ TEST_CASE("Should not allow for mistake with move ctor", "[EventBus][Listener]")
 	REQUIRE(TestClazz::counter == 1);
 }
 
+
+TEST_CASE("Should allow to check if listener is already listening", "[EventBus][Listener]")
+{
+	// Related to Github Issue: https://github.com/gelldur/EventBus/issues/48
+	EventBus bus;
+	int callCount = 0;
+	auto listener = Listener::createNotOwning(bus);
+
+	CHECK_FALSE(listener.isListening<event::Value>());
+
+	bus.postpone(event::Value{3});
+	REQUIRE(bus.process() == 1);
+	REQUIRE(callCount == 0); // not listening
+
+	listener.listen<event::Value>([&](const event::Value& event)
+								  {
+									  REQUIRE(event.value == 2);
+									  ++callCount;
+								  });
+	CHECK(listener.isListening<event::Value>());
+
+	bus.postpone(event::Value{2});
+	REQUIRE(bus.process() == 1);
+	REQUIRE(callCount == 1);
+
+	CHECK(listener.isListening<event::Value>());
+	listener.unlisten<event::Value>();
+	CHECK_FALSE(listener.isListening<event::Value>());
+
+	bus.postpone(event::Value{1});
+	REQUIRE(bus.process() == 1);
+	REQUIRE(callCount == 1);
+}
+
 } // namespace dexode::eventbus::test

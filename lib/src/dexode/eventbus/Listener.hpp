@@ -131,6 +131,19 @@ public:
 		return _bus;
 	}
 
+	template <typename Event>
+	[[nodiscard]] bool isListening() const
+	{
+		static_assert(internal::validateEvent<Event>(), "Invalid event");
+		if(_bus == nullptr)
+		{
+			throw std::runtime_error{"bus is null"};
+		}
+		return internal::ListenerAttorney<Bus>::isListening(*_bus
+															, _id
+															, internal::event_id<Event>());
+	}
+
 private:
 	std::uint32_t _id = 0;
 	std::shared_ptr<Bus> _bus = nullptr;

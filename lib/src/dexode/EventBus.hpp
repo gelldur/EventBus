@@ -29,6 +29,9 @@ public:
 	std::size_t processLimit(std::size_t limit);
 
 protected:
+	eventbus::stream::EventStream* streamForEvent(
+		eventbus::internal::event_id_t eventID) const override;
+
 	eventbus::stream::EventStream* obtainStream(
 		eventbus::internal::event_id_t eventID,
 		eventbus::CreateStreamCallback createStreamCallback);

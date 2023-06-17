@@ -92,6 +92,9 @@ protected:
 	virtual void unlistenAll(std::uint32_t listenerID) = 0;
 	virtual void unlisten(std::uint32_t listenerID, internal::event_id_t eventID) = 0;
 
+	virtual eventbus::stream::EventStream* streamForEvent(
+		eventbus::internal::event_id_t eventID) const = 0;
+
 private:
 	std::atomic<std::uint32_t> _lastID{0};
 

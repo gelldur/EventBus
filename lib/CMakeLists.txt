@@ -5,7 +5,7 @@ set(CPACK_GENERATOR "" CACHE STRING "Set packages CPack should build e.g. ZIP;TG
 
 # BUILD_SHARED_LIBS can controll build type!
 project(EventBus
-	VERSION 3.0.3
+	VERSION 3.0.4
 	LANGUAGES CXX
 	)
 
