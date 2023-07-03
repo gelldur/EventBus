@@ -64,6 +64,20 @@ public:
 		listenToCallback<PureEvent>(std::forward<EventCallback>(callback));
 	}
 
+	template <class Clazz, typename Event>
+	constexpr void listen(Clazz* clazz, void (Clazz::*memberPtr)(const Event&))
+	{
+		listen([=](const Event& event)
+			   { (clazz->*memberPtr)(event); });
+	}
+
+	template <class Clazz, typename Event>
+	constexpr void listen(const Clazz* clazz, void (Clazz::*memberPtr)(const Event&) const)
+	{
+		listen([=](const Event& event)
+			   { (clazz->*memberPtr)(event); });
+	}
+
 	template <class Event>
 	void listenToCallback(std::function<void(const Event&)>&& callback)
 	{

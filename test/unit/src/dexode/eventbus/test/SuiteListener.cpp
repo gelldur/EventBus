@@ -188,11 +188,17 @@ TEST_CASE("Should compile When listen in different forms", "[EventBus][Listener]
 	auto listener4 = Listener::createNotOwning(bus);
 	listener4.listen(freeFunction);
 
+	// Listen inspired from QObject::connect
+	auto listener5 = Listener::createNotOwning(bus);
+	TestClazz clazz2;
+	listener5.listen(&clazz2, &TestClazz::onEvent);
+
 	bus.postpone(event::T1{});
 	bus.process();
 
 	REQUIRE(globalCallCount == 1);
 	REQUIRE(clazz.clazzCallCount == 1);
+	REQUIRE(clazz2.clazzCallCount == 1);
 	REQUIRE(callCount == 2);
 }
 
