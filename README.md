@@ -34,7 +34,7 @@ If you want to play with sample online checkout this link: [wandbox.org](https:/
 0. Store bus
 
 ```cpp
-// store it in controller / singleton / std::sharted_ptr whatever you want
+// store it in controller / singleton / std::shared_ptr whatever you want
 auto bus = std::make_shared<EventBus>();
 ```
 
@@ -76,6 +76,12 @@ bus->postpone<event::Gold>({12}); // 2 way
 
 event::Gold myGold{12};
 bus->postpone(myGold); // 3 way
+```
+
+4. Process the events
+
+```cpp
+bus->process();
 ```
 
 Checkout [tests](test/) or [use cases](use_case/) for more examples. Or create issue what isn't clear :)
